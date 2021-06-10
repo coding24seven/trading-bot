@@ -1,0 +1,20 @@
+{
+  "name": "trading-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "historical": "node index.js historical",
+    "console.log:accounts": "node index.js console.log:accounts",
+    "generate": "node generate.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^10.0.0",
+    "node-binance-api": "^0.12.5"
+  }
+}
