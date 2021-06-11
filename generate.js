@@ -4,7 +4,7 @@ import Comparator from "./source/comparator/Comparator.js";
 import eventBus from "./source/events/eventBus.js";
 import Runner from "./source/runner/Runner.js";
 
-Comparator.run();
+Comparator.run('BTCUSDT');
 
 console.log("bot config count:", Comparator.botConfigs.length);
 
@@ -17,7 +17,7 @@ Comparator.botConfigs.forEach((botConfig, i) => {
 
   eventBus.removeAllListeners();
 
-  if (i % 10 === 0) {
+  if (i % 100 === 0) {
     console.log("count", i);
   }
 });

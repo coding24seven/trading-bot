@@ -2,34 +2,73 @@ import botConfigs from "../bot/botConfig.js";
 import axios from "axios";
 
 class Store {
+  appEnvironment = {};
   apiEnvironment = [];
   botEnvironment = [];
   accounts = [];
   bots = []; // per account: bot-data objects [][]
-  historicalPrice = true; // data comes from historical-data files
+  isHistoricalPrice = true; // data comes from historical-data files
   botConfigOverride = null;
 
   constructor() {
-    // this.setUp();
+    this.appEnvironment = this.readAppEnvironment();
     this.apiEnvironment = this.readApiEnvironment();
     this.botEnvironment = this.readBotEnvironment();
   }
 
-  setUp(historicalPrice, botConfigOverride) {
-    this.historicalPrice = historicalPrice;
+  setUp(isHistoricalPrice, botConfigOverride) {
+    this.isHistoricalPrice = isHistoricalPrice;
     this.botConfigOverride = botConfigOverride;
+
+    if (isHistoricalPrice) {
+      this.createAccountsWithBots();
+      return;
+    }
+
+    return new Promise(async (resolve) => {
+      const databaseContent = await this.readDatabase();
+
+      if (databaseContent) {
+        console.log("db present");
+        // console.log(JSON.stringify(databaseContent, null, 2));
+        this.accounts = databaseContent;
+      } else {
+        console.log("db NOT present");
+
+        this.createAccountsWithBots();
+        await this.writeDatabase();
+      }
+
+      resolve();
+    });
+  }
+
+  createAccountsWithBots() {
     this.accounts = this.setUpAccounts();
     this.bots = this.setUpBots();
     this.linkBotsWithAccounts();
-    this.writeToDatabase();
   }
 
   get isHistoricalPrice() {
-    return this.historicalPrice;
+    return this.isHistoricalPrice;
   }
 
   get accountsAsString() {
-    return JSON.stringify(this.accounts, 0, 2);
+    return JSON.stringify(this.accounts, null, 2);
+  }
+
+  readAppEnvironment() {
+    const appId = process.env.APP_ID;
+    const databaseUrl = process.env.DATABASE_URL;
+    const databasePort = process.env.DATABASE_PORT;
+    const requestUrl = `${databaseUrl}:${databasePort}/accounts/${appId}`;
+
+    return {
+      appId,
+      databaseUrl,
+      databasePort,
+      requestUrl,
+    };
   }
 
   readApiEnvironment() {
@@ -171,15 +210,19 @@ class Store {
     return this.accounts[accountId].config;
   }
 
-  async writeToDatabase() {
-    const databaseUrl = process.env.DATABASE_URL;
-    const databasePort = process.env.DATABASE_PORT;
-    const appId = process.env.APP_ID;
-    const requestUrl = `${databaseUrl}:${databasePort}/accounts/${appId}`;
+  async readDatabase() {
+    try {
+      return (await axios.get(this.appEnvironment.requestUrl)).data;
+    } catch (e) {
+      // console.log(e.response.data); // error object from the database server
+      return null;
+    }
+  }
 
+  async writeDatabase() {
     try {
       const response = await axios.post(
-        requestUrl,
+        this.appEnvironment.requestUrl,
         this.accountsWithoutConfig,
         {
           headers: {
@@ -187,11 +230,9 @@ class Store {
           },
         }
       );
-
-      console.log("myresponse:", response);
-      // console.log('2', JSON.stringify(response.data));
     } catch (e) {
-      console.log(e);
+      // console.log("here", e.response.data); // error object from the database server
+      // NOTIFY ABOUT WRITE TO DATABASE PROBLEM
     }
   }
 

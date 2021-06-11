@@ -7,8 +7,8 @@ export default class Comparator {
   static botConfigsWithResults = []; // bot configs with their corresponding results
   static botConfigs = [];
 
-  static run() {
-    Comparator.botConfigs = Comparator.generateBotConfigs();
+  static run(pair) {
+    Comparator.botConfigs = Comparator.generateBotConfigs(pair);
     // console.log("bot config count*****", Comparator.botConfigs.length);
   }
 
@@ -23,7 +23,7 @@ export default class Comparator {
     Comparator.botConfigsWithResults.push(data);
   }
 
-  static generateBotConfigs(from, to) {
+  static generateBotConfigs(pair) {
     const bracketSpanMin = 20;
     const bracketSpanMax = 1000;
     const orderPlacementZoneMin = 10;
@@ -48,7 +48,7 @@ export default class Comparator {
             orderPlacementZone, // the subrange where you buy/sell
             quoteStartAmount: 100, // total usdt for the tradable area
             exchangeFee: 0.001,
-            pair: 'BTCUSDT'
+            pair,
           });
         }
       }

@@ -3,13 +3,20 @@ import store from "./source/store/Store.js";
 import Runner from "./source/runner/Runner.js";
 
 const commandLineArguments = process.argv;
-const historicalPrice = commandLineArguments.includes("historical");
+const isHistoricalPrice = commandLineArguments.includes("historical");
+const consoleLogAccountsAndQuit = commandLineArguments.includes(
+  "console.log:accounts"
+);
 
-store.setUp(historicalPrice);
+begin();
 
-if (commandLineArguments.includes("console.log:accounts")) {
-  console.log(store.accountsAsString);
-} else {
-  Runner.runBots();
-  Runner.runPriceReader(historicalPrice);
+async function begin() {
+  await store.setUp(isHistoricalPrice);
+
+  if (consoleLogAccountsAndQuit) {
+    console.log(store.accountsAsString);
+  } else {
+    Runner.runBots();
+    Runner.runPriceReader(isHistoricalPrice);
+  }
 }

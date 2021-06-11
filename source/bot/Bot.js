@@ -96,7 +96,6 @@ export default class Bot {
     }
 
     this.lastPrice = lastPrice;
-    // console.log("last price", lastPrice);
 
     const bracketWithBuyZoneHit = this.brackets.find(
       (item) => lastPrice >= item.buyFrom && lastPrice <= item.buyTo
@@ -126,12 +125,13 @@ export default class Bot {
 
     buyMethod.call(this.trader, bracket, lastPrice);
     // await for the buy result promise
+
+    if (store.isHistoricalPrice) return;
+
     this.tradeHistory.push({ lastPrice, type: "buy" });
     bracket.buyCount++;
     this.buyCountTotal++;
-    store.setResults(this.itsAccountId, this.id, this.getResults());
-
-    console.log(this.getConfigAndResultsAndTradeHistory());
+    this.storeCurrentResultsAndConsoleLogThem();
   }
 
   sell(bracket, lastPrice) {
@@ -141,11 +141,17 @@ export default class Bot {
 
     sellMethod.call(this.trader, bracket, lastPrice);
     // await for the sell result promise
+
+    if (store.isHistoricalPrice) return;
+
     this.tradeHistory.push({ lastPrice, type: "sell" });
     bracket.sellCount++;
     this.sellCountTotal++;
-    store.setResults(this.itsAccountId, this.id, this.getResults());
+    this.storeCurrentResultsAndConsoleLogThem();
+  }
 
+  storeCurrentResultsAndConsoleLogThem() {
+    store.setResults(this.itsAccountId, this.id, this.getResults());
     console.log(this.getConfigAndResultsAndTradeHistory());
   }
 

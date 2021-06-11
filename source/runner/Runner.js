@@ -1,5 +1,5 @@
 import store from "../store/Store.js";
-import Account from "../exchange-account/Account.js";
+import Account from "../account/Account.js";
 import PriceReader from "../price-reader/PriceReader.js";
 
 export default class Runner {
@@ -9,12 +9,12 @@ export default class Runner {
     });
   }
 
-  static runPriceReader(historicalPrice) {
-    if (historicalPrice) {
+  static runPriceReader(isHistoricalPrice) {
+    if (isHistoricalPrice) {
       const columnWithPrice = 2;
       // const fileName = "BTCUSDT-1m-2021-05.csv";
-      // const fileName = "BTCUSDT-1m-2021-06-06.csv";
-      const fileName = "small.csv";
+      const fileName = "BTCUSDT-1m-2021-06-06.csv";
+      // const fileName = "small.csv";
       PriceReader.startHistoricalPriceOfflineStream(fileName, columnWithPrice);
     } else {
       PriceReader.startLastPriceMiniTicker();
