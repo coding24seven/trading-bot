@@ -33,10 +33,9 @@ class Store {
         // console.log(JSON.stringify(databaseContent, null, 2));
         this.accounts = databaseContent;
       } else {
-        console.log("db NOT present");
-
         this.createAccountsWithBots();
         await this.writeDatabase();
+        console.log("db NOT present");
       }
 
       resolve();
@@ -221,17 +220,18 @@ class Store {
 
   async writeDatabase() {
     try {
-      const response = await axios.post(
+      await axios.post(
         this.appEnvironment.requestUrl,
         this.accountsWithoutConfig,
         {
           headers: {
             "Content-Type": "application/json",
+            password: process.env.DATABASE_PASSWORD,
           },
         }
       );
     } catch (e) {
-      // console.log("here", e.response.data); // error object from the database server
+      console.log(e.response.data); // error object from the database server
       // NOTIFY ABOUT WRITE TO DATABASE PROBLEM
     }
   }
