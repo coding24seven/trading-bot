@@ -24,34 +24,24 @@ export default class Comparator {
   }
 
   static generateBotConfigs(pair) {
-    const bracketSpanMin = 300;
-    const bracketSpanMax = 4000;
-    const orderPlacementZoneMin = 10;
-    const orderPlacementZoneMax = 300;
+    const bracketSpanMin = 100;
+    const bracketSpanMax = 7000;
+    const step = 100;
 
     const arr = [];
     for (
       let bracketSpan = bracketSpanMin;
       bracketSpan <= bracketSpanMax;
-      bracketSpan += 100
+      bracketSpan += step
     ) {
-      for (
-        let orderPlacementZone = orderPlacementZoneMin;
-        orderPlacementZone <= orderPlacementZoneMax;
-        orderPlacementZone += 10
-      ) {
-        if (orderPlacementZone * 3 < bracketSpan) {
-          arr.push({
-            from: 30000,
-            to: 40000,
-            bracketSpan,
-            orderPlacementZone, // the subrange where you buy/sell
-            quoteStartAmount: 100, // total usdt for the tradable area
-            exchangeFee: 0.001,
-            pair,
-          });
-        }
-      }
+      arr.push({
+        from: 30000,
+        to: 40000,
+        bracketSpan,
+        quoteStartAmount: 100, // total usdt for the tradable area
+        exchangeFee: 0.001,
+        pair,
+      });
     }
 
     return arr;

@@ -97,24 +97,21 @@ export default class Bot {
 
     this.lastPrice = lastPrice;
 
-    const bracketWithBuyZoneHit = this.brackets.find(
-      (item) => lastPrice >= item.buyFrom && lastPrice <= item.buyTo
+    const buyingBrackets = this.brackets.filter(
+      (bracket) => !bracket.bought && lastPrice < bracket.buyBelow
     );
 
-    if (bracketWithBuyZoneHit && bracketWithBuyZoneHit.bought) {
-      return; // not buying again
-    } else if (bracketWithBuyZoneHit) {
-      this.buy(bracketWithBuyZoneHit, lastPrice);
-      return;
-    }
+    buyingBrackets.forEach((bracket) => {
+      this.buy(bracket, lastPrice);
+    });
 
-    const bracketWithSellZoneHit = this.brackets.find(
-      (item) => lastPrice >= item.sellFrom && lastPrice <= item.sellTo
+    const sellingBrackets = this.brackets.filter(
+      (bracket) => bracket.bought && lastPrice > bracket.sellAbove
     );
 
-    if (bracketWithSellZoneHit && bracketWithSellZoneHit.bought) {
-      this.sell(bracketWithSellZoneHit, lastPrice);
-    }
+    sellingBrackets.forEach((bracket) => {
+      this.sell(bracket, lastPrice);
+    });
   }
 
   // todo: fix so the properties are not modified via a parameter
@@ -162,7 +159,7 @@ export default class Bot {
 
     arr.forEach((bracket) => {
       if (bracket.base > 0) {
-        bracket.quote += bracket.base * bracket.sellFrom;
+        bracket.quote += bracket.base * bracket.sellAbove;
         bracket.base = 0;
       }
     });

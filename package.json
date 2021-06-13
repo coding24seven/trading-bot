@@ -8,8 +8,9 @@
     "start": "node index.js",
     "continue": "npm start",
     "new": "node index.js new:store",
-    "historical": "node index.js historical",
-    "console.log:accounts": "node index.js console.log:accounts",
+    "historical": "node historical.js",
+    "log": "node logStore.js",
+    "log:new:store": "node logStore.js new:store",
     "generate": "node generate.js"
   },
   "author": "",

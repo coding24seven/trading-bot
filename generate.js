@@ -17,9 +17,9 @@ Comparator.botConfigs.forEach((botConfig, i) => {
 
   eventBus.removeAllListeners();
 
-  if (i % 100 === 0) {
-    console.log("count", i);
-  }
+  // if (i % 100 === 0) {
+  //   console.log("count", i);
+  // }
 });
 
 console.log("******************");

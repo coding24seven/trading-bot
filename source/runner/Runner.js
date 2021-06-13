@@ -9,7 +9,7 @@ export default class Runner {
     });
   }
 
-  static runPriceReader(isHistoricalPrice) {
+  static runPriceReader(isHistoricalPrice = false) {
     if (isHistoricalPrice) {
       const columnWithPrice = 3;
       const fileName = "BTCUSDT-1m-2021-05.csv";

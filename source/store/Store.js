@@ -16,7 +16,11 @@ class Store {
     this.botEnvironment = this.readBotEnvironment();
   }
 
-  setUp({ newStore = false, isHistoricalPrice, botConfigFromGenerator }) {
+  setUp({
+    newStore = false,
+    isHistoricalPrice = false,
+    botConfigFromGenerator = null,
+  }) {
     this.isHistoricalPrice = isHistoricalPrice;
     this.botConfigFromGenerator = botConfigFromGenerator;
 
@@ -175,17 +179,16 @@ class Store {
   }
 
   createBrackets(config) {
-    const { from, bracketSpan, orderPlacementZone } = config;
+    const { from, bracketSpan } = config;
     const arr = [];
     let newFrom = from;
+    const gapHalf = 0;
 
     for (let i = 0; i < config.bracketCount; i++) {
       arr.push({
         id: i,
-        buyFrom: newFrom,
-        buyTo: newFrom + orderPlacementZone,
-        sellFrom: newFrom + bracketSpan - orderPlacementZone,
-        sellTo: newFrom + bracketSpan - 1,
+        buyBelow: newFrom + gapHalf,
+        sellAbove: newFrom + bracketSpan - gapHalf,
         bought: false,
         quote: config.quoteStartAmountPerBracket,
         base: 0,
@@ -195,7 +198,6 @@ class Store {
 
       newFrom += bracketSpan;
     }
-    // console.log(arr)
     return arr;
   }
 
@@ -205,7 +207,10 @@ class Store {
 
   setResults(accountId, botId, results) {
     this.accounts[accountId].bots[botId].vars.results = results;
-    this.writeDatabase();
+
+    if (!this.isHistoricalPrice) {
+      this.writeDatabase();
+    }
   }
 
   getResults(accountId, botId) {

@@ -1,6 +1,5 @@
 import "dotenv/config";
 import store from "./source/store/Store.js";
-import Runner from "./source/runner/Runner.js";
 
 const commandLineArguments = process.argv;
 
@@ -12,6 +11,5 @@ begin();
 async function begin() {
   await store.setUp({ newStore: shouldCreateNewStore });
 
-  Runner.runBots();
-  Runner.runPriceReader();
+  console.log(store.accountsAsString);
 }

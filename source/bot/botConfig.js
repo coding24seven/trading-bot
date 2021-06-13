@@ -5,10 +5,9 @@ export default [
   {
     from: 30000,
     to: 40000,
-    bracketSpan: 300,
+    bracketSpan: 1000,
     quoteStartAmount: 100,
     exchangeFee: 0.001,
-    orderPlacementZone: 30,
     pair: "BTCUSDT",
   },
   {
@@ -17,7 +16,6 @@ export default [
     bracketSpan: 1300,
     quoteStartAmount: 100,
     exchangeFee: 0.001,
-    orderPlacementZone: 300,
     pair: "BTCUSDT",
   },
   {
@@ -26,7 +24,6 @@ export default [
     bracketSpan: 500,
     quoteStartAmount: 2000,
     exchangeFee: 0.001,
-    orderPlacementZone: 60,
     pair: "BTCUSDT",
   },
   {
@@ -35,7 +32,6 @@ export default [
     bracketSpan: 100,
     quoteStartAmount: 2000,
     exchangeFee: 0.001,
-    orderPlacementZone: 20,
     pair: "BTCUSDT",
   },
   {
@@ -44,7 +40,6 @@ export default [
     bracketSpan: 500,
     quoteStartAmount: 2000,
     exchangeFee: 0.001,
-    orderPlacementZone: 50,
     pair: "BTCUSDT",
   },
   {
@@ -53,7 +48,6 @@ export default [
     bracketSpan: 500,
     quoteStartAmount: 7000,
     exchangeFee: 0.001,
-    orderPlacementZone: 20,
     pair: "BTCUSDT",
   },
 ];
