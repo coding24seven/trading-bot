@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "continue": "npm start",
+    "new": "node index.js new:store",
     "historical": "node index.js historical",
     "console.log:accounts": "node index.js console.log:accounts",
     "generate": "node generate.js"

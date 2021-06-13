@@ -11,9 +11,10 @@ export default class Runner {
 
   static runPriceReader(isHistoricalPrice) {
     if (isHistoricalPrice) {
-      const columnWithPrice = 2;
-      // const fileName = "BTCUSDT-1m-2021-05.csv";
-      const fileName = "BTCUSDT-1m-2021-06-06.csv";
+      const columnWithPrice = 3;
+      const fileName = "BTCUSDT-1m-2021-05.csv";
+      // const fileName = "BTCUSDT-1m-2021-04.csv";
+      // const fileName = "BTCUSDT-1m-2021-06-06.csv";
       // const fileName = "small.csv";
       PriceReader.startHistoricalPriceOfflineStream(fileName, columnWithPrice);
     } else {

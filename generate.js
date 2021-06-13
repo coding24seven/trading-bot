@@ -4,13 +4,13 @@ import Comparator from "./source/comparator/Comparator.js";
 import eventBus from "./source/events/eventBus.js";
 import Runner from "./source/runner/Runner.js";
 
-Comparator.run('BTCUSDT');
+Comparator.run("BTCUSDT");
 
-console.log("bot config count:", Comparator.botConfigs.length);
+console.log("bot count:", Comparator.botConfigs.length);
 
 Comparator.botConfigs.forEach((botConfig, i) => {
   Comparator.addEventListeners();
-  store.setUp(true, botConfig);
+  store.setUp({ isHistoricalPrice: true, botConfigFromGenerator: botConfig });
 
   Runner.runBots();
   Runner.runPriceReader(true);

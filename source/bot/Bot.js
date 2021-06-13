@@ -126,11 +126,12 @@ export default class Bot {
     buyMethod.call(this.trader, bracket, lastPrice);
     // await for the buy result promise
 
-    if (store.isHistoricalPrice) return;
-
-    this.tradeHistory.push({ lastPrice, type: "buy" });
     bracket.buyCount++;
     this.buyCountTotal++;
+    this.tradeHistory.push({ lastPrice, type: "buy" });
+
+    if (store.isHistoricalPrice) return;
+
     this.storeCurrentResultsAndConsoleLogThem();
   }
 
@@ -142,11 +143,12 @@ export default class Bot {
     sellMethod.call(this.trader, bracket, lastPrice);
     // await for the sell result promise
 
-    if (store.isHistoricalPrice) return;
-
-    this.tradeHistory.push({ lastPrice, type: "sell" });
     bracket.sellCount++;
     this.sellCountTotal++;
+    this.tradeHistory.push({ lastPrice, type: "sell" });
+
+    if (store.isHistoricalPrice) return;
+
     this.storeCurrentResultsAndConsoleLogThem();
   }
 

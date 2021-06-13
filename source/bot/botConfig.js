@@ -5,10 +5,10 @@ export default [
   {
     from: 30000,
     to: 40000,
-    bracketSpan: 200,
+    bracketSpan: 300,
     quoteStartAmount: 100,
     exchangeFee: 0.001,
-    orderPlacementZone: 50,
+    orderPlacementZone: 30,
     pair: "BTCUSDT",
   },
   {

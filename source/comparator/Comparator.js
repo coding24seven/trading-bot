@@ -24,23 +24,23 @@ export default class Comparator {
   }
 
   static generateBotConfigs(pair) {
-    const bracketSpanMin = 20;
-    const bracketSpanMax = 1000;
+    const bracketSpanMin = 300;
+    const bracketSpanMax = 4000;
     const orderPlacementZoneMin = 10;
-    const orderPlacementZoneMax = 100;
+    const orderPlacementZoneMax = 300;
 
     const arr = [];
     for (
       let bracketSpan = bracketSpanMin;
       bracketSpan <= bracketSpanMax;
-      bracketSpan += 1
+      bracketSpan += 100
     ) {
       for (
         let orderPlacementZone = orderPlacementZoneMin;
         orderPlacementZone <= orderPlacementZoneMax;
-        orderPlacementZone += 1
+        orderPlacementZone += 10
       ) {
-        if (true) {
+        if (orderPlacementZone * 3 < bracketSpan) {
           arr.push({
             from: 30000,
             to: 40000,

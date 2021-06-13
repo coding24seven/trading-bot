@@ -8,7 +8,7 @@ class Store {
   accounts = [];
   bots = []; // per account: bot-data objects [][]
   isHistoricalPrice = true; // data comes from historical-data files
-  botConfigOverride = null;
+  botConfigFromGenerator = null;
 
   constructor() {
     this.appEnvironment = this.readAppEnvironment();
@@ -16,13 +16,19 @@ class Store {
     this.botEnvironment = this.readBotEnvironment();
   }
 
-  setUp(isHistoricalPrice, botConfigOverride) {
+  setUp({ newStore = false, isHistoricalPrice, botConfigFromGenerator }) {
     this.isHistoricalPrice = isHistoricalPrice;
-    this.botConfigOverride = botConfigOverride;
+    this.botConfigFromGenerator = botConfigFromGenerator;
 
     if (isHistoricalPrice) {
       this.createAccountsWithBots();
       return;
+    }
+
+    if (newStore) {
+      console.log("new store override to be created");
+      this.createAccountsWithBots();
+      return this.writeDatabase();
     }
 
     return new Promise(async (resolve) => {
@@ -137,8 +143,8 @@ class Store {
       accountIndex++
     ) {
       const arrayPerAccount = [];
-      const selectedBotConfigs = this.botConfigOverride
-        ? [this.botConfigOverride]
+      const selectedBotConfigs = this.botConfigFromGenerator
+        ? [this.botConfigFromGenerator]
         : this.botEnvironment[accountIndex].botConfigIndexes.map(
             (index) => botConfigs[index]
           ); // e.g. [ 1, 3 ] -> [{key:val}, {key:val}]
@@ -199,6 +205,7 @@ class Store {
 
   setResults(accountId, botId, results) {
     this.accounts[accountId].bots[botId].vars.results = results;
+    this.writeDatabase();
   }
 
   getResults(accountId, botId) {
@@ -220,7 +227,7 @@ class Store {
 
   async writeDatabase() {
     try {
-      await axios.post(
+      return await axios.post(
         this.appEnvironment.requestUrl,
         this.accountsWithoutConfig,
         {
