@@ -50,7 +50,7 @@ export default class Bot {
 
   getConfigAndResultsAndTradeHistory() {
     return {
-      tradeHistory: this.tradeHistory,
+      // tradeHistory: this.tradeHistory,
       config: this.data.config,
       results: store.getResults(this.itsAccountId, this.id),
     };

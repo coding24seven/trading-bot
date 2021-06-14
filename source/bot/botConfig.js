@@ -3,9 +3,10 @@
  */
 export default [
   {
-    from: 30000,
-    to: 40000,
-    bracketSpan: 1000,
+    from: 47000,
+    to: 65000,
+    bracketSpan: 6000,
+    shrinkByPercent: 1,
     quoteStartAmount: 100,
     exchangeFee: 0.001,
     pair: "BTCUSDT",

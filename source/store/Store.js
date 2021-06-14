@@ -7,7 +7,7 @@ class Store {
   botEnvironment = [];
   accounts = [];
   bots = []; // per account: bot-data objects [][]
-  isHistoricalPrice = true; // data comes from historical-data files
+  isHistoricalPrice = false;
   botConfigFromGenerator = null;
 
   constructor() {
@@ -17,20 +17,21 @@ class Store {
   }
 
   setUp({
-    newStore = false,
+    continueWithExistingDatabase = true,
     isHistoricalPrice = false,
+    createsStoreAndExits = false,
     botConfigFromGenerator = null,
   }) {
     this.isHistoricalPrice = isHistoricalPrice;
     this.botConfigFromGenerator = botConfigFromGenerator;
 
-    if (isHistoricalPrice) {
+    if (isHistoricalPrice || createsStoreAndExits) {
       this.createAccountsWithBots();
       return;
     }
 
-    if (newStore) {
-      console.log("new store override to be created");
+    if (!continueWithExistingDatabase) {
+      console.log("new store override in database to be created");
       this.createAccountsWithBots();
       return this.writeDatabase();
     }
@@ -45,7 +46,7 @@ class Store {
       } else {
         this.createAccountsWithBots();
         await this.writeDatabase();
-        console.log("db NOT present");
+        console.log("db NOT present but then created");
       }
 
       resolve();
@@ -56,10 +57,6 @@ class Store {
     this.accounts = this.setUpAccounts();
     this.bots = this.setUpBots();
     this.linkBotsWithAccounts();
-  }
-
-  get isHistoricalPrice() {
-    return this.isHistoricalPrice;
   }
 
   get accountsAsString() {
@@ -179,16 +176,16 @@ class Store {
   }
 
   createBrackets(config) {
-    const { from, bracketSpan } = config;
+    const { from, bracketSpan, shrinkByPercent } = config;
     const arr = [];
+    const halfShrinkSize = bracketSpan * (shrinkByPercent / 200);
     let newFrom = from;
-    const gapHalf = 0;
 
     for (let i = 0; i < config.bracketCount; i++) {
       arr.push({
         id: i,
-        buyBelow: newFrom + gapHalf,
-        sellAbove: newFrom + bracketSpan - gapHalf,
+        buyBelow: newFrom + halfShrinkSize,
+        sellAbove: newFrom + bracketSpan - halfShrinkSize,
         bought: false,
         quote: config.quoteStartAmountPerBracket,
         base: 0,

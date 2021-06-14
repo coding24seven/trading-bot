@@ -7,10 +7,9 @@
   "scripts": {
     "start": "node index.js",
     "continue": "npm start",
-    "new": "node index.js new:store",
+    "new": "node index.js starts:with:new:store",
     "historical": "node historical.js",
     "log": "node logStore.js",
-    "log:new:store": "node logStore.js new:store",
     "generate": "node generate.js"
   },
   "author": "",

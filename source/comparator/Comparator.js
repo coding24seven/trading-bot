@@ -1,7 +1,5 @@
-import botConfig from "../bot/botConfig.js";
 import eventBus from "../events/eventBus.js";
-
-const selectedBotConfig = botConfig[4];
+import fs from "fs";
 
 export default class Comparator {
   static botConfigsWithResults = []; // bot configs with their corresponding results
@@ -25,34 +23,50 @@ export default class Comparator {
 
   static generateBotConfigs(pair) {
     const bracketSpanMin = 100;
-    const bracketSpanMax = 7000;
-    const step = 100;
+    const bracketSpanMax = 6000;
+    const bracketStep = 100;
+    const shrinkByPercentMin = 0;
+    const shrinkByPercentMax = 30;
+    const shrinkByPercentStep = 1;
 
     const arr = [];
     for (
       let bracketSpan = bracketSpanMin;
       bracketSpan <= bracketSpanMax;
-      bracketSpan += step
+      bracketSpan += bracketStep
     ) {
-      arr.push({
-        from: 30000,
-        to: 40000,
-        bracketSpan,
-        quoteStartAmount: 100, // total usdt for the tradable area
-        exchangeFee: 0.001,
-        pair,
-      });
+      for (
+        let shrinkByPercent = shrinkByPercentMin;
+        shrinkByPercent <= shrinkByPercentMax;
+        shrinkByPercent += shrinkByPercentStep
+      ) {
+        arr.push({
+          from: 47000,
+          to: 65000,
+          bracketSpan,
+          shrinkByPercent,
+          quoteStartAmount: 100, // total usdt for the tradable area
+          exchangeFee: 0.001,
+          pair,
+        });
+      }
     }
 
     return arr;
   }
 
-  static findMostProfitableConfig() {
-    return Comparator.botConfigsWithResults.reduce(
+  static findMostProfitableConfigs(count) {
+    const sortedResults = Comparator.botConfigsWithResults.sort(
       (previousItem, currentItem) =>
-        previousItem.results.pairTotal > currentItem.results.pairTotal
-          ? previousItem
-          : currentItem
+        previousItem.results.quoteTotalIncludingBaseSoldAsPlanned -
+        currentItem.results.quoteTotalIncludingBaseSoldAsPlanned
     );
+
+    fs.promises.writeFile(
+      "source/logs/bots-sorted.json",
+      JSON.stringify(sortedResults, null, 2)
+    );
+
+    return sortedResults.slice(-count);
   }
 }

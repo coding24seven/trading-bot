@@ -4,13 +4,12 @@ import Runner from "./source/runner/Runner.js";
 
 const commandLineArguments = process.argv;
 
-/* creates new store, overwriting existing database */
-const shouldCreateNewStore = commandLineArguments.includes("new:store");
+const continueWithExistingDatabase = !commandLineArguments.includes("starts:with:new:store");
 
 begin();
 
 async function begin() {
-  await store.setUp({ newStore: shouldCreateNewStore });
+  await store.setUp({ continueWithExistingDatabase });
 
   Runner.runBots();
   Runner.runPriceReader();
