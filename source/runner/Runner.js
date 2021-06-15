@@ -20,7 +20,7 @@ export default class Runner {
         (number) => `BTCUSDT-1m-2021-0${number}.csv`
       );
 
-      PriceReader.startHistoricalPriceOfflineStream(fileNames, columnWithPrice);
+      PriceReader.startHistoricalPriceStream(fileNames, columnWithPrice);
     } else {
       PriceReader.startLastPriceMiniTicker();
       // PriceReader.startLastPriceHttpStream(

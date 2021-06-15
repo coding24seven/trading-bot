@@ -12,6 +12,7 @@ console.log("bot count:", Comparator.botConfigs.length);
 
 Comparator.botConfigs.forEach((botConfig, i) => {
   Comparator.addEventListeners();
+
   store.setUp({ isHistoricalPrice, botConfigFromGenerator: botConfig });
 
   Runner.runBots();
@@ -19,9 +20,9 @@ Comparator.botConfigs.forEach((botConfig, i) => {
 
   eventBus.removeAllListeners();
 
-  if (i % 100 === 0) {
-    console.log("count", i);
-  }
+  // if (i % 100 === 0) {
+  console.log("count", i + 1);
+  // }
 });
 
 console.log(Comparator.findMostProfitableConfigs(6));

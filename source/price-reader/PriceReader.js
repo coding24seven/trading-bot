@@ -4,6 +4,7 @@ import CsvFile from "../historical-file/CsvFile.js";
 import Binance from "node-binance-api";
 
 export default class PriceReader {
+  static cachedFileContent = {};
   static binance = new Binance();
 
   static startLastPriceMiniTicker() {
@@ -12,9 +13,15 @@ export default class PriceReader {
     });
   }
 
-  static startHistoricalPriceOfflineStream(fileNames, column) {
+  static startHistoricalPriceStream(fileNames, column) {
     fileNames.forEach((fileName) => {
-      CsvFile.getRowsPopulatedWithNumbers(fileName).forEach((row) => {
+      const rowsPopulatedWithNumbers =
+        this.cachedFileContent[fileName] ||
+        CsvFile.getRowsPopulatedWithNumbers(fileName);
+
+      this.cachedFileContent[fileName] = rowsPopulatedWithNumbers;
+
+      rowsPopulatedWithNumbers.forEach((row) => {
         const price = row[column];
         const priceWithinReasonableRange = price > 0 && price < 2000000;
 
