@@ -36,11 +36,12 @@ class Store {
       return;
     }
 
-    if (!continueWithExistingDatabase) {
-      return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      if (!continueWithExistingDatabase) {
         readline.question(`Overwrite existing database? (y/n)`, (answer) => {
+          readline.close();
+
           if (answer === "y" || answer === "yes") {
-            console.log("new store override in database to be created");
             this.createAccountsWithBots();
             this.writeDatabase()
               .then(() => {
@@ -51,25 +52,21 @@ class Store {
           } else {
             reject("database not overwritten. start again.");
           }
-          readline.close();
         });
-      });
-    }
-
-    return new Promise(async (resolve) => {
-      const databaseContent = await this.readDatabase();
-
-      if (databaseContent) {
-        console.log("db present");
-        // console.log(JSON.stringify(databaseContent, null, 2));
-        this.accounts = databaseContent;
       } else {
-        this.createAccountsWithBots();
-        await this.writeDatabase();
-        console.log("db NOT present but then created");
-      }
+        const databaseContent = await this.readDatabase();
 
-      resolve();
+        if (databaseContent) {
+          console.log("db present");
+          // console.log(JSON.stringify(databaseContent, null, 2));
+          this.accounts = databaseContent;
+        } else {
+          this.createAccountsWithBots();
+          await this.writeDatabase();
+          console.log("db NOT present but then created");
+        }
+        resolve();
+      }
     });
   }
 
