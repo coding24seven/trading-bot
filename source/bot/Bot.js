@@ -1,4 +1,3 @@
-import Reporter from "../reporter/Reporter.js";
 import eventBus from "../events/eventBus.js";
 import store from "../store/Store.js";
 import Trader from "../trader/trader.js";
@@ -9,7 +8,6 @@ export default class Bot {
   itsAccountId = null;
   brackets = [];
   trader = {};
-  reporter = null;
   lastPrice = null;
   buyCountTotal = 0;
   sellCountTotal = 0;
@@ -26,7 +24,6 @@ export default class Bot {
       data.config.pair,
       store.getExchangeFee(this.itsAccountId)
     );
-    this.reporter = new Reporter(data);
     eventBus.on(eventBus.events.LAST_PRICE, this.onLastPrice.bind(this));
     eventBus.on(
       eventBus.events.END_OF_OFFLINE_PRICE_STREAM,
@@ -36,11 +33,6 @@ export default class Bot {
 
   onEndOfOfflinePriceStream() {
     store.setResults(this.itsAccountId, this.id, this.getResults());
-
-    // this.reporter.logConfig();
-    // this.reporter.logHistoricalDataResults(
-    //   store.getResults(this.itsAccountId, this.id)
-    // );
 
     eventBus.emit(
       eventBus.events.BOT_FINISHED,
@@ -91,13 +83,15 @@ export default class Bot {
     const lastPrice = parseFloat(pair.close);
 
     if (isNaN(lastPrice)) {
-      this.reporter.logError(`${lastPrice} is not a number`);
+      console.log(`${lastPrice} is not a number`);
       return;
     }
 
     this.lastPrice = lastPrice;
 
-    // console.log(lastPrice);
+    if (!store.isHistoricalPrice) {
+      console.log(lastPrice);
+    }
 
     const buyingBrackets = this.brackets.filter(
       (bracket) => !bracket.bought && lastPrice < bracket.buyBelow

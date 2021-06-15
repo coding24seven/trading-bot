@@ -2,11 +2,6 @@ import botConfigs from "../bot/botConfig.js";
 import axios from "axios";
 import readlineImported from "readline";
 
-const readline = readlineImported.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
 class Store {
   appEnvironment = {};
   apiEnvironment = [];
@@ -33,11 +28,15 @@ class Store {
 
     if (isHistoricalPrice || createsStoreAndExits) {
       this.createAccountsWithBots();
-      return;
+      return Promise.resolve();
     }
 
     return new Promise(async (resolve, reject) => {
       if (!continueWithExistingDatabase) {
+        const readline = readlineImported.createInterface({
+          input: process.stdin,
+          output: process.stdout,
+        });
         readline.question(`Overwrite existing database? (y/n)`, (answer) => {
           readline.close();
 
