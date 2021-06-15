@@ -12,17 +12,19 @@ export default class PriceReader {
     });
   }
 
-  static startHistoricalPriceOfflineStream(fileName, column) {
-    CsvFile.getRowsPopulatedWithNumbers(fileName).forEach((row) => {
-      const price = row[column];
-      const priceWithinReasonableRange = price > 0 && price < 2000000;
+  static startHistoricalPriceOfflineStream(fileNames, column) {
+    fileNames.forEach((fileName) => {
+      CsvFile.getRowsPopulatedWithNumbers(fileName).forEach((row) => {
+        const price = row[column];
+        const priceWithinReasonableRange = price > 0 && price < 2000000;
 
-      if (priceWithinReasonableRange) {
-        const pairs = {
-          BTCUSDT: { close: price },
-        };
-        eventBus.emit(eventBus.events.LAST_PRICE, pairs);
-      }
+        if (priceWithinReasonableRange) {
+          const pairs = {
+            BTCUSDT: { close: price },
+          };
+          eventBus.emit(eventBus.events.LAST_PRICE, pairs);
+        }
+      });
     });
 
     eventBus.emit(eventBus.events.END_OF_OFFLINE_PRICE_STREAM);

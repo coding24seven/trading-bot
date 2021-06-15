@@ -41,7 +41,7 @@ export default class Comparator {
         shrinkByPercent += shrinkByPercentStep
       ) {
         arr.push({
-          from: 47000,
+          from: 10000,
           to: 65000,
           bracketSpan,
           shrinkByPercent,
