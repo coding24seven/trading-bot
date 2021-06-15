@@ -3,8 +3,9 @@ const eventBus = new events.EventEmitter();
 
 eventBus.events = {
   LAST_PRICE: "last-price",
-  END_OF_OFFLINE_PRICE_STREAM: "end-of-stream",
-  BOT_FINISHED: "bot-finished",
+  HISTORICAL_PRICE_READER_FINISHED: "historical-price-reader-finished",
+  BOT_DONE_PROCESSING_HISTORICAL_PRICES:
+    "bot-done-processing-historical-prices",
   UNCAUGHT_EXCEPTION: "uncaught-exception",
 };
 

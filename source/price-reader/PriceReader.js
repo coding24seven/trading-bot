@@ -27,7 +27,7 @@ export default class PriceReader {
       });
     });
 
-    eventBus.emit(eventBus.events.END_OF_OFFLINE_PRICE_STREAM);
+    eventBus.emit(eventBus.events.HISTORICAL_PRICE_READER_FINISHED);
   }
 
   /* unused atm - use if websockets fail */

@@ -9,6 +9,8 @@ export default class Bot {
   brackets = [];
   trader = {};
   lastPrice = null;
+  lowestPriceRecorded = Infinity;
+  highestPriceRecorded = -Infinity;
   buyCountTotal = 0;
   sellCountTotal = 0;
   count = 0;
@@ -26,16 +28,16 @@ export default class Bot {
     );
     eventBus.on(eventBus.events.LAST_PRICE, this.onLastPrice.bind(this));
     eventBus.on(
-      eventBus.events.END_OF_OFFLINE_PRICE_STREAM,
-      this.onEndOfOfflinePriceStream.bind(this)
+      eventBus.events.HISTORICAL_PRICE_READER_FINISHED,
+      this.onHistoricalPriceReaderFinished.bind(this)
     );
   }
 
-  onEndOfOfflinePriceStream() {
+  onHistoricalPriceReaderFinished() {
     store.setResults(this.itsAccountId, this.id, this.getResults());
 
     eventBus.emit(
-      eventBus.events.BOT_FINISHED,
+      eventBus.events.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
       this.getConfigAndResultsAndTradeHistory()
     );
   }
@@ -64,7 +66,6 @@ export default class Bot {
     const quoteTotalIncludingBaseSoldAsPlanned = this.getQuoteTotalIncludingBaseSoldAsPlanned();
 
     return {
-      currentPrice: this.lastPrice,
       quoteTotal,
       baseTotal,
       baseAtLastPriceToQuoteTotal,
@@ -72,6 +73,9 @@ export default class Bot {
       quoteTotalIncludingBaseSoldAsPlanned,
       buyCountTotal: this.buyCountTotal,
       sellCountTotal: this.sellCountTotal,
+      lastPrice: this.lastPrice,
+      lowestPriceRecorded: this.lowestPriceRecorded,
+      highestPriceRecorded: this.highestPriceRecorded,
     };
   }
 
@@ -88,6 +92,7 @@ export default class Bot {
     }
 
     this.lastPrice = lastPrice;
+    this.recordLowestAndHighestPrice(lastPrice);
 
     if (!store.isHistoricalPrice) {
       console.log(lastPrice);
@@ -161,5 +166,17 @@ export default class Bot {
     });
 
     return arr.reduce((accumulator, item) => accumulator + item.quote, 0);
+  }
+
+  recordLowestAndHighestPrice(lastPrice) {
+    this.lowestPriceRecorded =
+      lastPrice < this.lowestPriceRecorded
+        ? lastPrice
+        : this.lowestPriceRecorded;
+
+    this.highestPriceRecorded =
+      lastPrice > this.highestPriceRecorded
+        ? lastPrice
+        : this.highestPriceRecorded;
   }
 }

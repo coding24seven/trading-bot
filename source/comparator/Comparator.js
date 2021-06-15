@@ -12,7 +12,7 @@ export default class Comparator {
 
   static addEventListeners() {
     eventBus.on(
-      eventBus.events.BOT_FINISHED,
+      eventBus.events.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
       Comparator.addBotConfigWithResult
     );
   }
