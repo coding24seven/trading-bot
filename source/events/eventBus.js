@@ -9,7 +9,7 @@ eventBus.events = {
 };
 
 eventBus.on(eventBus.events.UNCAUGHT_EXCEPTION, (err) => {
-  console.error(err);
+  console.log(err);
 });
 
 export default eventBus;

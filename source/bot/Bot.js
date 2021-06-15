@@ -97,6 +97,8 @@ export default class Bot {
 
     this.lastPrice = lastPrice;
 
+    // console.log(lastPrice);
+
     const buyingBrackets = this.brackets.filter(
       (bracket) => !bracket.bought && lastPrice < bracket.buyBelow
     );
