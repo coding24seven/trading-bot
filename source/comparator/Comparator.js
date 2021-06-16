@@ -41,8 +41,8 @@ export default class Comparator {
         shrinkByPercent += shrinkByPercentStep
       ) {
         arr.push({
-          from: 50000,
-          to: 60000,
+          from: 35000,
+          to: 38000,
           bracketSpan,
           shrinkByPercent,
           quoteStartAmount: 100, // total usdt for the tradable area

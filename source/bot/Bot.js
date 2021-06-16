@@ -44,7 +44,7 @@ export default class Bot {
 
   getConfigAndResultsAndTradeHistory() {
     return {
-      // tradeHistory: this.tradeHistory,
+      tradeHistory: this.tradeHistory,
       config: this.data.config,
       results: store.getResults(this.itsAccountId, this.id),
     };
@@ -126,7 +126,7 @@ export default class Bot {
 
     bracket.buyCount++;
     this.buyCountTotal++;
-    this.tradeHistory.push({ lastPrice, type: "buy" });
+    this.tradeHistory.push({ bracket, lastPrice, type: "buy" });
 
     if (store.isHistoricalPrice) return;
 
@@ -143,7 +143,7 @@ export default class Bot {
 
     bracket.sellCount++;
     this.sellCountTotal++;
-    this.tradeHistory.push({ lastPrice, type: "sell" });
+    this.tradeHistory.push({ bracket, lastPrice, type: "sell" });
 
     if (store.isHistoricalPrice) return;
 

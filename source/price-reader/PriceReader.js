@@ -13,13 +13,13 @@ export default class PriceReader {
     });
   }
 
-  static startHistoricalPriceStream(fileNames, column) {
-    fileNames.forEach((fileName) => {
+  static startHistoricalPriceStream(filePaths, column) {
+    filePaths.forEach((filePath) => {
       const rowsPopulatedWithNumbers =
-        this.cachedFileContent[fileName] ||
-        CsvFileReader.getRowsPopulatedWithNumbers(fileName);
+        this.cachedFileContent[filePath] ||
+        CsvFileReader.getRowsPopulatedWithNumbers(filePath);
 
-      this.cachedFileContent[fileName] = rowsPopulatedWithNumbers;
+      this.cachedFileContent[filePath] = rowsPopulatedWithNumbers;
 
       rowsPopulatedWithNumbers.forEach((row) => {
         const price = row[column];

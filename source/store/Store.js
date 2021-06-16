@@ -159,7 +159,7 @@ class Store {
       accountIndex < this.apiEnvironment.length;
       accountIndex++
     ) {
-      const arrayPerAccount = [];
+      const arrayOfBotsPerAccount = [];
       const selectedBotConfigs = this.botConfigFromGenerator
         ? [this.botConfigFromGenerator]
         : this.botEnvironment[accountIndex].botConfigIndexes.map(
@@ -177,18 +177,29 @@ class Store {
           itsAccountId: accountIndex,
         };
 
-        arrayPerAccount.push({
+        const botData = {
           config: computedConfig,
           vars: {
             brackets: this.createBrackets(computedConfig),
           },
-        });
+        };
+
+        if (this.isBotConfigurationValid(botData.config)) {
+          arrayOfBotsPerAccount.push(botData);
+        }
       });
 
-      arr.push(arrayPerAccount);
+      arr.push(arrayOfBotsPerAccount);
     }
 
     return arr;
+  }
+
+  isBotConfigurationValid(config) {
+    const bracketCountIsValid = config.bracketCount > 0;
+    const bracketSpanIsValid = config.bracketSpan > 50;
+
+    return bracketCountIsValid && bracketSpanIsValid;
   }
 
   createBrackets(config) {
