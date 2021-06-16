@@ -1,8 +1,8 @@
 import "dotenv/config";
-import store from "./source/store/Store.js";
-import Comparator from "./source/comparator/Comparator.js";
-import eventBus from "./source/events/eventBus.js";
-import Runner from "./source/runner/Runner.js";
+import store from "../store/Store.js";
+import Comparator from "../comparator/Comparator.js";
+import eventBus from "../events/eventBus.js";
+import Runner from "../runner/Runner.js";
 
 const isHistoricalPrice = true;
 
@@ -20,9 +20,9 @@ Comparator.botConfigs.forEach((botConfig, i) => {
 
   eventBus.removeAllListeners();
 
-  // if (i % 100 === 0) {
-  console.log("count", i + 1);
-  // }
+  if (i % 100 === 0) {
+    console.log("count", i + 1);
+  }
 });
 
 console.log(Comparator.findMostProfitableConfigs(6));

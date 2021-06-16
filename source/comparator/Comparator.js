@@ -26,8 +26,8 @@ export default class Comparator {
     const bracketSpanMax = 6000;
     const bracketStep = 100;
     const shrinkByPercentMin = 0;
-    const shrinkByPercentMax = 30;
-    const shrinkByPercentStep = 1;
+    const shrinkByPercentMax = 50;
+    const shrinkByPercentStep = 5;
 
     const arr = [];
     for (
@@ -41,8 +41,8 @@ export default class Comparator {
         shrinkByPercent += shrinkByPercentStep
       ) {
         arr.push({
-          from: 10000,
-          to: 65000,
+          from: 50000,
+          to: 60000,
           bracketSpan,
           shrinkByPercent,
           quoteStartAmount: 100, // total usdt for the tradable area
@@ -63,7 +63,7 @@ export default class Comparator {
     );
 
     fs.promises.writeFile(
-      "source/logs/bots-sorted.json",
+      "logs/bots-sorted.json",
       JSON.stringify(sortedResults, null, 2)
     );
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 import eventBus from "../events/eventBus.js";
-import CsvFile from "../historical-file/CsvFile.js";
+import CsvFileReader from "../file-reader/CsvFileReader.js";
 import Binance from "node-binance-api";
 
 export default class PriceReader {
@@ -17,7 +17,7 @@ export default class PriceReader {
     fileNames.forEach((fileName) => {
       const rowsPopulatedWithNumbers =
         this.cachedFileContent[fileName] ||
-        CsvFile.getRowsPopulatedWithNumbers(fileName);
+        CsvFileReader.getRowsPopulatedWithNumbers(fileName);
 
       this.cachedFileContent[fileName] = rowsPopulatedWithNumbers;
 

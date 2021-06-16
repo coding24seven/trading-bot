@@ -1,7 +1,7 @@
 import "dotenv/config";
-import store from "./source/store/Store.js";
-import Runner from "./source/runner/Runner.js";
-import eventBus from "./source/events/eventBus.js";
+import store from "../store/Store.js";
+import Runner from "../runner/Runner.js";
+import eventBus from "../events/eventBus.js";
 
 const isHistoricalPrice = true;
 

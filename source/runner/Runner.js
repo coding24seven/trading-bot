@@ -11,13 +11,14 @@ export default class Runner {
 
   static runPriceReader(isHistoricalPrice = false) {
     if (isHistoricalPrice) {
+      const directory = "historical-price-files";
       const columnWithPrice = 2;
       // const fileName = "BTCUSDT-1m-2021-03.csv";
       // const fileName = "small.csv";
 
       const monthNumbers = Array.from({ length: 5 }, (_, index) => index + 1);
       const fileNames = monthNumbers.map(
-        (number) => `BTCUSDT-1m-2021-0${number}.csv`
+        (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
       );
 
       PriceReader.startHistoricalPriceStream(fileNames, columnWithPrice);

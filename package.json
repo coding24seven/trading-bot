@@ -2,15 +2,15 @@
   "name": "trading-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "source/entry/index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "node source/entry/index.js",
     "continue": "npm start",
-    "new": "node index.js starts:with:new:store",
-    "historical": "node historical.js",
-    "log": "node logStore.js",
-    "generate": "node generate.js"
+    "new": "node source/entry/index.js starts:with:new:store",
+    "historical": "node source/entry/historical.js",
+    "log": "node source/entry/logStore.js",
+    "generate": "node source/entry/generate.js"
   },
   "author": "",
   "license": "ISC",
