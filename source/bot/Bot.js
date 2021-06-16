@@ -1,6 +1,6 @@
 import eventBus from "../events/eventBus.js";
 import store from "../store/Store.js";
-import Trader from "../trader/trader.js";
+import Trader from "../trader/Trader.js";
 
 export default class Bot {
   data = null;
