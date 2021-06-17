@@ -6,7 +6,7 @@ export default class Bot {
   data = null;
   id = null;
   itsAccountId = null;
-  brackets = [];
+  hands = [];
   trader = {};
   lastPrice = null;
   lowestPriceRecorded = Infinity;
@@ -20,7 +20,7 @@ export default class Bot {
     this.data = data;
     this.id = data.config.id;
     this.itsAccountId = data.config.itsAccountId;
-    this.brackets = data.vars.brackets;
+    this.hands = data.vars.hands;
     this.trader = new Trader(
       data.config.itsAccountId,
       data.config.pair,
@@ -51,12 +51,12 @@ export default class Bot {
   }
 
   getResults() {
-    const quoteTotal = this.brackets.reduce(
+    const quoteTotal = this.hands.reduce(
       (accumulator, item) => accumulator + item.quote,
       0
     );
 
-    const baseTotal = this.brackets.reduce(
+    const baseTotal = this.hands.reduce(
       (accumulator, item) => accumulator + item.base,
       0
     );
@@ -95,55 +95,71 @@ export default class Bot {
     this.recordLowestAndHighestPrice(lastPrice);
 
     if (!store.isHistoricalPrice) {
-      console.log(lastPrice);
+      // console.log(lastPrice);
     }
 
-    const buyingBrackets = this.brackets.filter(
-      (bracket) => !bracket.bought && lastPrice < bracket.buyBelow
+    const buyingHands = this.hands.filter(
+      (hand) => !hand.bought && lastPrice < hand.buyBelow
     );
 
-    buyingBrackets.forEach((bracket) => {
-      this.buy(bracket, lastPrice);
+    buyingHands.forEach((hand) => {
+      this.buy(hand, lastPrice);
     });
 
-    const sellingBrackets = this.brackets.filter(
-      (bracket) => bracket.bought && lastPrice > bracket.sellAbove
+    const sellingHands = this.hands.filter(
+      (hand) => hand.bought && lastPrice > hand.sellAbove
     );
 
-    sellingBrackets.forEach((bracket) => {
-      this.sell(bracket, lastPrice);
+    sellingHands.forEach((hand) => {
+      this.sell(hand, lastPrice);
     });
   }
 
   // todo: fix so the properties are not modified via a parameter
-  buy(bracket, lastPrice) {
+  buy(hand, lastPrice) {
     const buyMethod = store.isHistoricalPrice
       ? this.trader.buyFake
       : this.trader.buy;
 
-    buyMethod.call(this.trader, bracket, lastPrice);
+    buyMethod.call(this.trader, hand, lastPrice);
     // await for the buy result promise
 
-    bracket.buyCount++;
+    hand.buyCount++;
     this.buyCountTotal++;
-    this.tradeHistory.push({ bracket, lastPrice, type: "buy" });
+    this.tradeHistory.push({
+      id: hand.id,
+      buyBelow: hand.buyBelow,
+      sellAbove: hand.sellAbove,
+      buyCount: hand.buyCount,
+      sellCount: hand.sellCount,
+      lastPrice,
+      type: "buy",
+    });
 
     if (store.isHistoricalPrice) return;
 
     this.storeCurrentResultsAndConsoleLogThem();
   }
 
-  sell(bracket, lastPrice) {
+  sell(hand, lastPrice) {
     const sellMethod = store.isHistoricalPrice
       ? this.trader.sellFake
       : this.trader.sell;
 
-    sellMethod.call(this.trader, bracket, lastPrice);
+    sellMethod.call(this.trader, hand, lastPrice);
     // await for the sell result promise
 
-    bracket.sellCount++;
+    hand.sellCount++;
     this.sellCountTotal++;
-    this.tradeHistory.push({ bracket, lastPrice, type: "sell" });
+    this.tradeHistory.push({
+      id: hand.id,
+      buyBelow: hand.buyBelow,
+      sellAbove: hand.sellAbove,
+      buyCount: hand.buyCount,
+      sellCount: hand.sellCount,
+      lastPrice,
+      type: "sell",
+    });
 
     if (store.isHistoricalPrice) return;
 
@@ -156,12 +172,12 @@ export default class Bot {
   }
 
   getQuoteTotalIncludingBaseSoldAsPlanned() {
-    const arr = JSON.parse(JSON.stringify(this.brackets));
+    const arr = JSON.parse(JSON.stringify(this.hands));
 
-    arr.forEach((bracket) => {
-      if (bracket.base > 0) {
-        bracket.quote += bracket.base * bracket.sellAbove;
-        bracket.base = 0;
+    arr.forEach((hand) => {
+      if (hand.base > 0) {
+        hand.quote += hand.base * hand.sellAbove;
+        hand.base = 0;
       }
     });
 

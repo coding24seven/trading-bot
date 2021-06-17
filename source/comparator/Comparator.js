@@ -22,18 +22,18 @@ export default class Comparator {
   }
 
   static generateBotConfigs(pair) {
-    const bracketSpanMin = 100;
-    const bracketSpanMax = 6000;
-    const bracketStep = 100;
+    const handSpanMin = 100;
+    const handSpanMax = 6000;
+    const handStep = 100;
     const shrinkByPercentMin = 0;
     const shrinkByPercentMax = 50;
     const shrinkByPercentStep = 5;
 
     const arr = [];
     for (
-      let bracketSpan = bracketSpanMin;
-      bracketSpan <= bracketSpanMax;
-      bracketSpan += bracketStep
+      let handSpan = handSpanMin;
+      handSpan <= handSpanMax;
+      handSpan += handStep
     ) {
       for (
         let shrinkByPercent = shrinkByPercentMin;
@@ -43,7 +43,7 @@ export default class Comparator {
         arr.push({
           from: 35000,
           to: 38000,
-          bracketSpan,
+          handSpan,
           shrinkByPercent,
           quoteStartAmount: 100, // total usdt for the tradable area
           exchangeFee: 0.001,

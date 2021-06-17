@@ -12,32 +12,32 @@ export default class Trader {
     });
   }
 
-  async buy(bracket, lastPrice) {
-    // const response = await this.binance.marketBuy(this.pair, bracket.quote);
-    // bracket.quote = 0; // hopefully there are no leftovers, but check on it in response
-    // bracket.bought = true;
+  async buy(hand, lastPrice) {
+    // const response = await this.binance.marketBuy(this.pair, hand.quote);
+    // hand.quote = 0; // hopefully there are no leftovers, but check on it in response
+    // hand.bought = true;
 
-    this.buyFake(bracket, lastPrice);
+    this.buyFake(hand, lastPrice);
   }
 
-  async sell(bracket, lastPrice) {
-    // const response = await this.binance.marketSell(this.pair, bracket.base);
-    // bracket.base = 0; // hopefully there are no leftovers, but check on it
-    // bracket.bought = false;
+  async sell(hand, lastPrice) {
+    // const response = await this.binance.marketSell(this.pair, hand.base);
+    // hand.base = 0; // hopefully there are no leftovers, but check on it
+    // hand.bought = false;
 
-    this.sellFake(bracket, lastPrice);
+    this.sellFake(hand, lastPrice);
   }
 
-  buyFake(bracket, lastPrice) {
-    bracket.base = this.deductExchangeFeeFake(bracket.quote / lastPrice);
-    bracket.quote = 0;
-    bracket.bought = true;
+  buyFake(hand, lastPrice) {
+    hand.base = this.deductExchangeFeeFake(hand.quote / lastPrice);
+    hand.quote = 0;
+    hand.bought = true;
   }
 
-  sellFake(bracket, lastPrice) {
-    bracket.quote = this.deductExchangeFeeFake(bracket.base * lastPrice);
-    bracket.base = 0;
-    bracket.bought = false;
+  sellFake(hand, lastPrice) {
+    hand.quote = this.deductExchangeFeeFake(hand.base * lastPrice);
+    hand.base = 0;
+    hand.bought = false;
   }
 
   deductExchangeFeeFake(value) {

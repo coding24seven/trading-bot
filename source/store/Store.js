@@ -167,12 +167,12 @@ class Store {
           ); // e.g. [ 1, 3 ] -> [{key:val}, {key:val}]
 
       selectedBotConfigs.forEach((config, botIndex) => {
-        const { from, to, bracketSpan, quoteStartAmount } = config;
-        const bracketCount = Math.floor((to - from) / bracketSpan);
+        const { from, to, handSpan, quoteStartAmount } = config;
+        const handCount = Math.floor((to - from) / handSpan);
         const computedConfig = {
           ...config,
-          bracketCount,
-          quoteStartAmountPerBracket: quoteStartAmount / bracketCount,
+          handCount,
+          quoteStartAmountPerHand: quoteStartAmount / handCount,
           id: botIndex,
           itsAccountId: accountIndex,
         };
@@ -180,7 +180,7 @@ class Store {
         const botData = {
           config: computedConfig,
           vars: {
-            brackets: this.createBrackets(computedConfig),
+            hands: this.buildHands(computedConfig),
           },
         };
 
@@ -196,31 +196,31 @@ class Store {
   }
 
   isBotConfigurationValid(config) {
-    const bracketCountIsValid = config.bracketCount > 0;
-    const bracketSpanIsValid = config.bracketSpan > 50;
+    const handCountIsValid = config.handCount > 0;
+    const handSpanIsValid = config.handSpan > 9;
 
-    return bracketCountIsValid && bracketSpanIsValid;
+    return handCountIsValid && handSpanIsValid;
   }
 
-  createBrackets(config) {
-    const { from, bracketSpan, shrinkByPercent } = config;
+  buildHands(config) {
+    const { from, handSpan, shrinkByPercent } = config;
     const arr = [];
-    const halfShrinkSize = bracketSpan * (shrinkByPercent / 200);
+    const halfShrinkSize = handSpan * (shrinkByPercent / 200);
     let newFrom = from;
 
-    for (let i = 0; i < config.bracketCount; i++) {
+    for (let i = 0; i < config.handCount; i++) {
       arr.push({
         id: i,
         buyBelow: newFrom + halfShrinkSize,
-        sellAbove: newFrom + bracketSpan - halfShrinkSize,
+        sellAbove: newFrom + handSpan - halfShrinkSize,
         bought: false,
-        quote: config.quoteStartAmountPerBracket,
+        quote: config.quoteStartAmountPerHand,
         base: 0,
         buyCount: 0,
         sellCount: 0,
       });
 
-      newFrom += bracketSpan;
+      newFrom += handSpan;
     }
     return arr;
   }
