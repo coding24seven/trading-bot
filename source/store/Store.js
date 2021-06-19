@@ -1,6 +1,7 @@
 import botConfigs from "../bot/botConfig.js";
 import axios from "axios";
 import readlineImported from "readline";
+import { willExchangeFeeWipeProfit } from "../utils/index.js";
 
 class Store {
   appEnvironment = {};
@@ -167,11 +168,20 @@ class Store {
           ); // e.g. [ 1, 3 ] -> [{key:val}, {key:val}]
 
       selectedBotConfigs.forEach((config, botIndex) => {
-        const { from, to, handSpan, quoteStartAmount } = config;
+        const {
+          from,
+          to,
+          handSpan,
+          shrinkByPercent,
+          quoteStartAmount,
+        } = config;
         const handCount = Math.floor((to - from) / handSpan);
+        const handSpanAfterShrinkage =
+          handSpan - handSpan * (shrinkByPercent / 100);
         const computedConfig = {
           ...config,
           handCount,
+          handSpanAfterShrinkage,
           quoteStartAmountPerHand: quoteStartAmount / handCount,
           id: botIndex,
           itsAccountId: accountIndex,
@@ -184,9 +194,8 @@ class Store {
           },
         };
 
-        if (this.isBotConfigurationValid(botData.config)) {
-          arrayOfBotsPerAccount.push(botData);
-        }
+        this.throwErrorIfBotConfigInvalid(botData.config);
+        arrayOfBotsPerAccount.push(botData);
       });
 
       arr.push(arrayOfBotsPerAccount);
@@ -195,33 +204,58 @@ class Store {
     return arr;
   }
 
-  isBotConfigurationValid(config) {
-    const handCountIsValid = config.handCount > 0;
-    const handSpanIsValid = config.handSpan > 9;
+  throwErrorIfBotConfigInvalid(config) {
+    if (config.handCount < 1) {
+      throw new Error("handCount must be > 0");
+    }
 
-    return handCountIsValid && handSpanIsValid;
+    if (
+      willExchangeFeeWipeProfit({
+        exchangeFee: this.getExchangeFee(config.itsAccountId),
+        to: config.to,
+        handSpan: config.handSpanAfterShrinkage,
+      })
+    ) {
+      throw new Error(
+        "hand too narrow to offset exchange fee. increase handSpan or decrease shrinkByPercent."
+      );
+    }
   }
 
   buildHands(config) {
-    const { from, handSpan, shrinkByPercent } = config;
+    const buyAndSellExchangeFee = 2 * this.getExchangeFee(config.itsAccountId);
+    const {
+      from,
+      handSpan,
+      handSpanAfterShrinkage,
+      shrinkByPercent,
+      quoteStartAmountPerHand,
+    } = config;
     const arr = [];
     const halfShrinkSize = handSpan * (shrinkByPercent / 200);
     let newFrom = from;
 
     for (let i = 0; i < config.handCount; i++) {
+      const buyBelow = newFrom + halfShrinkSize;
+      const sellAbove = newFrom + handSpan - halfShrinkSize;
+      const profitInPercentPerBuySell =
+        100 * (handSpanAfterShrinkage / buyBelow - buyAndSellExchangeFee);
+
       arr.push({
         id: i,
-        buyBelow: newFrom + halfShrinkSize,
-        sellAbove: newFrom + handSpan - halfShrinkSize,
+        buyBelow,
+        sellAbove,
         bought: false,
-        quote: config.quoteStartAmountPerHand,
+        quote: quoteStartAmountPerHand,
         base: 0,
+        profitInPercentPerBuySell,
         buyCount: 0,
         sellCount: 0,
       });
 
       newFrom += handSpan;
     }
+
     return arr;
   }
 
