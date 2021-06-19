@@ -2,10 +2,10 @@ import eventBus from "../events/eventBus.js";
 import { isBotValid } from "../utils/index.js";
 
 export default class Comparator {
-  static botConfigsWithResults = []; // bot configs with their corresponding results
+  static botConfigsWithResults = [];
   static botConfigs = [];
   static exchangeFee = 0.001;
-  static from = 34990;
+  static from = 35001;
   static to = 36010;
 
   static run(pair) {

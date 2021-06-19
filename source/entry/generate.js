@@ -35,4 +35,4 @@ fs.promises.writeFile(
 
 const mostProfitableConfigsToShowCount = 6;
 
-console.log(sortedResults.slice(-mostProfitableConfigsToShowCount));
+console.log(JSON.stringify(sortedResults.slice(-mostProfitableConfigsToShowCount),null,2));
