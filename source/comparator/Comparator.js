@@ -1,5 +1,4 @@
 import eventBus from "../events/eventBus.js";
-import fs from "fs";
 import { isBotValid } from "../utils/index.js";
 
 export default class Comparator {
@@ -77,18 +76,11 @@ export default class Comparator {
     return arr;
   }
 
-  static findMostProfitableConfigs(count) {
-    const sortedResults = Comparator.botConfigsWithResults.sort(
+  static sortConfigsByProfit() {
+    return Comparator.botConfigsWithResults.sort(
       (previousItem, currentItem) =>
         previousItem.results.quoteTotalIncludingBaseSoldAsPlanned -
         currentItem.results.quoteTotalIncludingBaseSoldAsPlanned
     );
-
-    fs.promises.writeFile(
-      "logs/bots-sorted.json",
-      JSON.stringify(sortedResults, null, 2)
-    );
-
-    return sortedResults.slice(-count);
   }
 }

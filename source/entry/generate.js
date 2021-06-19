@@ -3,6 +3,7 @@ import store from "../store/Store.js";
 import Comparator from "../comparator/Comparator.js";
 import eventBus from "../events/eventBus.js";
 import Runner from "../runner/Runner.js";
+import fs from "fs";
 
 const isHistoricalPrice = true;
 
@@ -25,4 +26,13 @@ Comparator.botConfigs.forEach((botConfig, i) => {
   }
 });
 
-console.log(Comparator.findMostProfitableConfigs(6));
+const sortedResults = Comparator.sortConfigsByProfit();
+
+fs.promises.writeFile(
+  "logs/bots-sorted.json",
+  JSON.stringify(sortedResults, null, 2)
+);
+
+const mostProfitableConfigsToShowCount = 6;
+
+console.log(sortedResults.slice(-mostProfitableConfigsToShowCount));
