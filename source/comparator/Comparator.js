@@ -1,12 +1,11 @@
 import eventBus from "../events/eventBus.js";
-import { isBotValid } from "../utils/index.js";
 
 export default class Comparator {
   static botConfigsWithResults = [];
   static botConfigs = [];
   static exchangeFee = 0.001;
-  static from = 35001;
-  static to = 36010;
+  static from = 30000;
+  static to = 40000;
 
   static run(pair) {
     Comparator.botConfigs = Comparator.generateBotConfigs(pair);
@@ -24,11 +23,11 @@ export default class Comparator {
   }
 
   static generateBotConfigs(pair) {
-    const handSpanMin = 100;
-    const handSpanMax = 6000;
-    const handStep = 100;
+    const handSpanMin = 0.003;
+    const handSpanMax = 0.3;
+    const handStep = 0.001;
     const shrinkByPercentMin = 0;
-    const shrinkByPercentMax = 50;
+    const shrinkByPercentMax = 0;
     const shrinkByPercentStep = 5;
 
     const arr = [];
@@ -42,34 +41,18 @@ export default class Comparator {
         shrinkByPercent <= shrinkByPercentMax;
         shrinkByPercent += shrinkByPercentStep
       ) {
-        /* 'handSpanAfterShrinkage' and 'handCount' used for validation only */
-        const handSpanAfterShrinkage =
-          handSpan - handSpan * (shrinkByPercent / 100);
-        const handCount = Math.floor(
-          (Comparator.to - Comparator.from) / handSpan
-        );
-
-        if (
-          isBotValid({
-            exchangeFee: Comparator.exchangeFee,
-            to: Comparator.to,
-            handCount,
-            handSpan: handSpanAfterShrinkage,
-          })
-        ) {
-          arr.push({
-            pair,
-            from: Comparator.from,
-            to: Comparator.to,
-            handCount: null,
-            handSpan,
-            shrinkByPercent,
-            handSpanAfterShrinkage: null,
-            quoteStartAmount: 100, // total usdt for the tradable area
-            quoteStartAmountPerHand: null,
-            exchangeFee: Comparator.exchangeFee,
-          });
-        }
+        arr.push({
+          pair,
+          from: Comparator.from,
+          to: Comparator.to,
+          handCount: null,
+          handSpan,
+          shrinkByPercent,
+          handSpanAfterShrinkage: null,
+          quoteStartAmount: 100, // total usdt for the tradable area
+          quoteStartAmountPerHand: null,
+          exchangeFee: Comparator.exchangeFee,
+        });
       }
     }
 

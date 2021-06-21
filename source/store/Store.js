@@ -1,7 +1,6 @@
 import botConfigs from "../bot/botConfig.js";
 import axios from "axios";
 import readlineImported from "readline";
-import { willExchangeFeeWipeProfit } from "../utils/index.js";
 
 class Store {
   appEnvironment = {};
@@ -175,27 +174,42 @@ class Store {
           shrinkByPercent,
           quoteStartAmount,
         } = config;
-        const handCount = Math.floor((to - from) / handSpan);
         const handSpanAfterShrinkage =
           handSpan - handSpan * (shrinkByPercent / 100);
         const computedConfig = {
           ...config,
-          handCount,
           handSpanAfterShrinkage,
-          quoteStartAmountPerHand: quoteStartAmount / handCount,
           id: botIndex,
           itsAccountId: accountIndex,
         };
 
+        const hands = this.buildHands(computedConfig);
+        const handCount = hands.length;
+        computedConfig.handCount = handCount;
+        computedConfig.quoteStartAmountPerHand = quoteStartAmount / handCount;
+
+        hands.forEach((hand) => {
+          hand.quote = computedConfig.quoteStartAmountPerHand;
+        });
+        console.log(hands);
         const botData = {
           config: computedConfig,
           vars: {
-            hands: this.buildHands(computedConfig),
+            hands,
           },
         };
 
-        this.throwErrorIfBotConfigInvalid(botData.config);
-        arrayOfBotsPerAccount.push(botData);
+        if (this.botConfigFromGenerator) {
+          if (
+            this.isHandCountValid(botData.config) &&
+            this.isProfitGreaterThanExchangeFee(botData.config)
+          ) {
+            arrayOfBotsPerAccount.push(botData);
+          }
+        } else {
+          this.throwErrorIfBotConfigInvalid(botData.config);
+          arrayOfBotsPerAccount.push(botData);
+        }
       });
 
       arr.push(arrayOfBotsPerAccount);
@@ -205,27 +219,32 @@ class Store {
   }
 
   throwErrorIfBotConfigInvalid(config) {
-    if (config.handCount < 1) {
-      throw new Error("handCount must be > 0");
+    if (!this.isHandCountValid(config)) {
+      throw new Error("handCount must be >= 2");
     }
 
-    if (
-      willExchangeFeeWipeProfit({
-        exchangeFee: this.getExchangeFee(config.itsAccountId),
-        to: config.to,
-        handSpan: config.handSpanAfterShrinkage,
-      })
-    ) {
+    if (!this.isProfitGreaterThanExchangeFee(config)) {
       throw new Error(
-        "hand too narrow to offset exchange fee. increase handSpan or decrease shrinkByPercent."
+        `hand ${config.handSpanAfterShrinkage} is too narrow to offset exchange fee. increase handSpan or decrease shrinkByPercent.`
       );
     }
+  }
+
+  isHandCountValid({ handCount }) {
+    return handCount >= 2;
+  }
+
+  isProfitGreaterThanExchangeFee({ itsAccountId, handSpan }) {
+    const buyAndSellExchangeFee = 2 * this.getExchangeFee(itsAccountId);
+
+    return buyAndSellExchangeFee < handSpan;
   }
 
   buildHands(config) {
     const buyAndSellExchangeFee = 2 * this.getExchangeFee(config.itsAccountId);
     const {
       from,
+      to,
       handSpan,
       handSpanAfterShrinkage,
       shrinkByPercent,
@@ -234,15 +253,17 @@ class Store {
     const arr = [];
     const halfShrinkSize = handSpan * (shrinkByPercent / 200);
     let newFrom = from;
+    let id = 0;
+    let sellAboveInNextIteration = 0;
 
-    for (let i = 0; i < config.handCount; i++) {
+    while (newFrom < to && sellAboveInNextIteration < to) {
       const buyBelow = newFrom + halfShrinkSize;
-      const sellAbove = newFrom + handSpan - halfShrinkSize;
+      const sellAbove = buyBelow + buyBelow * handSpan - halfShrinkSize;
       const profitInPercentPerBuySell =
         100 * (handSpanAfterShrinkage / buyBelow - buyAndSellExchangeFee);
 
       arr.push({
-        id: i,
+        id,
         buyBelow,
         sellAbove,
         bought: false,
@@ -253,7 +274,10 @@ class Store {
         sellCount: 0,
       });
 
-      newFrom += handSpan;
+      newFrom += buyBelow * handSpan;
+      sellAboveInNextIteration =
+        newFrom + halfShrinkSize + buyBelow * handSpan - halfShrinkSize;
+      id++;
     }
 
     return arr;

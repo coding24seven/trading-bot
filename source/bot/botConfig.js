@@ -4,10 +4,10 @@
 export default [
   {
     pair: "BTCUSDT",
-    from: 35001,
-    to: 36010,
+    from: 30000,
+    to: 40000,
     handCount: null,
-    handSpan: 198,
+    handSpan: 0.15,
     shrinkByPercent: 0,
     handSpanAfterShrinkage: null,
     quoteStartAmount: 100,

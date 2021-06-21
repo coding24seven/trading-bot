@@ -16,12 +16,12 @@ export default class Runner {
       // const fileName = "BTCUSDT-1m-2021-03.csv";
       // const fileName = "small.csv";
 
-      const monthNumbers = Array.from({ length: 5 }, (_, index) => index + 1);
-      // const fileNames = monthNumbers.map(
-      //   (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
-      // );
+      const monthNumbers = [5];
+      const fileNames = monthNumbers.map(
+        (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
+      );
 
-      const fileNames = [`${directory}/small.csv`];
+      // const fileNames = [`${directory}/small.csv`];
 
       PriceReader.startHistoricalPriceStream(fileNames, columnWithPrice);
     } else {
