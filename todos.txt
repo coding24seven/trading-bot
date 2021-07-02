@@ -1,24 +1,10 @@
-check the results of each trade, and make the programstop trading if any irregularities have occurred
-
-if the % gain from trading is < exchange fee, then ask the user to reconfigure bot options
-
-add a scenario where you take some of the generated profit, from the usdt pool, for example, monthly
-
-save the hands array to a file, and create backups
-
-save a log file with all trades
-
-test various historical scenarios, with different date ranges, bear markets, etc
-
-test many automatically generated scenarios and see which generates most profit
-
-test more than one bot per account running at once
-
-allot different sums of usdt to different hands
+check the results of each trade, and make the program stop trading if any irregularities have occurred
 
 check what happens if the program crashes. make sure the program can be stopped/crashed and resumed at any time without detriment.
 
 make sure the program knows how to behave if it runs out of available usdt (does it simply wait till it becomes available?)
 
-add total exchange fees paid to the summary report
+add a scenario where you take some of the generated profit, from the usdt pool, for example, monthly
+
+create topUpBot.js file to add cryptocurrency to the bot
 

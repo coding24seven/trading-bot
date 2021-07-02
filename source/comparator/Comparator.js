@@ -24,7 +24,7 @@ export default class Comparator {
 
   static generateBotConfigs(pair) {
     const handSpanMin = 0.003;
-    const handSpanMax = 0.3;
+    const handSpanMax = 0.15;
     const handStep = 0.001;
     const shrinkByPercentMin = 0;
     const shrinkByPercentMax = 0;
@@ -45,12 +45,18 @@ export default class Comparator {
           pair,
           from: Comparator.from,
           to: Comparator.to,
+          quoteFrom: 30000,
+          quoteTo: 40000,
+          baseFrom: 30000,
+          baseTo: 40000,
           handCount: null,
           handSpan,
           shrinkByPercent,
           handSpanAfterShrinkage: null,
-          quoteStartAmount: 100, // total usdt for the tradable area
+          quoteStartAmount: 100,
           quoteStartAmountPerHand: null,
+          baseStartAmount: 0,
+          baseStartAmountPerHand: null,
           exchangeFee: Comparator.exchangeFee,
         });
       }
@@ -62,8 +68,9 @@ export default class Comparator {
   static sortConfigsByProfit() {
     return Comparator.botConfigsWithResults.sort(
       (previousItem, currentItem) =>
-        previousItem.results.quoteTotalIncludingBaseSoldAsPlanned -
-        currentItem.results.quoteTotalIncludingBaseSoldAsPlanned
+        previousItem.results.pairTotal - currentItem.results.pairTotal
+        // previousItem.results.sellCountTotal - currentItem.results.sellCountTotal
+        // previousItem.config.handCount - currentItem.config.handCount
     );
   }
 }

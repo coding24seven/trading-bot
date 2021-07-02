@@ -13,6 +13,7 @@ export default class Trader {
   }
 
   async buy(hand, lastPrice) {
+    // verify that current price on exchange is within range of 'lastPrice', in case of lost/resumed connection, to prevent an expensive buy
     // const response = await this.binance.marketBuy(this.pair, hand.quote);
     // hand.quote = 0; // hopefully there are no leftovers, but check on it in response
     // hand.bought = true;
@@ -30,14 +31,14 @@ export default class Trader {
 
   buyFake(hand, lastPrice) {
     hand.base = this.deductExchangeFeeFake(hand.quote / lastPrice);
-    hand.quote = 0;
-    hand.bought = true;
+    hand.quote = 0; // todo: do not zero
+    hand.bought = true; // todo: delete
   }
 
   sellFake(hand, lastPrice) {
     hand.quote = this.deductExchangeFeeFake(hand.base * lastPrice);
-    hand.base = 0;
-    hand.bought = false;
+    hand.base = 0; // todo: do not zero
+    hand.bought = false; // todo: delete
   }
 
   deductExchangeFeeFake(value) {

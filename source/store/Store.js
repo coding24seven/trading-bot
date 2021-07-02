@@ -184,14 +184,10 @@ class Store {
         };
 
         const hands = this.buildHands(computedConfig);
-        const handCount = hands.length;
-        computedConfig.handCount = handCount;
-        computedConfig.quoteStartAmountPerHand = quoteStartAmount / handCount;
+        computedConfig.handCount = hands.length;
+        this.topUpHandsWithQuote(hands, computedConfig);
+        this.topUpHandsWithBase(hands, computedConfig);
 
-        hands.forEach((hand) => {
-          hand.quote = computedConfig.quoteStartAmountPerHand;
-        });
-        console.log(hands);
         const botData = {
           config: computedConfig,
           vars: {
@@ -199,23 +195,58 @@ class Store {
           },
         };
 
-        if (this.botConfigFromGenerator) {
-          if (
-            this.isHandCountValid(botData.config) &&
-            this.isProfitGreaterThanExchangeFee(botData.config)
-          ) {
-            arrayOfBotsPerAccount.push(botData);
-          }
-        } else {
-          this.throwErrorIfBotConfigInvalid(botData.config);
-          arrayOfBotsPerAccount.push(botData);
-        }
+        this.throwErrorIfBotConfigInvalid(botData.config);
+        arrayOfBotsPerAccount.push(botData);
       });
 
       arr.push(arrayOfBotsPerAccount);
     }
 
     return arr;
+  }
+
+  topUpHandsWithQuote(hands, botConfig) {
+    const handsToTopUpWithQuoteCount = hands.filter((hand) =>
+      handQualifiesForTopUp(hand)
+    ).length;
+
+    botConfig.quoteStartAmountPerHand =
+      botConfig.quoteStartAmount / handsToTopUpWithQuoteCount;
+
+    hands.forEach((hand) => {
+      if (handQualifiesForTopUp(hand)) {
+        hand.quote = botConfig.quoteStartAmountPerHand;
+      }
+    });
+
+    function handQualifiesForTopUp(hand) {
+      return (
+        hand.buyBelow >= botConfig.quoteFrom &&
+        hand.sellAbove <= botConfig.quoteTo
+      );
+    }
+  }
+
+  topUpHandsWithBase(hands, botConfig) {
+    const handsToTopUpWithBaseCount = hands.filter((hand) =>
+      handQualifiesForTopUp(hand)
+    ).length;
+
+    botConfig.baseStartAmountPerHand =
+      botConfig.baseStartAmount / handsToTopUpWithBaseCount;
+
+    hands.forEach((hand) => {
+      if (handQualifiesForTopUp(hand)) {
+        hand.base = botConfig.baseStartAmountPerHand;
+      }
+    });
+
+    function handQualifiesForTopUp(hand) {
+      return (
+        hand.buyBelow >= botConfig.baseFrom &&
+        hand.sellAbove <= botConfig.baseTo
+      );
+    }
   }
 
   throwErrorIfBotConfigInvalid(config) {
@@ -248,9 +279,8 @@ class Store {
       handSpan,
       handSpanAfterShrinkage,
       shrinkByPercent,
-      quoteStartAmountPerHand,
     } = config;
-    const arr = [];
+    const hands = [];
     const halfShrinkSize = handSpan * (shrinkByPercent / 200);
     let newFrom = from;
     let id = 0;
@@ -262,16 +292,19 @@ class Store {
       const profitInPercentPerBuySell =
         100 * (handSpanAfterShrinkage / buyBelow - buyAndSellExchangeFee);
 
-      arr.push({
+      hands.push({
         id,
         buyBelow,
+        stopBuy: buyBelow,
         sellAbove,
-        bought: false,
-        quote: quoteStartAmountPerHand,
-        base: 0,
+        stopSell: sellAbove,
+        // bought: false,
+        quote: null,
+        base: null,
         profitInPercentPerBuySell,
         buyCount: 0,
         sellCount: 0,
+        readyToBuy: false,
       });
 
       newFrom += buyBelow * handSpan;
@@ -280,7 +313,7 @@ class Store {
       id++;
     }
 
-    return arr;
+    return hands;
   }
 
   getExchangeFee(accountId) {

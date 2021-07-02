@@ -17,9 +17,9 @@ export default class Runner {
       // const fileName = "small.csv";
 
       const monthNumbers = [5];
-      const fileNames = monthNumbers.map(
-        (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
-      );
+      // const fileNames = monthNumbers.map(
+      //   (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
+      // );
 
       // const fileNames = [`${directory}/small.csv`];
 
