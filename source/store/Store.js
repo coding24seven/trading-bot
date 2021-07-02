@@ -171,14 +171,10 @@ class Store {
           from,
           to,
           handSpan,
-          shrinkByPercent,
           quoteStartAmount,
         } = config;
-        const handSpanAfterShrinkage =
-          handSpan - handSpan * (shrinkByPercent / 100);
         const computedConfig = {
           ...config,
-          handSpanAfterShrinkage,
           id: botIndex,
           itsAccountId: accountIndex,
         };
@@ -256,7 +252,7 @@ class Store {
 
     if (!this.isProfitGreaterThanExchangeFee(config)) {
       throw new Error(
-        `hand ${config.handSpanAfterShrinkage} is too narrow to offset exchange fee. increase handSpan or decrease shrinkByPercent.`
+        `hand ${config.handSpan} is too narrow to offset exchange fee. increase handSpan.`
       );
     }
   }
@@ -277,20 +273,16 @@ class Store {
       from,
       to,
       handSpan,
-      handSpanAfterShrinkage,
-      shrinkByPercent,
     } = config;
     const hands = [];
-    const halfShrinkSize = handSpan * (shrinkByPercent / 200);
     let newFrom = from;
     let id = 0;
     let sellAboveInNextIteration = 0;
 
     while (newFrom < to && sellAboveInNextIteration < to) {
-      const buyBelow = newFrom + halfShrinkSize;
-      const sellAbove = buyBelow + buyBelow * handSpan - halfShrinkSize;
-      const profitInPercentPerBuySell =
-        100 * (handSpanAfterShrinkage / buyBelow - buyAndSellExchangeFee);
+      const buyBelow = newFrom;
+      const sellAbove = buyBelow + buyBelow * handSpan;
+        100 * (handSpan / buyBelow - buyAndSellExchangeFee);
 
       hands.push({
         id,
@@ -301,7 +293,6 @@ class Store {
         // bought: false,
         quote: null,
         base: null,
-        profitInPercentPerBuySell,
         buyCount: 0,
         sellCount: 0,
         readyToBuy: false,
@@ -309,7 +300,7 @@ class Store {
 
       newFrom += buyBelow * handSpan;
       sellAboveInNextIteration =
-        newFrom + halfShrinkSize + buyBelow * handSpan - halfShrinkSize;
+        newFrom + buyBelow * handSpan;
       id++;
     }
 
