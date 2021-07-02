@@ -10,7 +10,8 @@
     "new": "node source/entry/index.js starts:with:new:store",
     "historical": "node source/entry/historical.js",
     "log": "node source/entry/logStore.js",
-    "generate": "node source/entry/generate.js"
+    "generate": "node source/entry/generate.js",
+    "collect": "node source/entry/collectLastPrice.js"
   },
   "author": "",
   "license": "ISC",

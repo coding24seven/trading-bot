@@ -22,6 +22,7 @@ export default class Runner {
       // );
 
       // const fileNames = [`${directory}/small.csv`];
+      const fileNames = [`${directory}/last-prices-collected-at-real-time-copy.csv`];
 
       PriceReader.startHistoricalPriceStream(fileNames, columnWithPrice);
     } else {
