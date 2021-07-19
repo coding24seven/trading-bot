@@ -1,3 +1,5 @@
+try not to flood the exchange with many orders at once
+
 check the results of each trade, and make the program stop trading if any irregularities have occurred
 
 check what happens if the program crashes. make sure the program can be stopped/crashed and resumed at any time without detriment.

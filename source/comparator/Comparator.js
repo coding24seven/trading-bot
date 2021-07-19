@@ -4,8 +4,8 @@ export default class Comparator {
   static botConfigsWithResults = [];
   static botConfigs = [];
   static exchangeFee = 0.001;
-  static from = 30000;
-  static to = 40000;
+  static from = 1000;
+  static to = 100000;
 
   static run(pair) {
     Comparator.botConfigs = Comparator.generateBotConfigs(pair);
@@ -23,8 +23,8 @@ export default class Comparator {
   }
 
   static generateBotConfigs(pair) {
-    const handSpanMin = 0.003;
-    const handSpanMax = 0.15;
+    const handSpanMin = 0.006;
+    const handSpanMax = 0.17;
     const handStep = 0.001;
 
     const arr = [];
@@ -57,7 +57,8 @@ export default class Comparator {
   static sortConfigsByProfit() {
     return Comparator.botConfigsWithResults.sort(
       (previousItem, currentItem) =>
-        previousItem.results.pairTotal - currentItem.results.pairTotal
+        previousItem.results.pairTotal -
+        currentItem.results.pairTotal
       // previousItem.results.sellCountTotal - currentItem.results.sellCountTotal
       // previousItem.config.handCount - currentItem.config.handCount
     );

@@ -167,25 +167,19 @@ class Store {
           ); // e.g. [ 1, 3 ] -> [{key:val}, {key:val}]
 
       selectedBotConfigs.forEach((config, botIndex) => {
-        const {
-          from,
-          to,
-          handSpan,
-          quoteStartAmount,
-        } = config;
-        const computedConfig = {
+        const extendedConfig = {
           ...config,
           id: botIndex,
           itsAccountId: accountIndex,
         };
 
-        const hands = this.buildHands(computedConfig);
-        computedConfig.handCount = hands.length;
-        this.topUpHandsWithQuote(hands, computedConfig);
-        this.topUpHandsWithBase(hands, computedConfig);
+        const hands = this.buildHands(extendedConfig);
+        extendedConfig.handCount = hands.length;
+        this.topUpHandsWithQuote(hands, extendedConfig);
+        this.topUpHandsWithBase(hands, extendedConfig);
 
         const botData = {
-          config: computedConfig,
+          config: extendedConfig,
           vars: {
             hands,
           },
@@ -218,7 +212,7 @@ class Store {
     function handQualifiesForTopUp(hand) {
       return (
         hand.buyBelow >= botConfig.quoteFrom &&
-        hand.sellAbove <= botConfig.quoteTo
+        hand.buyBelow <= botConfig.quoteTo
       );
     }
   }
@@ -240,7 +234,7 @@ class Store {
     function handQualifiesForTopUp(hand) {
       return (
         hand.buyBelow >= botConfig.baseFrom &&
-        hand.sellAbove <= botConfig.baseTo
+        hand.buyBelow <= botConfig.baseTo
       );
     }
   }
@@ -268,21 +262,13 @@ class Store {
   }
 
   buildHands(config) {
-    const buyAndSellExchangeFee = 2 * this.getExchangeFee(config.itsAccountId);
-    const {
-      from,
-      to,
-      handSpan,
-    } = config;
+    const { from, to, handSpan } = config;
     const hands = [];
-    let newFrom = from;
+    let buyBelow = from;
     let id = 0;
-    let sellAboveInNextIteration = 0;
 
-    while (newFrom < to && sellAboveInNextIteration < to) {
-      const buyBelow = newFrom;
+    while (buyBelow < to) {
       const sellAbove = buyBelow + buyBelow * handSpan;
-        100 * (handSpan / buyBelow - buyAndSellExchangeFee);
 
       hands.push({
         id,
@@ -290,7 +276,6 @@ class Store {
         stopBuy: buyBelow,
         sellAbove,
         stopSell: sellAbove,
-        // bought: false,
         quote: null,
         base: null,
         buyCount: 0,
@@ -298,9 +283,7 @@ class Store {
         readyToBuy: false,
       });
 
-      newFrom += buyBelow * handSpan;
-      sellAboveInNextIteration =
-        newFrom + buyBelow * handSpan;
+      buyBelow = sellAbove;
       id++;
     }
 

@@ -13,10 +13,8 @@ export default class Runner {
     if (isHistoricalPrice) {
       const directory = "historical-price-files";
       const columnWithPrice = 2;
-      // const fileName = "BTCUSDT-1m-2021-03.csv";
-      // const fileName = "small.csv";
 
-      const monthNumbers = [5];
+      const monthNumbers = [6];
       // const fileNames = monthNumbers.map(
       //   (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
       // );

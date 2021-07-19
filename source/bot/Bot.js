@@ -123,8 +123,14 @@ export default class Bot {
   }
 
   processLastPriceStandard(lastPrice) {
+    const minTransactionValueRequiredByExchange = 0.000001; // todo: actually it is > 10 USDT
+
     const buyingHands = this.hands.filter(
-      (hand) => !hand.bought && lastPrice < hand.buyBelow
+      (hand) =>
+        this.quoteCurrencyIsAvailable(
+          hand,
+          minTransactionValueRequiredByExchange
+        ) && lastPrice < hand.buyBelow
     );
 
     buyingHands.forEach((hand) => {
@@ -132,7 +138,11 @@ export default class Bot {
     });
 
     const sellingHands = this.hands.filter(
-      (hand) => hand.bought && lastPrice > hand.sellAbove
+      (hand) =>
+        this.baseCurrencyIsAvailable(
+          hand,
+          minTransactionValueRequiredByExchange
+        ) && lastPrice > hand.sellAbove
     );
 
     sellingHands.forEach((hand) => {
