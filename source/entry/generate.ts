@@ -4,14 +4,15 @@ import Comparator from "../comparator/Comparator.js";
 import eventBus from "../events/eventBus.js";
 import Runner from "../runner/Runner.js";
 import fs from "fs";
+import { BotConfig, BotDataWithResults } from "../types";
 
-const isHistoricalPrice = true;
+const isHistoricalPrice: boolean = true;
 
 Comparator.run("BTCUSDT");
 
 console.log("bot count:", Comparator.botConfigs.length);
 
-Comparator.botConfigs.forEach((botConfig, i) => {
+Comparator.botConfigs.forEach((botConfig: BotConfig, i: number) => {
   Comparator.addEventListeners();
 
   store.setUp({ isHistoricalPrice, botConfigFromGenerator: botConfig });
@@ -21,18 +22,22 @@ Comparator.botConfigs.forEach((botConfig, i) => {
 
   eventBus.removeAllListeners();
 
-  if (i % 100 === 0) {
-    console.log("count", i + 1);
-  }
+  console.log("count", i + 1);
 });
 
-const sortedResults = Comparator.sortConfigsByProfit();
+const sortedResults: BotDataWithResults[] = Comparator.sortConfigsByProfit();
 
 fs.promises.writeFile(
   "logs/bots-sorted.json",
   JSON.stringify(sortedResults, null, 2)
 );
 
-const mostProfitableConfigsToShowCount = 6;
+const mostProfitableConfigsToShowCount: number = 6;
 
-console.log(JSON.stringify(sortedResults.slice(-mostProfitableConfigsToShowCount),null,2));
+console.log(
+  JSON.stringify(
+    sortedResults.slice(-mostProfitableConfigsToShowCount),
+    null,
+    2
+  )
+);

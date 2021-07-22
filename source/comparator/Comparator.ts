@@ -1,35 +1,36 @@
 import eventBus from "../events/eventBus.js";
+import { BotConfig, BotDataWithResults, BotVariables } from "../types";
 
 export default class Comparator {
-  static botConfigsWithResults = [];
-  static botConfigs = [];
-  static exchangeFee = 0.001;
-  static from = 1000;
-  static to = 100000;
+  static botConfigsWithResults: BotDataWithResults[] = [];
+  static botConfigs: BotConfig[] = [];
+  static exchangeFee: number = 0.001;
+  static from: number = 1000;
+  static to: number = 100000;
 
-  static run(pair) {
+  static run(pair: string) {
     Comparator.botConfigs = Comparator.generateBotConfigs(pair);
   }
 
   static addEventListeners() {
     eventBus.on(
-      eventBus.events.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
-      Comparator.addBotConfigWithResult
+      eventBus.events!.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
+      Comparator.addBotDataWithResult
     );
   }
 
-  static addBotConfigWithResult(data) {
+  static addBotDataWithResult(data: BotDataWithResults) {
     Comparator.botConfigsWithResults.push(data);
   }
 
-  static generateBotConfigs(pair) {
-    const handSpanMin = 0.006;
-    const handSpanMax = 0.17;
-    const handStep = 0.001;
+  static generateBotConfigs(pair: string): BotConfig[] {
+    const handSpanMin: number = 0.006;
+    const handSpanMax: number = 0.17;
+    const handStep: number = 0.01;
+    const arr: BotConfig[] = [];
 
-    const arr = [];
     for (
-      let handSpan = handSpanMin;
+      let handSpan: number = handSpanMin;
       handSpan <= handSpanMax;
       handSpan += handStep
     ) {
@@ -48,17 +49,19 @@ export default class Comparator {
         baseStartAmount: 0,
         baseStartAmountPerHand: null,
         exchangeFee: Comparator.exchangeFee,
+        id: null,
+        itsAccountId: null,
       });
     }
 
     return arr;
   }
 
-  static sortConfigsByProfit() {
+  static sortConfigsByProfit(): BotDataWithResults[] {
     return Comparator.botConfigsWithResults.sort(
-      (previousItem, currentItem) =>
-        previousItem.results.pairTotal -
-        currentItem.results.pairTotal
+      (previousItem: BotVariables, currentItem: BotVariables) =>
+        previousItem.results!.quoteTotalIncludingBaseSoldAsPlanned -
+        currentItem.results!.quoteTotalIncludingBaseSoldAsPlanned
       // previousItem.results.sellCountTotal - currentItem.results.sellCountTotal
       // previousItem.config.handCount - currentItem.config.handCount
     );

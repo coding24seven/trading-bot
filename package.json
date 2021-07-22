@@ -2,16 +2,16 @@
   "name": "trading-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "source/entry/index.js",
+  "main": "source/entry/index.ts",
   "type": "module",
   "scripts": {
-    "start": "node source/entry/index.js",
-    "continue": "npm start",
-    "new": "node source/entry/index.js starts:with:new:store",
-    "historical": "node source/entry/historical.js",
-    "log": "node source/entry/logStore.js",
-    "generate": "node source/entry/generate.js",
-    "collect": "node source/entry/collectLastPrice.js"
+    "start": "tsc && node dist/entry/index.js",
+    "continue": "tsc && npm start",
+    "new": "tsc && node dist/entry/index.js starts:with:new:store",
+    "historical": "tsc && node dist/entry/historical.js",
+    "log": "tsc && node dist/entry/logStore.js",
+    "generate": "tsc && node dist/entry/generate.js",
+    "collect": "tsc && node dist/entry/collectLastPrice.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,5 +19,9 @@
     "axios": "^0.21.1",
     "dotenv": "^10.0.0",
     "node-binance-api": "^0.12.5"
+  },
+  "devDependencies": {
+    "@types/node": "^16.3.3",
+    "typescript": "^4.3.5"
   }
 }

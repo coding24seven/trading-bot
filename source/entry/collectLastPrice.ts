@@ -4,20 +4,22 @@
 
 import fs from "fs";
 import Binance from "node-binance-api";
+import { Pair, Pairs } from "../types";
+import Messages from "../messages";
 
-const binance = new Binance();
-const outputFilePath =
+const binance: Binance = new Binance();
+const outputFilePath: string =
   "historical-price-files/last-prices-collected-at-real-time.csv";
 
-binance.websockets.miniTicker(async (pairs) => {
-  const pair = pairs.BTCUSDT;
+binance.websockets.miniTicker(async (pairs: Pairs) => {
+  const pair: Pair = pairs.BTCUSDT;
 
-  if (!pair || !pair.close) return;
+  if (pair?.close) return;
 
-  const lastPrice = parseFloat(pair.close);
+  const lastPrice: number = pair.close;
 
   if (isNaN(lastPrice)) {
-    console.log(`${lastPrice} is not a number`);
+    console.log(`${lastPrice} ${Messages.IS_NOT_A_NUMBER}`);
     return;
   }
 

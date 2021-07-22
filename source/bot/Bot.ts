@@ -1,38 +1,48 @@
 import eventBus from "../events/eventBus.js";
 import store from "../store/Store.js";
 import Trader from "../trader/Trader.js";
+import {
+  BotDataWithResults,
+  BotData,
+  BotHand,
+  BotResults,
+  TradeHistoryItem,
+  Pairs,
+  Pair,
+} from "../types";
+import Messages from "../messages";
 
 export default class Bot {
-  data = null;
-  id = null;
-  itsAccountId = null;
-  hands = [];
-  trader = {};
-  lastPrice = null;
-  lowestPriceRecorded = Infinity;
-  highestPriceRecorded = -Infinity;
-  buyCountTotal = 0;
-  sellCountTotal = 0;
-  buyResetCount = 0;
-  sellResetCount = 0;
-  count = 0;
-  onLastPriceHasRunAtLeastOnce = false;
-  tradeHistory = []; // not added to store atm
-  letRunnersRun = process.argv.includes("lrr");
+  data: BotData | null = null;
+  id: number | null = null;
+  itsAccountId: number | null = null;
+  hands: BotHand[] = [];
+  trader: Trader;
+  lastPrice: number | null = null;
+  lowestPriceRecorded: number = Infinity;
+  highestPriceRecorded: number = -Infinity;
+  buyCountTotal: number = 0;
+  sellCountTotal: number = 0;
+  buyResetCount: number = 0;
+  sellResetCount: number = 0;
+  count: number = 0;
+  onLastPriceHasRunAtLeastOnce: boolean = false;
+  tradeHistory: TradeHistoryItem[] = []; // not added to store atm
+  letRunnersRun: boolean = process.argv.includes("lrr");
 
-  constructor(data) {
+  constructor(data: BotData) {
     this.data = data;
     this.id = data.config.id;
     this.itsAccountId = data.config.itsAccountId;
     this.hands = data.vars.hands;
     this.trader = new Trader(
-      data.config.itsAccountId,
+      data.config.itsAccountId!,
       data.config.pair,
-      store.getExchangeFee(this.itsAccountId)
+      store.getExchangeFee(this.itsAccountId)!
     );
-    eventBus.on(eventBus.events.LAST_PRICE, this.onLastPrice.bind(this));
+    eventBus.on(eventBus.events!.LAST_PRICE, this.onLastPrice.bind(this));
     eventBus.on(
-      eventBus.events.HISTORICAL_PRICE_READER_FINISHED,
+      eventBus.events!.HISTORICAL_PRICE_READER_FINISHED,
       this.onHistoricalPriceReaderFinished.bind(this)
     );
   }
@@ -41,34 +51,46 @@ export default class Bot {
     store.setResults(this.itsAccountId, this.id, this.getResults());
 
     eventBus.emit(
-      eventBus.events.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
-      this.getConfigAndResultsAndTradeHistory()
+      eventBus.events!.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
+      this.getBotDataWithResults()
     );
   }
 
-  getConfigAndResultsAndTradeHistory() {
+  getBotDataWithResults(
+    options: { tradeHistoryIncluded: boolean } | null = null
+  ): BotDataWithResults {
+    let tradeHistoryIncluded: boolean = false;
+
+    if (options) {
+      tradeHistoryIncluded = options.tradeHistoryIncluded;
+    }
+
     return {
       hands: this.hands,
-      // tradeHistory: this.tradeHistory,
-      config: this.data.config,
+      ...(tradeHistoryIncluded && { tradeHistory: this.tradeHistory }),
+      config: this.data!.config,
       results: store.getResults(this.itsAccountId, this.id),
     };
   }
 
-  getResults() {
-    const quoteTotal = this.hands.reduce(
-      (accumulator, item) => accumulator + item.quote,
+  getResults(): BotResults | undefined {
+    if (!this.lastPrice) {
+      return;
+    }
+
+    const quoteTotal: number = this.hands.reduce(
+      (accumulator: number, item: BotHand) => accumulator + item.quote,
       0
     );
 
-    const baseTotal = this.hands.reduce(
-      (accumulator, item) => accumulator + item.base,
+    const baseTotal: number = this.hands.reduce(
+      (accumulator: number, item: BotHand) => accumulator + item.base,
       0
     );
 
-    const baseAtLastPriceToQuoteTotal = baseTotal * this.lastPrice;
-    const pairTotal = quoteTotal + baseAtLastPriceToQuoteTotal;
-    const quoteTotalIncludingBaseSoldAsPlanned = this.getQuoteTotalIncludingBaseSoldAsPlanned();
+    const baseAtLastPriceToQuoteTotal: number = baseTotal * this.lastPrice;
+    const pairTotal: number = quoteTotal + baseAtLastPriceToQuoteTotal;
+    const quoteTotalIncludingBaseSoldAsPlanned: number = this.getQuoteTotalIncludingBaseSoldAsPlanned();
 
     return {
       quoteTotal,
@@ -86,15 +108,15 @@ export default class Bot {
     };
   }
 
-  onLastPrice(pairs) {
-    const pair = pairs[this.data.config.pair];
+  onLastPrice(pairs: Pairs) {
+    const pair: Pair = pairs[this.data!.config.pair];
 
     if (!pair || !pair.close) return;
 
-    const lastPrice = parseFloat(pair.close);
+    const lastPrice: number = pair.close;
 
     if (isNaN(lastPrice)) {
-      console.log(`${lastPrice} is not a number`);
+      console.log(`${lastPrice} ${Messages.IS_NOT_A_NUMBER}`);
       return;
     }
 
@@ -112,49 +134,55 @@ export default class Bot {
     }
   }
 
-  quoteCurrencyIsAvailable(hand, minTransactionValueRequiredByExchange) {
-    // return hand.quote >= minTransactionValueRequiredByExchange;
+  quoteCurrencyIsAvailable(
+    hand: BotHand,
+    minTransactionValueRequiredByExchange: number
+  ): boolean {
+    // todo: return hand.quote >= minTransactionValueRequiredByExchange;
     return hand.quote > 0;
   }
 
-  baseCurrencyIsAvailable(hand, minTransactionValueRequiredByExchange) {
-    // return hand.base * this.lastPrice >= minTransactionValueRequiredByExchange;
+  baseCurrencyIsAvailable(
+    hand: BotHand,
+    minTransactionValueRequiredByExchange: number
+  ): boolean {
+    // todo: return hand.base * this.lastPrice >= minTransactionValueRequiredByExchange;
     return hand.base > 0;
   }
 
-  processLastPriceStandard(lastPrice) {
-    const minTransactionValueRequiredByExchange = 0.000001; // todo: actually it is > 10 USDT
+  processLastPriceStandard(lastPrice: number) {
+    const minTransactionValueRequiredByExchange: number = 0.000001; // todo: actually it is > 10 USDT
 
-    const buyingHands = this.hands.filter(
-      (hand) =>
+    const buyingHands: BotHand[] = this.hands.filter(
+      (hand: BotHand) =>
         this.quoteCurrencyIsAvailable(
           hand,
           minTransactionValueRequiredByExchange
         ) && lastPrice < hand.buyBelow
     );
 
-    buyingHands.forEach((hand) => {
+    buyingHands.forEach((hand: BotHand) => {
       this.buy(hand, lastPrice);
     });
 
-    const sellingHands = this.hands.filter(
-      (hand) =>
+    const sellingHands: BotHand[] = this.hands.filter(
+      (hand: BotHand) =>
         this.baseCurrencyIsAvailable(
           hand,
           minTransactionValueRequiredByExchange
         ) && lastPrice > hand.sellAbove
     );
 
-    sellingHands.forEach((hand) => {
+    sellingHands.forEach((hand: BotHand) => {
       this.sell(hand, lastPrice);
     });
   }
 
-  processLastPriceLettingRunnersRun(lastPrice) {
-    const minTransactionValueRequiredByExchange = 0.000001; // todo: actually it is > 10 USDT
+  processLastPriceLettingRunnersRun(lastPrice: number): undefined {
+    const minTransactionValueRequiredByExchange: number = 0.000001; // todo: actually it is > 10 USDT
 
     if (!this.onLastPriceHasRunAtLeastOnce) {
-      this.hands.forEach((hand) => {
+      this.hands.forEach((hand: BotHand) => {
         if (
           this.quoteCurrencyIsAvailable(
             hand,
@@ -172,11 +200,11 @@ export default class Bot {
       return;
     }
 
-    const stepPercent = 0.001; // temp
+    const stepPercent: number = 0.01; // temp value
 
     this.hands
-      .filter((hand) => hand.readyToBuy)
-      .forEach((hand) => {
+      .filter((hand: BotHand) => hand.readyToBuy)
+      .forEach((hand: BotHand) => {
         if (
           !this.quoteCurrencyIsAvailable(
             hand,
@@ -203,7 +231,7 @@ export default class Bot {
         }
       });
 
-    this.hands.forEach((hand) => {
+    this.hands.forEach((hand: BotHand) => {
       if (
         !this.quoteCurrencyIsAvailable(
           hand,
@@ -218,8 +246,8 @@ export default class Bot {
     });
 
     this.hands
-      .filter((hand) => hand.readyToSell)
-      .forEach((hand) => {
+      .filter((hand: BotHand) => hand.readyToSell)
+      .forEach((hand: BotHand) => {
         if (
           !this.baseCurrencyIsAvailable(
             hand,
@@ -247,7 +275,7 @@ export default class Bot {
         }
       });
 
-    this.hands.forEach((hand) => {
+    this.hands.forEach((hand: BotHand) => {
       if (
         !this.baseCurrencyIsAvailable(
           hand,
@@ -263,10 +291,11 @@ export default class Bot {
   }
 
   // todo: fix so the properties are not modified via a parameter
-  buy(hand, lastPrice) {
-    const buyMethod = store.isHistoricalPrice
-      ? this.trader.buyFake
-      : this.trader.buy;
+  buy(hand: BotHand, lastPrice: number) {
+    const buyMethod: (
+      hand: BotHand,
+      lastPrice: number
+    ) => void = store.isHistoricalPrice ? this.trader.buyFake : this.trader.buy;
 
     buyMethod.call(this.trader, hand, lastPrice);
     // await for the buy result promise
@@ -285,11 +314,14 @@ export default class Bot {
 
     if (store.isHistoricalPrice) return;
 
-    this.storeCurrentResultsAndConsoleLogThem();
+    this.storeCurrentResultsAndConsoleLogThem(); // todo: re-evaluate
   }
 
-  sell(hand, lastPrice) {
-    const sellMethod = store.isHistoricalPrice
+  sell(hand: BotHand, lastPrice: number) {
+    const sellMethod: (
+      hand: BotHand,
+      lastPrice: number
+    ) => void = store.isHistoricalPrice
       ? this.trader.sellFake
       : this.trader.sell;
 
@@ -298,6 +330,7 @@ export default class Bot {
 
     hand.sellCount++;
     this.sellCountTotal++;
+
     this.tradeHistory.push({
       id: hand.id,
       buyBelow: hand.buyBelow,
@@ -310,28 +343,31 @@ export default class Bot {
 
     if (store.isHistoricalPrice) return;
 
-    this.storeCurrentResultsAndConsoleLogThem();
+    this.storeCurrentResultsAndConsoleLogThem(); // todo: re-evaluate
   }
 
   storeCurrentResultsAndConsoleLogThem() {
     store.setResults(this.itsAccountId, this.id, this.getResults());
-    console.log(this.getConfigAndResultsAndTradeHistory());
+    console.log(this.getBotDataWithResults());
   }
 
-  getQuoteTotalIncludingBaseSoldAsPlanned() {
-    const arr = JSON.parse(JSON.stringify(this.hands));
+  getQuoteTotalIncludingBaseSoldAsPlanned(): number {
+    const arr: BotHand[] = JSON.parse(JSON.stringify(this.hands));
 
-    arr.forEach((hand) => {
+    arr.forEach((hand: BotHand) => {
       if (hand.base > 0) {
         hand.quote += hand.base * hand.sellAbove;
         hand.base = 0;
       }
     });
 
-    return arr.reduce((accumulator, item) => accumulator + item.quote, 0);
+    return arr.reduce(
+      (accumulator: number, item: BotHand) => accumulator + item.quote,
+      0
+    );
   }
 
-  recordLowestAndHighestPrice(lastPrice) {
+  recordLowestAndHighestPrice(lastPrice: number) {
     this.lowestPriceRecorded =
       lastPrice < this.lowestPriceRecorded
         ? lastPrice

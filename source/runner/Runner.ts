@@ -1,26 +1,29 @@
 import store from "../store/Store.js";
 import Account from "../account/Account.js";
 import PriceReader from "../price-reader/PriceReader.js";
+import { AccountData } from "../types";
 
 export default class Runner {
   static runBots() {
-    store.accounts.forEach((accountData) => {
+    store.accounts.forEach((accountData: AccountData) => {
       new Account(accountData);
     });
   }
 
-  static runPriceReader(isHistoricalPrice = false) {
+  static runPriceReader(isHistoricalPrice: boolean = false) {
     if (isHistoricalPrice) {
-      const directory = "historical-price-files";
-      const columnWithPrice = 2;
+      const directory: string = "historical-price-files";
+      const columnWithPrice: number = 2;
 
-      const monthNumbers = [6];
+      const monthNumbers: number[] = [6];
       // const fileNames = monthNumbers.map(
       //   (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
       // );
 
       // const fileNames = [`${directory}/small.csv`];
-      const fileNames = [`${directory}/last-prices-collected-at-real-time-copy.csv`];
+      const fileNames: string[] = [
+        `${directory}/last-prices-collected-at-real-time-copy.csv`,
+      ];
 
       PriceReader.startHistoricalPriceStream(fileNames, columnWithPrice);
     } else {

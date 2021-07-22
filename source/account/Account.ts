@@ -1,0 +1,17 @@
+import Bot from "../bot/Bot.js";
+import { AccountData, BotData } from "../types";
+import Messages from "../messages/index.js";
+
+export default class Account {
+  bots: Bot[] = [];
+
+  constructor(data: AccountData) {
+    if (!data.bots || data.bots.length < 1) {
+      throw new Error(Messages.NO_BOT_DATA_AVAILABLE);
+    }
+
+    data.bots.forEach((botData: BotData) => {
+      this.bots.push(new Bot(botData));
+    });
+  }
+}

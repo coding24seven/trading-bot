@@ -2,9 +2,9 @@ import "dotenv/config";
 import store from "../store/Store.js";
 import Runner from "../runner/Runner.js";
 
-const commandLineArguments = process.argv;
+const commandLineArguments: string[] = process.argv;
 
-const continueWithExistingDatabase = !commandLineArguments.includes(
+const continueWithExistingDatabase: boolean = !commandLineArguments.includes(
   "starts:with:new:store"
 );
 
