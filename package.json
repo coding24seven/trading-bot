@@ -5,13 +5,13 @@
   "main": "source/entry/index.ts",
   "type": "module",
   "scripts": {
-    "start": "tsc && node dist/entry/index.js",
-    "continue": "tsc && npm start",
-    "new": "tsc && node dist/entry/index.js starts:with:new:store",
-    "historical": "tsc && node dist/entry/historical.js",
-    "log": "tsc && node dist/entry/logStore.js",
-    "generate": "tsc && node dist/entry/generate.js",
-    "collect": "tsc && node dist/entry/collectLastPrice.js"
+    "start": "tsc && node dist/source/entry/index.js",
+    "continue": "npm start",
+    "new": "tsc && node dist/source/entry/index.js starts:with:new:store",
+    "historical": "tsc && node dist/source/entry/historical.js",
+    "log": "tsc && node dist/source/entry/logStore.js",
+    "generate": "tsc && node dist/source/entry/generate.js",
+    "collect": "tsc && node dist/source/entry/collectLastPrice.js"
   },
   "author": "",
   "license": "ISC",

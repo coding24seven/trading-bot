@@ -10,7 +10,7 @@ import {
   Pairs,
   Pair,
 } from "../types";
-import Messages from "../messages";
+import Messages from "../messages/index.js";
 
 export default class Bot {
   data: BotData | null = null;

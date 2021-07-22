@@ -6,14 +6,14 @@ import { BotConfig } from "../types";
 const botConfigs: BotConfig[] = [
   {
     pair: "BTCUSDT",
-    from: 30000,
-    to: 40000,
+    from: 1000,
+    to: 100000,
     quoteFrom: 30000,
     quoteTo: 40000,
     baseFrom: 30000,
-    baseTo: 37800,
+    baseTo: 40000,
     handCount: null,
-    handSpan: 0.003,
+    handSpan: 0.015,
     quoteStartAmount: 100,
     quoteStartAmountPerHand: null,
     baseStartAmount: 0,
