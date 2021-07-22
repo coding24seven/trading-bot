@@ -134,31 +134,27 @@ export default class Bot {
     }
   }
 
-  quoteCurrencyIsAvailable(
+  quoteCurrencyIsEnoughToTrade(
     hand: BotHand,
-    minTransactionValueRequiredByExchange: number
+    minTradeAmountRequiredByExchange: number
   ): boolean {
-    // todo: return hand.quote >= minTransactionValueRequiredByExchange;
-    return hand.quote > 0;
+    return hand.quote >= minTradeAmountRequiredByExchange;
   }
 
-  baseCurrencyIsAvailable(
+  baseCurrencyIsEnoughToTrade(
     hand: BotHand,
-    minTransactionValueRequiredByExchange: number
+    minTradeAmountRequiredByExchange: number
   ): boolean {
-    // todo: return hand.base * this.lastPrice >= minTransactionValueRequiredByExchange;
-    return hand.base > 0;
+    return hand.base * this.lastPrice! >= minTradeAmountRequiredByExchange;
   }
 
   processLastPriceStandard(lastPrice: number) {
-    const minTransactionValueRequiredByExchange: number = 0.000001; // todo: actually it is > 10 USDT
+    const minTradeAmountRequiredByExchange: number = 11;
 
     const buyingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
-        this.quoteCurrencyIsAvailable(
-          hand,
-          minTransactionValueRequiredByExchange
-        ) && lastPrice < hand.buyBelow
+        this.quoteCurrencyIsEnoughToTrade(hand, minTradeAmountRequiredByExchange) &&
+        lastPrice < hand.buyBelow
     );
 
     buyingHands.forEach((hand: BotHand) => {
@@ -167,9 +163,9 @@ export default class Bot {
 
     const sellingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
-        this.baseCurrencyIsAvailable(
+        this.baseCurrencyIsEnoughToTrade(
           hand,
-          minTransactionValueRequiredByExchange
+          minTradeAmountRequiredByExchange
         ) && lastPrice > hand.sellAbove
     );
 
@@ -179,14 +175,14 @@ export default class Bot {
   }
 
   processLastPriceLettingRunnersRun(lastPrice: number): undefined {
-    const minTransactionValueRequiredByExchange: number = 0.000001; // todo: actually it is > 10 USDT
+    const minTradeAmountRequiredByExchange: number = 11;
 
     if (!this.onLastPriceHasRunAtLeastOnce) {
       this.hands.forEach((hand: BotHand) => {
         if (
-          this.quoteCurrencyIsAvailable(
+          this.quoteCurrencyIsEnoughToTrade(
             hand,
-            minTransactionValueRequiredByExchange
+            minTradeAmountRequiredByExchange
           ) &&
           lastPrice < hand.buyBelow
         ) {
@@ -206,10 +202,7 @@ export default class Bot {
       .filter((hand: BotHand) => hand.readyToBuy)
       .forEach((hand: BotHand) => {
         if (
-          !this.quoteCurrencyIsAvailable(
-            hand,
-            minTransactionValueRequiredByExchange
-          )
+          !this.quoteCurrencyIsEnoughToTrade(hand, minTradeAmountRequiredByExchange)
         ) {
           // hand has no quote - do nothing
         } else if (lastPrice > hand.stopBuy && lastPrice < hand.sellAbove) {
@@ -233,10 +226,7 @@ export default class Bot {
 
     this.hands.forEach((hand: BotHand) => {
       if (
-        !this.quoteCurrencyIsAvailable(
-          hand,
-          minTransactionValueRequiredByExchange
-        )
+        !this.quoteCurrencyIsEnoughToTrade(hand, minTradeAmountRequiredByExchange)
       ) {
         // hand has no quote - do nothing
       } else if (!hand.readyToBuy && lastPrice < hand.buyBelow) {
@@ -249,9 +239,9 @@ export default class Bot {
       .filter((hand: BotHand) => hand.readyToSell)
       .forEach((hand: BotHand) => {
         if (
-          !this.baseCurrencyIsAvailable(
+          !this.baseCurrencyIsEnoughToTrade(
             hand,
-            minTransactionValueRequiredByExchange
+            minTradeAmountRequiredByExchange
           )
         ) {
           // hand has no base - do nothing
@@ -277,9 +267,9 @@ export default class Bot {
 
     this.hands.forEach((hand: BotHand) => {
       if (
-        !this.baseCurrencyIsAvailable(
+        !this.baseCurrencyIsEnoughToTrade(
           hand,
-          minTransactionValueRequiredByExchange
+          minTradeAmountRequiredByExchange
         )
       ) {
         // hand has no base - do nothing
