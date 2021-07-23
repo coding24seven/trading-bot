@@ -1,4 +1,10 @@
-try not to flood the exchange with many orders at once
+save to database after each trade
+
+find a diffrent solution for typescript config!
+
+minimum trade amount required by exchange - get value from exchange for each pair
+
+try not to flood the exchange with many orders at once when new hands start buying
 
 check the results of each trade, and make the program stop trading if any irregularities have occurred
 

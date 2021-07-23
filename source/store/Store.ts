@@ -2,16 +2,16 @@ import botConfigs from "../bot/botConfig.js";
 import axios, { AxiosResponse } from "axios";
 import readlineImported, { Interface } from "readline";
 import {
-  AppEnvironment,
-  AccountData,
   AccountConfig,
-  BotConfigIndexesPerAccount,
+  AccountData,
+  AccountDataStripped,
+  AppEnvironment,
   BotConfig,
-  BotResults,
+  BotConfigIndexesPerAccount,
   BotData,
   BotHand,
+  BotResults,
   StoreSetupParameters,
-  AccountDataStripped,
 } from "../types";
 import Messages from "../messages/index.js";
 
@@ -50,47 +50,63 @@ class Store {
           input: process.stdin,
           output: process.stdout,
         });
-        readline.question(Messages.OVERWRITE_EXISTING_DATABASE, (answer) => {
-          readline.close();
+        readline.question(
+          Messages.OVERWRITE_EXISTING_DATABASE,
+          async (answer: string) => {
+            readline.close();
 
-          if (answer === "y" || answer === "yes") {
-            this.createAccountsWithBots();
-            this.writeDatabase()
-              .then(() => {
-                resolve();
-                console.log(
-                  Messages.DATABASE_OVERRIDDEN_WITH_NEWLY_CREATED_STORE
-                );
-              })
-              .catch(reject);
-          } else {
-            reject(Messages.DATABASE_NOT_OVERRIDDEN_START_AGAIN);
-          }
-        });
-      } else {
-        const databaseContent: AccountData[] | null = await this.readDatabase();
-
-        if (databaseContent) {
-          console.log(Messages.DATABASE_EXISTS);
-          // console.log(JSON.stringify(databaseContent, null, 2));
-
-          databaseContent.forEach((account: AccountData, i: number) => {
-            const bots: BotData[] | undefined = databaseContent[i].bots;
-
-            if (bots) {
-              this.bots[i] = bots;
+            if (answer === "y" || answer === "yes") {
+              await this.setUpAnew();
+              console.log(Messages.DATABASE_CREATED);
+              resolve();
+            } else {
+              reject(Messages.DATABASE_OVERWRITE_PREVENTED_BY_CLIENT);
             }
-          });
+          }
+        );
+      } else {
+        /* continueWithExistingDatabase */
+        const response: AxiosResponse | undefined = await this.readDatabase();
 
-          this.createAccountsWithBots({ skipBotSetup: true });
-        } else {
-          this.createAccountsWithBots();
-          await this.writeDatabase();
-          console.log(Messages.DATABASE_HAD_NOT_EXISTED_BUT_WAS_CREATED);
+        if (response?.status === 200) {
+          console.log(Messages.DATABASE_EXISTS);
+          this.setUpFromExistingDatabase(response.data);
+        } else if (response?.status === 404) {
+          console.log(Messages.DATABASE_DOES_NOT_EXIST);
+          await this.setUpAnew();
+          console.log(Messages.DATABASE_CREATED);
+        } else if (!response) {
+          throw new Error(Messages.DATABASE_READ_SERVER_CONNECTION_FAIL);
         }
+
         resolve();
       }
     });
+  }
+
+  private async setUpAnew(): Promise<AxiosResponse | never> {
+    this.createAccountsWithBots();
+    const response: AxiosResponse | undefined = await this.writeDatabase();
+
+    if (!response) {
+      throw new Error(Messages.DATABASE_WRITE_SERVER_CONNECTION_FAIL);
+    } else if (response?.status !== 200) {
+      throw new Error(response.data);
+    }
+
+    return response;
+  }
+
+  private setUpFromExistingDatabase(data: AccountDataStripped[]) {
+    data.forEach((account: AccountDataStripped, i: number) => {
+      const bots: BotData[] | undefined = data[i].bots;
+
+      if (bots) {
+        this.bots[i] = bots;
+      }
+    });
+
+    this.createAccountsWithBots({ skipBotSetup: true });
   }
 
   createAccountsWithBots(options: { skipBotSetup: boolean } | null = null) {
@@ -378,18 +394,15 @@ class Store {
     return this.accounts[accountId].config!;
   }
 
-  async readDatabase(): Promise<AccountData[] | null> {
+  async readDatabase(): Promise<AxiosResponse | undefined> {
     try {
-      const data = (await axios.get(this.appEnvironment!.requestUrl)).data;
-      console.log("data", data);
-      return data;
-    } catch (e) {
-      // console.log(e.response.data); // error object from the database server
-      return null;
+      return await axios.get(this.appEnvironment!.requestUrl);
+    } catch (error) {
+      return this.handleDatabaseError(error);
     }
   }
 
-  async writeDatabase(): Promise<AxiosResponse | any> {
+  async writeDatabase(): Promise<AxiosResponse | undefined> {
     try {
       return await axios.post(
         this.appEnvironment!.requestUrl,
@@ -401,10 +414,32 @@ class Store {
           },
         }
       );
-    } catch (e) {
-      console.log(e.response.data); // error object from the database server
-      // NOTIFY ABOUT WRITE TO DATABASE PROBLEM
+    } catch (error) {
+      return this.handleDatabaseError(error);
     }
+  }
+
+  async deleteDatabase(): Promise<AxiosResponse | undefined> {
+    try {
+      return await axios.delete(this.appEnvironment!.requestUrl, {
+        headers: {
+          password: process.env.DATABASE_PASSWORD,
+        },
+      });
+    } catch (error) {
+      return this.handleDatabaseError(error);
+    }
+  }
+
+  handleDatabaseError(error): AxiosResponse | undefined {
+    if (error.response) {
+      return error.response;
+    } else if (error.request) {
+      console.log(Messages.DATABASE_SERVER_HAS_NOT_RESPONDED);
+    } else {
+      throw new Error(Messages.DATABASE_REQUEST_GENERIC_PROBLEM);
+    }
+    // todo: NOTIFY (BY EMAIL?) ABOUT READ/WRITE TO DATABASE ERROR
   }
 
   /*
