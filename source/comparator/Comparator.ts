@@ -5,7 +5,7 @@ export default class Comparator {
   static botConfigsWithResults: BotDataWithResults[] = [];
   static botConfigs: BotConfig[] = [];
   static exchangeFee: number = 0.001;
-  static from: number = 1000;
+  static from: number = 20000;
   static to: number = 100000;
 
   static run(pair: string) {
@@ -25,14 +25,14 @@ export default class Comparator {
 
   static generateBotConfigs(pair: string): BotConfig[] {
     const handSpanMin: number = 0.006;
+    const handSpanStep: number = 0.01;
     const handSpanMax: number = 0.17;
-    const handStep: number = 0.01;
     const arr: BotConfig[] = [];
 
     for (
       let handSpan: number = handSpanMin;
       handSpan <= handSpanMax;
-      handSpan += handStep
+      handSpan += handSpanStep
     ) {
       arr.push({
         pair,

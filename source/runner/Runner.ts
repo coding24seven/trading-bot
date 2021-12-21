@@ -22,7 +22,7 @@ export default class Runner {
 
       // const fileNames = [`${directory}/small.csv`];
       const fileNames: string[] = [
-        `${directory}/last-prices-collected-at-real-time-copy.csv`,
+        `${directory}/last-prices-collected-at-real-time.csv`,
       ];
 
       PriceReader.startHistoricalPriceStream(fileNames, columnWithPrice);

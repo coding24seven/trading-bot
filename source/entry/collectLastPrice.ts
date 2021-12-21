@@ -5,7 +5,7 @@
 import fs from "fs";
 import Binance from "node-binance-api";
 import { Pair, Pairs } from "../types";
-import Messages from "../messages";
+import Messages from "../messages/index.js";
 
 const binance: Binance = new Binance();
 const outputFilePath: string =
@@ -14,7 +14,7 @@ const outputFilePath: string =
 binance.websockets.miniTicker(async (pairs: Pairs) => {
   const pair: Pair = pairs.BTCUSDT;
 
-  if (pair?.close) return;
+  if (!pair?.close) return;
 
   const lastPrice: number = pair.close;
 

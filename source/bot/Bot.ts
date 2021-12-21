@@ -149,7 +149,7 @@ export default class Bot {
   }
 
   processLastPriceStandard(lastPrice: number) {
-    const minTradeAmountRequiredByExchange: number = 11;
+    const minTradeAmountRequiredByExchange: number = 11; // todo: get value from api
 
     const buyingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
@@ -175,7 +175,7 @@ export default class Bot {
   }
 
   processLastPriceLettingRunnersRun(lastPrice: number): undefined {
-    const minTradeAmountRequiredByExchange: number = 11;
+    const minTradeAmountRequiredByExchange: number = 11; // todo: get value from api
 
     if (!this.onLastPriceHasRunAtLeastOnce) {
       this.hands.forEach((hand: BotHand) => {
@@ -196,7 +196,7 @@ export default class Bot {
       return;
     }
 
-    const stepPercent: number = 0.01; // temp value
+    const stepPercent: number = 0.01; // todo: temp value
 
     this.hands
       .filter((hand: BotHand) => hand.readyToBuy)
