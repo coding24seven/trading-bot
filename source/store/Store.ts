@@ -157,6 +157,8 @@ class Store {
         arr.push({
           apiKey,
           secretKey,
+          passphrase: "",
+          environment: "",
           exchangeFee: parseFloat(exchangeFee),
         });
       }

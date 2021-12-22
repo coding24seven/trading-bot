@@ -8,7 +8,7 @@ import { BotConfig, BotDataWithResults } from "../types";
 
 const isHistoricalPrice: boolean = true;
 
-Comparator.run("BTCUSDT");
+Comparator.run("BTC-USDT");
 
 console.log("bot count:", Comparator.botConfigs.length);
 

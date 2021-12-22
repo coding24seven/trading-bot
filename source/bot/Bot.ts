@@ -108,18 +108,7 @@ export default class Bot {
     };
   }
 
-  onLastPrice(pairs: Pairs) {
-    const pair: Pair = pairs[this.data!.config.pair];
-
-    if (!pair || !pair.close) return;
-
-    const lastPrice: number = pair.close;
-
-    if (isNaN(lastPrice)) {
-      console.log(`${lastPrice} ${Messages.IS_NOT_A_NUMBER}`);
-      return;
-    }
-
+  onLastPrice(lastPrice: number) {
     this.lastPrice = lastPrice;
     this.recordLowestAndHighestPrice(lastPrice);
 
@@ -153,8 +142,10 @@ export default class Bot {
 
     const buyingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
-        this.quoteCurrencyIsEnoughToTrade(hand, minTradeAmountRequiredByExchange) &&
-        lastPrice < hand.buyBelow
+        this.quoteCurrencyIsEnoughToTrade(
+          hand,
+          minTradeAmountRequiredByExchange
+        ) && lastPrice < hand.buyBelow
     );
 
     buyingHands.forEach((hand: BotHand) => {
@@ -202,7 +193,10 @@ export default class Bot {
       .filter((hand: BotHand) => hand.readyToBuy)
       .forEach((hand: BotHand) => {
         if (
-          !this.quoteCurrencyIsEnoughToTrade(hand, minTradeAmountRequiredByExchange)
+          !this.quoteCurrencyIsEnoughToTrade(
+            hand,
+            minTradeAmountRequiredByExchange
+          )
         ) {
           // hand has no quote - do nothing
         } else if (lastPrice > hand.stopBuy && lastPrice < hand.sellAbove) {
@@ -226,7 +220,10 @@ export default class Bot {
 
     this.hands.forEach((hand: BotHand) => {
       if (
-        !this.quoteCurrencyIsEnoughToTrade(hand, minTradeAmountRequiredByExchange)
+        !this.quoteCurrencyIsEnoughToTrade(
+          hand,
+          minTradeAmountRequiredByExchange
+        )
       ) {
         // hand has no quote - do nothing
       } else if (!hand.readyToBuy && lastPrice < hand.buyBelow) {

@@ -5,7 +5,7 @@ import { BotConfig } from "../types";
 
 const botConfigs: BotConfig[] = [
   {
-    pair: "BTCUSDT",
+    pair: "BTC-USDT",
     from: 20000,
     to: 100000,
     quoteFrom: 40000,

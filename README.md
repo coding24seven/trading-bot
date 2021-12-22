@@ -13,7 +13,7 @@ This repository contains the source code and documentation powering the trading-
 1. A clone of [trading bot-database](https://github.com/coding24seven/trading-bot-database) running on your local machine
 
 #### for historical-price analysis and winning bot-config generation
-1. file(s) containing historical trading data
+1. csv file(s) containing historical trading data
 
 ### Installation
 
@@ -22,6 +22,7 @@ This repository contains the source code and documentation powering the trading-
 
 ### Configuration
 
+1. `cp .env.default .env`, and configure .env
 1. to trade live or against historical data, configure the trading bots in botConfig.ts 
 1. to generate winning bot-configs based on historical data, configure bot-config generator in Comparator.ts
 

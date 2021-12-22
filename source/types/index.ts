@@ -24,7 +24,9 @@ export type AccountDataStripped = {
 export type AccountConfig = {
   apiKey: string;
   secretKey: string;
-  exchangeFee: number;
+  passphrase: string;
+  environment: string;
+  exchangeFee?: number;
 };
 
 export type BotConfigIndexesPerAccount = {
@@ -112,4 +114,46 @@ export type Pairs = {
 
 export type Pair = {
   close: number;
+};
+
+export type KucoinNodeApiTickerMessage = {
+  type: string;
+  topic: string;
+  subject: string;
+  data: KucoinNodeApiTickerMessageData;
+};
+
+export type KucoinNodeApiTickerMessageData = {
+  bestAsk: string;
+  bestAskSize: string;
+  bestBid: string;
+  bestBidSize: string;
+  price: string;
+  sequence: string;
+  size: string;
+  time: number;
+};
+
+export type KucoinSymbolsResponse = {
+  code: string;
+  data: KucoinSymbol[];
+};
+
+export type KucoinSymbol = {
+  symbol: string;
+  name: string;
+  baseCurrency: string;
+  quoteCurrency: string;
+  feeCurrency: string;
+  market: string;
+  baseMinSize: string;
+  quoteMinSize: string;
+  baseMaxSize: string;
+  quoteMaxSize: string;
+  baseIncrement: string;
+  quoteIncrement: string;
+  priceIncrement: string;
+  priceLimitRate: string;
+  isMarginEnabled: boolean;
+  enableTrading: boolean;
 };

@@ -4,7 +4,7 @@ import { createSignature } from "./source/utils";
 
 const apiKey = process.env.API_KEY;
 const secretKey = process.env.SECRET_KEY;
-const binanceApiUrl = process.env.BINANCE_API_URL;
+const exchangeApiUrl = process.env.EXCHANGE_API_URL;
 
 const baseUrl = "https://api.binance.com/api/v3/order?";
 
@@ -25,7 +25,7 @@ queryString += `&signature=${signature}`;
 //   signature,
 // };
 
-const requestUrl = `${binanceApiUrl}/order`;
+const requestUrl = `${exchangeApiUrl}/order`;
 
 // sendOrder();
 
