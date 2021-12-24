@@ -8,7 +8,7 @@ import PriceReader from "../price-reader/PriceReader.js";
 const outputFilePath: string =
   "historical-price-files/last-prices-collected-at-real-time.csv";
 
-PriceReader.startLastPriceTicker(async (lastPrice: number) => {
+PriceReader.startLiveStream(async (lastPrice: number) => {
   try {
     await fs.promises.appendFile(
       outputFilePath,

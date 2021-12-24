@@ -13,7 +13,7 @@ import {
   BotResults,
   StoreSetupParameters,
 } from "../types";
-import Messages from "../messages/index.js";
+import Messages from "../types/messages.js";
 
 class Store {
   appEnvironment: AppEnvironment | null = null;
@@ -90,7 +90,7 @@ class Store {
 
     if (!response) {
       throw new Error(Messages.DATABASE_WRITE_SERVER_CONNECTION_FAIL);
-    } else if (response?.status !== 200) {
+    } else if (response.status !== 200) {
       throw new Error(response.data);
     }
 

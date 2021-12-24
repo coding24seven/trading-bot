@@ -7,9 +7,9 @@ import "dotenv/config";
 import axios from "axios";
 import eventBus from "../events/eventBus.js";
 import CsvFileReader from "../file-reader/CsvFileReader.js";
-import kucoin from "kucoin-node-api";
-import { AccountConfig, KucoinNodeApiTickerMessage } from "../types";
-import Messages from "../messages/index.js";
+import { KucoinNodeApiTickerMessage } from "../types";
+import Messages from "../types/messages.js";
+import { Exchange } from "../exchange/Exchange.js";
 
 export default class PriceReader {
   static cachedFileContent: { [key: string]: number[][] } = {};
@@ -20,47 +20,29 @@ export default class PriceReader {
     process.env.LAST_PRICE_CALLBACK_INTERVAL_MS ||
       String(PriceReader.callbackIntervalDefaultMs)
   );
-  static exchangeApiDefaultEnvironment: string = "sandbox";
-  static exchangeApiEnvironment: string =
-    process.env.EXCHANGE_API_ENVIRONMENT ||
-    PriceReader.exchangeApiDefaultEnvironment;
-  static config: AccountConfig = {
-    apiKey: "",
-    secretKey: "",
-    passphrase: "",
-    environment: PriceReader.exchangeApiEnvironment,
-  };
 
-  static startLastPriceTicker(callback: (lastPrice: number) => void) {
-    kucoin.init(PriceReader.config);
+  static startLiveStream(callback: (lastPrice: number) => void) {
+    Exchange.startWSTicker(process.env.PAIR, (messageAsString: string) => {
+      const intervalNotFinished: boolean =
+        Date.now() < PriceReader.dateMs + PriceReader.callbackIntervalMs;
 
-    kucoin.initSocket(
-      { topic: "ticker", symbols: ["BTC-USDT"] },
-      async (messageAsString: string) => {
-        const intervalNotFinished: boolean =
-          Date.now() < PriceReader.dateMs + PriceReader.callbackIntervalMs;
+      if (intervalNotFinished) return;
 
-        if (intervalNotFinished) return;
+      PriceReader.dateMs = Date.now();
 
-        PriceReader.dateMs = Date.now();
+      const message: KucoinNodeApiTickerMessage = JSON.parse(messageAsString);
 
-        const message: KucoinNodeApiTickerMessage = JSON.parse(messageAsString);
+      if (!message.data?.price) return;
 
-        if (!message.data?.price) return;
+      const lastPrice: number = parseFloat(message.data.price);
 
-        const lastPrice: number = parseFloat(message.data.price);
-
-        if (isNaN(lastPrice)) {
-          console.log(`${lastPrice} ${Messages.IS_NOT_A_NUMBER}`);
-          return;
-        }
-
+      if (PriceReader.priceIsValid(lastPrice)) {
         callback(lastPrice);
       }
-    );
+    });
   }
 
-  static startHistoricalPriceStream(filePaths: string[], column: number) {
+  static startHistoricalStream(filePaths: string[], column: number) {
     filePaths.forEach((filePath: string) => {
       const rowsPopulatedWithNumbers: number[][] =
         this.cachedFileContent[filePath] ||
@@ -70,16 +52,30 @@ export default class PriceReader {
 
       rowsPopulatedWithNumbers.forEach((row: number[]) => {
         const price: number = row[column];
-        const priceWithinReasonableRange: boolean =
-          price > 0 && price <= PriceReader.maxPossiblePrice;
 
-        if (priceWithinReasonableRange) {
+        if (PriceReader.priceIsValid(price)) {
           eventBus.emit(eventBus.events!.LAST_PRICE, price);
         }
       });
     });
 
     eventBus.emit(eventBus.events!.HISTORICAL_PRICE_READER_FINISHED);
+  }
+
+  private static priceIsValid(price: number): boolean {
+    if (isNaN(price)) {
+      console.log(`${price} ${Messages.IS_NOT_A_NUMBER}`);
+      return false;
+    }
+
+    const priceOutsideBounds: boolean =
+      price <= 0 || price > PriceReader.maxPossiblePrice;
+
+    if (priceOutsideBounds) {
+      return false;
+    }
+
+    return true;
   }
 
   /* unused atm - use if websockets fail */

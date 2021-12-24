@@ -1,6 +1,6 @@
 import Bot from "../bot/Bot.js";
 import { AccountData, BotData } from "../types";
-import Messages from "../messages/index.js";
+import Messages from "../types/messages.js";
 
 export default class Account {
   bots: Bot[] = [];

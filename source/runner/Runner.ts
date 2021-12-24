@@ -2,7 +2,7 @@ import store from "../store/Store.js";
 import Account from "../account/Account.js";
 import PriceReader from "../price-reader/PriceReader.js";
 import { AccountData } from "../types";
-import eventBus from "../events/eventBus";
+import eventBus from "../events/eventBus.js";
 
 export default class Runner {
   static runBots() {
@@ -26,15 +26,11 @@ export default class Runner {
         `${directory}/last-prices-collected-at-real-time.csv`,
       ];
 
-      PriceReader.startHistoricalPriceStream(fileNames, columnWithPrice);
+      PriceReader.startHistoricalStream(fileNames, columnWithPrice);
     } else {
-      PriceReader.startLastPriceTicker((lastPrice: number) => {
+      PriceReader.startLiveStream((lastPrice: number) => {
         eventBus.emit(eventBus.events!.LAST_PRICE, lastPrice);
       });
-      // PriceReader.startLastPriceHttpStream(
-      //   "BTCUSDT",
-      //   process.env.LAST_PRICE_CALLBACK_INTERVAL_MS
-      // );
     }
   }
 }

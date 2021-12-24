@@ -1,3 +1,5 @@
+import { randomUUID } from "crypto";
+
 export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean;
   isHistoricalPrice?: boolean;
@@ -109,7 +111,7 @@ export type TradeHistoryItem = {
 };
 
 export type Pairs = {
-  [key: string]: Pair; // example key: BTCUSDT
+  [key: string]: Pair; // example key: BTC-USDT
 };
 
 export type Pair = {
@@ -136,10 +138,10 @@ export type KucoinNodeApiTickerMessageData = {
 
 export type KucoinSymbolsResponse = {
   code: string;
-  data: KucoinSymbol[];
+  data: KucoinSymbolData[];
 };
 
-export type KucoinSymbol = {
+export type KucoinSymbolData = {
   symbol: string;
   name: string;
   baseCurrency: string;
@@ -156,4 +158,24 @@ export type KucoinSymbol = {
   priceLimitRate: string;
   isMarginEnabled: boolean;
   enableTrading: boolean;
+};
+
+export type KucoinOrderPlacedResponse = {
+  code: string;
+  data: {
+    orderId: string;
+  };
+};
+
+export type KucoinErrorResponse = {
+  code: string;
+  msg: string;
+};
+
+export type KucoinMarketOrderParameters = {
+  clientOid: string;
+  side: string;
+  symbol: string;
+  type: string;
+  funds: string;
 };

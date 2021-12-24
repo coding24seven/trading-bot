@@ -2,15 +2,13 @@ import eventBus from "../events/eventBus.js";
 import store from "../store/Store.js";
 import Trader from "../trader/Trader.js";
 import {
-  BotDataWithResults,
   BotData,
+  BotDataWithResults,
   BotHand,
   BotResults,
   TradeHistoryItem,
-  Pairs,
-  Pair,
 } from "../types";
-import Messages from "../messages/index.js";
+import { Exchange } from "../exchange/Exchange";
 
 export default class Bot {
   data: BotData | null = null;
@@ -18,6 +16,7 @@ export default class Bot {
   itsAccountId: number | null = null;
   hands: BotHand[] = [];
   trader: Trader;
+  symbol: string; // i.e. 'BTC-USDT'
   lastPrice: number | null = null;
   lowestPriceRecorded: number = Infinity;
   highestPriceRecorded: number = -Infinity;
@@ -29,12 +28,15 @@ export default class Bot {
   onLastPriceHasRunAtLeastOnce: boolean = false;
   tradeHistory: TradeHistoryItem[] = []; // not added to store atm
   letRunnersRun: boolean = process.argv.includes("lrr");
+  minimumBaseTradeSizeAllowed: number | null = null;
+  minimumQuoteTradeSizeAllowed: number | null = null;
 
   constructor(data: BotData) {
     this.data = data;
     this.id = data.config.id;
     this.itsAccountId = data.config.itsAccountId;
     this.hands = data.vars.hands;
+    this.symbol = data.config.pair;
     this.trader = new Trader(
       data.config.itsAccountId!,
       data.config.pair,
@@ -108,12 +110,15 @@ export default class Bot {
     };
   }
 
-  onLastPrice(lastPrice: number) {
+  async onLastPrice(lastPrice: number) {
     this.lastPrice = lastPrice;
     this.recordLowestAndHighestPrice(lastPrice);
 
     if (!store.isHistoricalPrice) {
       // console.log(lastPrice);
+      const values = await Exchange.getMinimumTradeSize(
+        this.symbol,
+      );
     }
 
     if (this.letRunnersRun) {

@@ -40,3 +40,7 @@ This repository contains the source code and documentation powering the trading-
 #### Command line arguments
 
 `lrr` enables the 'let runners run' mode, which prevents trades from executing the moment the threshold is reached, and waits to take advantage of further price action if the price keeps moving in a favourable direction
+
+### Kucoin exchange
+
+1. Market orders are always considered takers and incur taker fees
