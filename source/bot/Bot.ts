@@ -6,9 +6,11 @@ import {
   BotDataWithResults,
   BotHand,
   BotResults,
+  PairTradeSizes,
   TradeHistoryItem,
 } from "../types";
-import { Exchange } from "../exchange/Exchange";
+import { Exchange } from "../exchange/Exchange.js";
+import Messages from "../types/messages.js";
 
 export default class Bot {
   data: BotData | null = null;
@@ -114,11 +116,8 @@ export default class Bot {
     this.lastPrice = lastPrice;
     this.recordLowestAndHighestPrice(lastPrice);
 
-    if (!store.isHistoricalPrice) {
-      // console.log(lastPrice);
-      const values = await Exchange.getMinimumTradeSize(
-        this.symbol,
-      );
+    if (!this.onLastPriceHasRunAtLeastOnce) {
+      await this.setMinimumTradeSizes();
     }
 
     if (this.letRunnersRun) {
@@ -126,31 +125,43 @@ export default class Bot {
     } else {
       this.processLastPriceStandard(lastPrice);
     }
+
+    this.onLastPriceHasRunAtLeastOnce = true;
   }
 
-  quoteCurrencyIsEnoughToTrade(
-    hand: BotHand,
-    minTradeAmountRequiredByExchange: number
-  ): boolean {
-    return hand.quote >= minTradeAmountRequiredByExchange;
+  async setMinimumTradeSizes() {
+    const minimumTradeSizes: PairTradeSizes | null = await Exchange.getMinimumTradeSizes(
+      this.symbol
+    );
+
+    if (!minimumTradeSizes) {
+      throw new Error(Messages.EXCHANGE_MINIMUM_TRADE_SIZES_RESPONSE_FAILED);
+    }
+
+    this.minimumBaseTradeSizeAllowed = minimumTradeSizes.base;
+    this.minimumQuoteTradeSizeAllowed = minimumTradeSizes.quote;
   }
 
-  baseCurrencyIsEnoughToTrade(
-    hand: BotHand,
-    minTradeAmountRequiredByExchange: number
-  ): boolean {
-    return hand.base * this.lastPrice! >= minTradeAmountRequiredByExchange;
+  baseCurrencyIsEnoughToTrade(hand: BotHand): boolean {
+    if (!this.minimumBaseTradeSizeAllowed) {
+      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
+    }
+
+    return hand.base * this.lastPrice! >= this.minimumBaseTradeSizeAllowed;
+  }
+
+  quoteCurrencyIsEnoughToTrade(hand: BotHand): boolean {
+    if (!this.minimumQuoteTradeSizeAllowed) {
+      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
+    }
+
+    return hand.quote >= this.minimumQuoteTradeSizeAllowed;
   }
 
   processLastPriceStandard(lastPrice: number) {
-    const minTradeAmountRequiredByExchange: number = 11; // todo: get value from api
-
     const buyingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
-        this.quoteCurrencyIsEnoughToTrade(
-          hand,
-          minTradeAmountRequiredByExchange
-        ) && lastPrice < hand.buyBelow
+        this.quoteCurrencyIsEnoughToTrade(hand) && lastPrice < hand.buyBelow
     );
 
     buyingHands.forEach((hand: BotHand) => {
@@ -159,10 +170,7 @@ export default class Bot {
 
     const sellingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
-        this.baseCurrencyIsEnoughToTrade(
-          hand,
-          minTradeAmountRequiredByExchange
-        ) && lastPrice > hand.sellAbove
+        this.baseCurrencyIsEnoughToTrade(hand) && lastPrice > hand.sellAbove
     );
 
     sellingHands.forEach((hand: BotHand) => {
@@ -171,15 +179,10 @@ export default class Bot {
   }
 
   processLastPriceLettingRunnersRun(lastPrice: number): undefined {
-    const minTradeAmountRequiredByExchange: number = 11; // todo: get value from api
-
     if (!this.onLastPriceHasRunAtLeastOnce) {
       this.hands.forEach((hand: BotHand) => {
         if (
-          this.quoteCurrencyIsEnoughToTrade(
-            hand,
-            minTradeAmountRequiredByExchange
-          ) &&
+          this.quoteCurrencyIsEnoughToTrade(hand) &&
           lastPrice < hand.buyBelow
         ) {
           // console.log("first run buy by hand", hand.id, "at", lastPrice);
@@ -187,7 +190,7 @@ export default class Bot {
         }
       });
 
-      this.onLastPriceHasRunAtLeastOnce = true;
+      // this.onLastPriceHasRunAtLeastOnce = true;
 
       return;
     }
@@ -197,12 +200,7 @@ export default class Bot {
     this.hands
       .filter((hand: BotHand) => hand.readyToBuy)
       .forEach((hand: BotHand) => {
-        if (
-          !this.quoteCurrencyIsEnoughToTrade(
-            hand,
-            minTradeAmountRequiredByExchange
-          )
-        ) {
+        if (!this.quoteCurrencyIsEnoughToTrade(hand)) {
           // hand has no quote - do nothing
         } else if (lastPrice > hand.stopBuy && lastPrice < hand.sellAbove) {
           this.buy(hand, lastPrice);
@@ -224,12 +222,7 @@ export default class Bot {
       });
 
     this.hands.forEach((hand: BotHand) => {
-      if (
-        !this.quoteCurrencyIsEnoughToTrade(
-          hand,
-          minTradeAmountRequiredByExchange
-        )
-      ) {
+      if (!this.quoteCurrencyIsEnoughToTrade(hand)) {
         // hand has no quote - do nothing
       } else if (!hand.readyToBuy && lastPrice < hand.buyBelow) {
         // console.log("marking hand", hand.id, "ready to buy, at", lastPrice);
@@ -240,12 +233,7 @@ export default class Bot {
     this.hands
       .filter((hand: BotHand) => hand.readyToSell)
       .forEach((hand: BotHand) => {
-        if (
-          !this.baseCurrencyIsEnoughToTrade(
-            hand,
-            minTradeAmountRequiredByExchange
-          )
-        ) {
+        if (!this.baseCurrencyIsEnoughToTrade(hand)) {
           // hand has no base - do nothing
         } else if (lastPrice < hand.stopSell && lastPrice > hand.buyBelow) {
           this.sell(hand, lastPrice);
@@ -268,12 +256,7 @@ export default class Bot {
       });
 
     this.hands.forEach((hand: BotHand) => {
-      if (
-        !this.baseCurrencyIsEnoughToTrade(
-          hand,
-          minTradeAmountRequiredByExchange
-        )
-      ) {
+      if (!this.baseCurrencyIsEnoughToTrade(hand)) {
         // hand has no base - do nothing
       } else if (!hand.readyToSell && lastPrice > hand.sellAbove) {
         hand.readyToSell = true;

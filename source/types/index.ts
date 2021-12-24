@@ -110,12 +110,9 @@ export type TradeHistoryItem = {
   type: string;
 };
 
-export type Pairs = {
-  [key: string]: Pair; // example key: BTC-USDT
-};
-
-export type Pair = {
-  close: number;
+export type PairTradeSizes = {
+  base: number;
+  quote: number;
 };
 
 export type KucoinNodeApiTickerMessage = {

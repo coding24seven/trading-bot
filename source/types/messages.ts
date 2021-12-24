@@ -14,6 +14,8 @@ enum Messages {
   DATABASE_DOES_NOT_EXIST = "database does not exist",
   DATABASE_CREATED = "databased created",
   EXCHANGE_FEE_MUST_NOT_BE_NULL = "exchange fee must not be null",
+  EXCHANGE_MINIMUM_TRADE_SIZES_RESPONSE_FAILED = "exchange: minimum trade sizes could not be obtained",
+  MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET = "minimum trade sizes allowed by the exchange have not been set",
   IS_NOT_A_NUMBER = "is not a number",
 }
 

@@ -8,6 +8,7 @@ import {
   KucoinOrderPlacedResponse,
   KucoinSymbolData,
   KucoinSymbolsResponse,
+  PairTradeSizes,
 } from "../types";
 import ExchangeCodes from "../types/exchangeCodes.js";
 
@@ -60,9 +61,9 @@ export class Exchange {
     }
   }
 
-  static async getMinimumTradeSize(
+  static async getMinimumTradeSizes(
     symbol: string = Exchange.defaultSymbol
-  ): Promise<{ base: string; quote: string } | null> {
+  ): Promise<PairTradeSizes | null> {
     const symbolData:
       | KucoinSymbolData
       | undefined = await Exchange.getSymbolData(symbol);
@@ -75,8 +76,8 @@ export class Exchange {
     }
 
     return {
-      base,
-      quote,
+      base: parseFloat(base),
+      quote: parseFloat(quote),
     };
   }
 
