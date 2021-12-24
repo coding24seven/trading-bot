@@ -55,6 +55,8 @@ export type BotConfig = {
   baseStartAmount: number;
   baseStartAmountPerHand: number | null;
   exchangeFee: number;
+  baseMinimumTradeSizeAllowed: number | null;
+  quoteMinimumTradeSizeAllowed: number | null;
   id: number | null;
   itsAccountId: number | null;
 };

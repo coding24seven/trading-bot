@@ -13,7 +13,7 @@ import { Exchange } from "../exchange/Exchange.js";
 import Messages from "../types/messages.js";
 
 export default class Bot {
-  data: BotData | null = null;
+  data: BotData;
   id: number | null = null;
   itsAccountId: number | null = null;
   hands: BotHand[] = [];
@@ -30,8 +30,6 @@ export default class Bot {
   onLastPriceHasRunAtLeastOnce: boolean = false;
   tradeHistory: TradeHistoryItem[] = []; // not added to store atm
   letRunnersRun: boolean = process.argv.includes("lrr");
-  minimumBaseTradeSizeAllowed: number | null = null;
-  minimumQuoteTradeSizeAllowed: number | null = null;
 
   constructor(data: BotData) {
     this.data = data;
@@ -130,6 +128,12 @@ export default class Bot {
   }
 
   async setMinimumTradeSizes() {
+    if (store.isHistoricalPrice) {
+      this.data.config.baseMinimumTradeSizeAllowed = 0.00001;
+      this.data.config.quoteMinimumTradeSizeAllowed = 0.01;
+      return;
+    }
+
     const minimumTradeSizes: PairTradeSizes | null = await Exchange.getMinimumTradeSizes(
       this.symbol
     );
@@ -138,24 +142,27 @@ export default class Bot {
       throw new Error(Messages.EXCHANGE_MINIMUM_TRADE_SIZES_RESPONSE_FAILED);
     }
 
-    this.minimumBaseTradeSizeAllowed = minimumTradeSizes.base;
-    this.minimumQuoteTradeSizeAllowed = minimumTradeSizes.quote;
+    this.data.config.baseMinimumTradeSizeAllowed = minimumTradeSizes.base;
+    this.data.config.quoteMinimumTradeSizeAllowed = minimumTradeSizes.quote;
   }
 
   baseCurrencyIsEnoughToTrade(hand: BotHand): boolean {
-    if (!this.minimumBaseTradeSizeAllowed) {
+    if (!this.data.config.baseMinimumTradeSizeAllowed) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
     }
 
-    return hand.base * this.lastPrice! >= this.minimumBaseTradeSizeAllowed;
+    return (
+      hand.base * this.lastPrice! >=
+      this.data.config.baseMinimumTradeSizeAllowed
+    );
   }
 
   quoteCurrencyIsEnoughToTrade(hand: BotHand): boolean {
-    if (!this.minimumQuoteTradeSizeAllowed) {
+    if (!this.data.config.quoteMinimumTradeSizeAllowed) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
     }
 
-    return hand.quote >= this.minimumQuoteTradeSizeAllowed;
+    return hand.quote >= this.data.config.quoteMinimumTradeSizeAllowed;
   }
 
   processLastPriceStandard(lastPrice: number) {
