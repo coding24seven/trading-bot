@@ -115,7 +115,12 @@ export default class Bot {
     this.recordLowestAndHighestPrice(lastPrice);
 
     if (!this.onLastPriceHasRunAtLeastOnce) {
-      await this.setMinimumTradeSizes();
+      if (store.isHistoricalPrice) {
+        this.data.config.baseMinimumTradeSizeAllowed = 0.00001;
+        this.data.config.quoteMinimumTradeSizeAllowed = 0.01;
+      } else {
+        await this.setMinimumTradeSizes();
+      }
     }
 
     if (this.letRunnersRun) {
@@ -128,12 +133,6 @@ export default class Bot {
   }
 
   async setMinimumTradeSizes() {
-    if (store.isHistoricalPrice) {
-      this.data.config.baseMinimumTradeSizeAllowed = 0.00001;
-      this.data.config.quoteMinimumTradeSizeAllowed = 0.01;
-      return;
-    }
-
     const minimumTradeSizes: PairTradeSizes | null = await Exchange.getMinimumTradeSizes(
       this.symbol
     );

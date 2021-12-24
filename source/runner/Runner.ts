@@ -17,14 +17,14 @@ export default class Runner {
       const columnWithPrice: number = 2;
 
       const monthNumbers: number[] = [6];
-      const fileNames = monthNumbers.map(
-        (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
-      );
+      // const fileNames = monthNumbers.map(
+      //   (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
+      // );
 
       // const fileNames = [`${directory}/small.csv`];
-      // const fileNames: string[] = [
-      //   `${directory}/last-prices-collected-over-two-weeks.csv`,
-      // ];
+      const fileNames: string[] = [
+        `${directory}/last-prices-collected-over-two-weeks.csv`,
+      ];
 
       PriceReader.startHistoricalStream(fileNames, columnWithPrice);
     } else {
