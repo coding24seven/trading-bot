@@ -1,52 +1,79 @@
-import Binance from "node-binance-api";
 import store from "../store/Store.js";
-import { AccountConfig, BotHand } from "../types";
+import {
+  AccountConfig,
+  KucoinErrorResponse,
+  KucoinGetFilledOrderByIdItem,
+  KucoinOrderPlacedResponse,
+} from "../types";
+import { Exchange } from "../exchange/Exchange.js";
+import ExchangeCodes from "../types/exchangeCodes.js";
 
 export default class Trader {
-  pair: string;
+  symbol: string;
   exchangeFee: number;
-  binance: Binance;
+  accountConfig: AccountConfig;
 
-  constructor(accountId: number, pair: string, exchangeFee: number) {
-    this.pair = pair;
+  constructor(accountId: number, symbol: string, exchangeFee: number) {
+    this.symbol = symbol;
+    this.accountConfig = store.getAccountConfig(accountId);
     this.exchangeFee = exchangeFee;
-    const { apiKey, secretKey }: AccountConfig = store.getAccountConfig(
-      accountId
-    );
-    this.binance = new Binance().options({
-      APIKEY: apiKey,
-      APISECRET: secretKey,
+  }
+
+  async trade(isBuy: boolean, amountToSpend: number): Promise<number | null> {
+    const response:
+      | KucoinOrderPlacedResponse
+      | KucoinErrorResponse = await Exchange.tradeMarket(this.accountConfig, {
+      symbol: this.symbol,
+      amount: amountToSpend,
+      isBuy,
     });
+
+    if (
+      response.code === ExchangeCodes.responseSuccess &&
+      (response as KucoinOrderPlacedResponse).data.orderId
+    ) {
+      const filledOrderItem: KucoinGetFilledOrderByIdItem | null = await Exchange.getFilledOrderById(
+        this.accountConfig,
+        (response as KucoinOrderPlacedResponse).data.orderId,
+        5000,
+        60000
+      );
+
+      if (!filledOrderItem) {
+        return null;
+      }
+
+      if (isBuy) {
+        const baseReceived: number = parseFloat(filledOrderItem.size);
+
+        return baseReceived;
+      } else {
+        const quoteReceived: number = parseFloat(filledOrderItem.funds);
+
+        return quoteReceived;
+      }
+    } else {
+      return null;
+    }
   }
 
-  async buy(hand: BotHand, lastPrice: number) {
-    // verify that current price on exchange is within range of 'lastPrice', in case of lost/resumed connection, to prevent an expensive buy
-    // const response = await this.binance.marketBuy(this.pair, hand.quote);
-    // hand.quote = 0; // hopefully there are no leftovers, but check on it in response
-    // hand.bought = true;
+  tradeFake(isBuy: boolean, amountToSpend: number, lastPrice: number): number {
+    if (isBuy) {
+      const baseReceived: number = this.deductExchangeFeeFake(
+        amountToSpend / lastPrice
+      );
 
-    this.buyFake(hand, lastPrice);
+      return baseReceived;
+    } else {
+      const quoteReceived: number = this.deductExchangeFeeFake(
+        amountToSpend * lastPrice
+      );
+
+      return quoteReceived;
+    }
   }
 
-  async sell(hand: BotHand, lastPrice: number) {
-    // const response = await this.binance.marketSell(this.pair, hand.base);
-    // hand.base = 0; // hopefully there are no leftovers, but check on it
-    // hand.bought = false;
-
-    this.sellFake(hand, lastPrice);
-  }
-
-  buyFake(hand: BotHand, lastPrice: number) {
-    hand.base = this.deductExchangeFeeFake(hand.quote / lastPrice);
-    hand.quote = 0; // todo: do not zero
-  }
-
-  sellFake(hand: BotHand, lastPrice: number) {
-    hand.quote = this.deductExchangeFeeFake(hand.base * lastPrice);
-    hand.base = 0; // todo: do not zero
-  }
-
-  deductExchangeFeeFake(value) {
+  deductExchangeFeeFake(value): number {
     return value - value * this.exchangeFee;
   }
 }

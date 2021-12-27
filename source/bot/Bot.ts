@@ -29,7 +29,6 @@ export default class Bot {
   count: number = 0;
   onLastPriceHasRunAtLeastOnce: boolean = false;
   tradeHistory: TradeHistoryItem[] = []; // not added to store atm
-  letRunnersRun: boolean = process.argv.includes("lrr");
 
   constructor(data: BotData) {
     this.data = data;
@@ -116,18 +115,15 @@ export default class Bot {
 
     if (!this.onLastPriceHasRunAtLeastOnce) {
       if (store.isHistoricalPrice) {
-        this.data.config.baseMinimumTradeSizeAllowed = 0.00001;
-        this.data.config.quoteMinimumTradeSizeAllowed = 0.01;
+        // todo: remove the hardcoded values for historical price
+        this.data.config.baseMinimumTradeSize = 0.00001;
+        this.data.config.quoteMinimumTradeSize = 0.01;
       } else {
         await this.setMinimumTradeSizes();
       }
     }
 
-    if (this.letRunnersRun) {
-      this.processLastPriceLettingRunnersRun(lastPrice);
-    } else {
-      this.processLastPriceStandard(lastPrice);
-    }
+    this.processLastPriceStandard(lastPrice);
 
     this.onLastPriceHasRunAtLeastOnce = true;
   }
@@ -141,195 +137,110 @@ export default class Bot {
       throw new Error(Messages.EXCHANGE_MINIMUM_TRADE_SIZES_RESPONSE_FAILED);
     }
 
-    this.data.config.baseMinimumTradeSizeAllowed = minimumTradeSizes.base;
-    this.data.config.quoteMinimumTradeSizeAllowed = minimumTradeSizes.quote;
+    this.data.config.baseMinimumTradeSize = minimumTradeSizes.base;
+    this.data.config.quoteMinimumTradeSize = minimumTradeSizes.quote;
   }
 
-  baseCurrencyIsEnoughToTrade(hand: BotHand): boolean {
-    if (!this.data.config.baseMinimumTradeSizeAllowed) {
+  baseCurrencyIsEnoughToTrade(base: number): boolean {
+    if (!this.data.config.baseMinimumTradeSize) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
     }
 
-    return (
-      hand.base * this.lastPrice! >=
-      this.data.config.baseMinimumTradeSizeAllowed
-    );
+    return base >= this.data.config.baseMinimumTradeSize;
   }
 
-  quoteCurrencyIsEnoughToTrade(hand: BotHand): boolean {
-    if (!this.data.config.quoteMinimumTradeSizeAllowed) {
+  quoteCurrencyIsEnoughToTrade(quote: number): boolean {
+    if (!this.data.config.quoteMinimumTradeSize) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
     }
 
-    return hand.quote >= this.data.config.quoteMinimumTradeSizeAllowed;
+    return quote >= this.data.config.quoteMinimumTradeSize;
+  }
+
+  // todo: remove the hardcoded increment
+  makeQuoteValidForTrade(value: number): number {
+    return Math.floor(value * 1000000) / 1000000;
+  }
+
+  makeBaseValidForTrade(value: number): number {
+    return Math.floor(value * 100000000) / 100000000;
   }
 
   processLastPriceStandard(lastPrice: number) {
     const buyingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
-        this.quoteCurrencyIsEnoughToTrade(hand) && lastPrice < hand.buyBelow
+        !hand.tradeIsPending &&
+        this.quoteCurrencyIsEnoughToTrade(hand.quote) &&
+        lastPrice < hand.buyBelow
     );
 
-    buyingHands.forEach((hand: BotHand) => {
-      this.buy(hand, lastPrice);
+    buyingHands.forEach(async (hand: BotHand) => {
+      const quoteToSpend: number = this.makeQuoteValidForTrade(hand.quote);
+      let baseReceived: number | null;
+
+      if (store.isHistoricalPrice) {
+        baseReceived = this.trader.tradeFake(true, quoteToSpend, lastPrice);
+      } else {
+        hand.tradeIsPending = true;
+        baseReceived = await this.trader.trade(true, quoteToSpend);
+      }
+
+      if (!baseReceived) return;
+
+      hand.quote -= quoteToSpend;
+      hand.base += baseReceived;
+      hand.buyCount++;
+      hand.tradeIsPending = false;
+      this.buyCountTotal++;
+      this.updateAfterTrade(hand, lastPrice, "buy");
     });
 
     const sellingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
-        this.baseCurrencyIsEnoughToTrade(hand) && lastPrice > hand.sellAbove
+        !hand.tradeIsPending &&
+        this.baseCurrencyIsEnoughToTrade(hand.base) &&
+        lastPrice > hand.sellAbove
     );
 
-    sellingHands.forEach((hand: BotHand) => {
-      this.sell(hand, lastPrice);
+    sellingHands.forEach(async (hand: BotHand) => {
+      const baseToSpend: number = this.makeBaseValidForTrade(hand.base);
+      let quoteReceived: number | null;
+
+      if (store.isHistoricalPrice) {
+        quoteReceived = this.trader.tradeFake(false, baseToSpend, lastPrice);
+      } else {
+        hand.tradeIsPending = true;
+        quoteReceived = await this.trader.trade(false, baseToSpend);
+      }
+
+      if (!quoteReceived) return;
+
+      hand.base -= baseToSpend;
+      hand.quote += quoteReceived;
+      hand.sellCount++;
+      hand.tradeIsPending = false;
+      this.sellCountTotal++;
+      this.updateAfterTrade(hand, lastPrice, "sell");
     });
   }
 
-  processLastPriceLettingRunnersRun(lastPrice: number): undefined {
-    if (!this.onLastPriceHasRunAtLeastOnce) {
-      this.hands.forEach((hand: BotHand) => {
-        if (
-          this.quoteCurrencyIsEnoughToTrade(hand) &&
-          lastPrice < hand.buyBelow
-        ) {
-          // console.log("first run buy by hand", hand.id, "at", lastPrice);
-          this.buy(hand, lastPrice);
-        }
-      });
-
-      // this.onLastPriceHasRunAtLeastOnce = true;
-
-      return;
-    }
-
-    const stepPercent: number = 0.01; // todo: temp value
-
-    this.hands
-      .filter((hand: BotHand) => hand.readyToBuy)
-      .forEach((hand: BotHand) => {
-        if (!this.quoteCurrencyIsEnoughToTrade(hand)) {
-          // hand has no quote - do nothing
-        } else if (lastPrice > hand.stopBuy && lastPrice < hand.sellAbove) {
-          this.buy(hand, lastPrice);
-          // console.log(lastPrice, "stop buy triggered on hand", hand.id);
-          // hand.bought = true; // if bought successfully
-          hand.readyToBuy = false; // if bought successfully
-          hand.stopBuy = hand.buyBelow;
-        } else if (hand.stopBuy - lastPrice > hand.stopBuy * stepPercent) {
-          hand.stopBuy -= (hand.stopBuy - lastPrice) / 2;
-          this.buyResetCount++;
-          // console.log(
-          //   lastPrice,
-          //   "stop buy on hand",
-          //   hand.id,
-          //   "reset to",
-          //   hand.stopBuy
-          // );
-        }
-      });
-
-    this.hands.forEach((hand: BotHand) => {
-      if (!this.quoteCurrencyIsEnoughToTrade(hand)) {
-        // hand has no quote - do nothing
-      } else if (!hand.readyToBuy && lastPrice < hand.buyBelow) {
-        // console.log("marking hand", hand.id, "ready to buy, at", lastPrice);
-        hand.readyToBuy = true;
-      }
-    });
-
-    this.hands
-      .filter((hand: BotHand) => hand.readyToSell)
-      .forEach((hand: BotHand) => {
-        if (!this.baseCurrencyIsEnoughToTrade(hand)) {
-          // hand has no base - do nothing
-        } else if (lastPrice < hand.stopSell && lastPrice > hand.buyBelow) {
-          this.sell(hand, lastPrice);
-          // console.log("stop sell triggered on hand", hand.id, "at", lastPrice);
-          // hand.bought = false; // if sold successfully
-          hand.readyToSell = false; // if sold successfully
-          hand.stopSell = hand.sellAbove;
-        } else if (lastPrice - hand.stopSell > hand.stopSell * stepPercent) {
-          hand.stopSell += (lastPrice - hand.stopSell) / 2;
-          this.sellResetCount++;
-          // console.log(
-          //   "stop sell on hand",
-          //   hand.id,
-          //   "reset to",
-          //   hand.stopSell,
-          //   "at",
-          //   lastPrice
-          // );
-        }
-      });
-
-    this.hands.forEach((hand: BotHand) => {
-      if (!this.baseCurrencyIsEnoughToTrade(hand)) {
-        // hand has no base - do nothing
-      } else if (!hand.readyToSell && lastPrice > hand.sellAbove) {
-        hand.readyToSell = true;
-        // console.log("marking hand", hand.id, "ready to sell, at", lastPrice);
-      }
-    });
-  }
-
-  // todo: fix so the properties are not modified via a parameter
-  buy(hand: BotHand, lastPrice: number) {
-    const buyMethod: (
-      hand: BotHand,
-      lastPrice: number
-    ) => void = store.isHistoricalPrice ? this.trader.buyFake : this.trader.buy;
-
-    buyMethod.call(this.trader, hand, lastPrice);
-    // await for the buy result promise
-
-    hand.buyCount++;
-    this.buyCountTotal++;
-    this.tradeHistory.push({
-      id: hand.id,
-      buyBelow: hand.buyBelow,
-      sellAbove: hand.sellAbove,
-      buyCount: hand.buyCount,
-      sellCount: hand.sellCount,
+  updateAfterTrade(hand: BotHand, lastPrice: number, type: string) {
+    const tradeHistoryItem: TradeHistoryItem = this.getTradeHistoryItem(
+      hand,
       lastPrice,
-      type: "buy",
-    });
+      type
+    );
+    this.tradeHistory.push(tradeHistoryItem);
+
+    console.log(tradeHistoryItem);
 
     if (store.isHistoricalPrice) return;
 
-    this.storeCurrentResultsAndConsoleLogThem(); // todo: re-evaluate
+    this.storeCurrentResults();
   }
 
-  sell(hand: BotHand, lastPrice: number) {
-    const sellMethod: (
-      hand: BotHand,
-      lastPrice: number
-    ) => void = store.isHistoricalPrice
-      ? this.trader.sellFake
-      : this.trader.sell;
-
-    sellMethod.call(this.trader, hand, lastPrice);
-    // await for the sell result promise
-
-    hand.sellCount++;
-    this.sellCountTotal++;
-
-    this.tradeHistory.push({
-      id: hand.id,
-      buyBelow: hand.buyBelow,
-      sellAbove: hand.sellAbove,
-      buyCount: hand.buyCount,
-      sellCount: hand.sellCount,
-      lastPrice,
-      type: "sell",
-    });
-
-    if (store.isHistoricalPrice) return;
-
-    this.storeCurrentResultsAndConsoleLogThem(); // todo: re-evaluate
-  }
-
-  storeCurrentResultsAndConsoleLogThem() {
+  storeCurrentResults() {
     store.setResults(this.itsAccountId, this.id, this.getResults());
-    console.log(this.getBotDataWithResults());
   }
 
   getQuoteTotalIncludingBaseSoldAsPlanned(): number {
@@ -358,5 +269,21 @@ export default class Bot {
       lastPrice > this.highestPriceRecorded
         ? lastPrice
         : this.highestPriceRecorded;
+  }
+
+  getTradeHistoryItem(
+    hand: BotHand,
+    lastPrice: number,
+    type: string
+  ): TradeHistoryItem {
+    return {
+      id: hand.id,
+      buyBelow: hand.buyBelow,
+      sellAbove: hand.sellAbove,
+      buyCount: hand.buyCount,
+      sellCount: hand.sellCount,
+      lastPrice,
+      type,
+    };
   }
 }

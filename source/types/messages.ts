@@ -10,7 +10,7 @@ enum Messages {
   DATABASE_READ_SERVER_CONNECTION_FAIL = "database read: server-connection fail",
   DATABASE_WRITE_SERVER_CONNECTION_FAIL = "database write: server-connection fail",
   DATABASE_OVERWRITE_PREVENTED_BY_CLIENT = "database overwrite prevented by client.",
-  DATABASE_EXISTS = "database exists",
+  CONTINUING_WITH_EXISTING_DATABASE = "continuing with existing database",
   DATABASE_DOES_NOT_EXIST = "database does not exist",
   DATABASE_CREATED = "databased created",
   EXCHANGE_FEE_MUST_NOT_BE_NULL = "exchange fee must not be null",

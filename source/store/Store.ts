@@ -20,7 +20,7 @@ class Store {
   apiEnvironment: AccountConfig[] = [];
   botConfigIndexesForAllAccounts: BotConfigIndexesPerAccount[] = [];
   accounts: AccountData[] = [];
-  bots: BotData[][] = [];
+  bots: BotData[][] = []; // outer array index reflects owning account index
   isHistoricalPrice: boolean = false;
   botConfigFromGenerator: BotConfig | null = null;
 
@@ -69,7 +69,7 @@ class Store {
         const response: AxiosResponse | undefined = await this.readDatabase();
 
         if (response?.status === 200) {
-          console.log(Messages.DATABASE_EXISTS);
+          console.log(Messages.CONTINUING_WITH_EXISTING_DATABASE);
           this.setUpFromExistingDatabase(response.data);
         } else if (response?.status === 404) {
           console.log(Messages.DATABASE_DOES_NOT_EXIST);
@@ -98,11 +98,11 @@ class Store {
   }
 
   private setUpFromExistingDatabase(data: AccountDataStripped[]) {
-    data.forEach((account: AccountDataStripped, i: number) => {
-      const bots: BotData[] | undefined = data[i].bots;
+    data.forEach((account: AccountDataStripped, accountIndex: number) => {
+      const bots: BotData[] | undefined = data[accountIndex].bots;
 
       if (bots) {
-        this.bots[i] = bots;
+        this.bots[accountIndex] = bots;
       }
     });
 
@@ -152,13 +152,16 @@ class Store {
       const apiKey: string | undefined = env[`API_${i}_KEY`];
       const secretKey: string | undefined = env[`API_${i}_SECRET_KEY`];
       const exchangeFee: string | undefined = env[`API_${i}_EXCHANGE_FEE`];
+      const passphrase: string | undefined = env[`API_${i}_PASSPHRASE`];
+      const environment: string | undefined =
+        env[`API_${i}_EXCHANGE_ENVIRONMENT`];
 
-      if (apiKey && secretKey && exchangeFee) {
+      if (apiKey && secretKey && exchangeFee && passphrase && environment) {
         arr.push({
           apiKey,
           secretKey,
-          passphrase: "",
-          environment: "",
+          passphrase,
+          environment,
           exchangeFee: parseFloat(exchangeFee),
         });
       }
@@ -194,8 +197,8 @@ class Store {
   }
 
   linkBotsWithAccounts() {
-    this.accounts.forEach((account: AccountData, i: number) => {
-      account.bots = this.bots[i];
+    this.accounts.forEach((account: AccountData, accountIndex: number) => {
+      account.bots = this.bots[accountIndex];
     });
   }
 
@@ -359,6 +362,7 @@ class Store {
         sellCount: 0,
         readyToBuy: false,
         readyToSell: false,
+        tradeIsPending: false,
       });
 
       buyBelow = sellAbove;
@@ -445,7 +449,7 @@ class Store {
   }
 
   /*
-   * removes api credentials (before saving to database)
+   * removes api credentials (so the remainder can be stored in database)
    */
   get accountsWithoutConfig(): AccountDataStripped[] {
     const strippedAccounts: AccountData[] = JSON.parse(

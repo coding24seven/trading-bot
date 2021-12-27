@@ -55,8 +55,8 @@ export type BotConfig = {
   baseStartAmount: number;
   baseStartAmountPerHand: number | null;
   exchangeFee: number;
-  baseMinimumTradeSizeAllowed: number | null;
-  quoteMinimumTradeSizeAllowed: number | null;
+  baseMinimumTradeSize: number | null;
+  quoteMinimumTradeSize: number | null;
   id: number | null;
   itsAccountId: number | null;
 };
@@ -100,6 +100,7 @@ export type BotHand = {
   sellCount: number;
   readyToBuy: boolean;
   readyToSell: boolean;
+  tradeIsPending: boolean;
 };
 
 export type TradeHistoryItem = {
@@ -166,6 +167,73 @@ export type KucoinOrderPlacedResponse = {
   };
 };
 
+export type KucoinGetOrderByIdResponse = {
+  code: string;
+  data: {
+    id: string; // i.e. '42y1597669a7793041273690'
+    symbol: string; // i.e. 'BTC-USDT'
+    opType: string; // i.e. 'DEAL'
+    type: string; // i.e. 'market'
+    side: string; // i.e. 'buy'
+    price: string; // i.e. '0'
+    size: string; // i.e. '0'
+    funds: string; // i.e. '0.01'
+    dealFunds: string; // i.e. '0.43958624'
+    dealSize: string; // i.e. '0.0000442'
+    fee: string; // i.e. '0.00007739994'
+    feeCurrency: string; // i.e. 'USDT'
+    stp: string; // i.e. ''
+    stop: string; // i.e. ''
+    stopTriggered: boolean; // i.e. false
+    stopPrice: string; // i.e. '0'
+    timeInForce: string; // i.e. 'GTC'
+    postOnly: boolean; // i.e. false
+    hidden: boolean; // i.e. false
+    iceberg: boolean; // i.e. false
+    visibleSize: string; // i.e. '0'
+    cancelAfter: number; // i.e. 0
+    channel: string; // i.e. 'API'
+    clientOid: string; // i.e. '88a71979-dk30-446e-a0f0-8b5191acafce'
+    remark: null;
+    tags: null;
+    isActive: boolean; // i.e. false
+    cancelExist: boolean; // i.e. false
+    createdAt: number; // i.e. 1248530058955
+    tradeType: string; // i.e. 'TRADE'
+  };
+};
+
+export type KucoinGetFilledOrderByIdResponse = {
+  code: string;
+  data: {
+    currentPage: number; // i.e. 1
+    pageSize: number; // i.e. 50,
+    totalNum: number; // i.e. 1,
+    totalPage: number; // i.e. 1,
+    items: [KucoinGetFilledOrderByIdItem];
+  };
+};
+
+export type KucoinGetFilledOrderByIdItem = {
+  symbol: string; // i.e. 'BTC-USDT'
+  tradeId: string; // i.e. '29y1592667a7790046273390'
+  orderId: string; // i.e. '29y1594666a7799041273290'
+  counterOrderId: string; // i.e. '29y1594566a7790001273693'
+  side: string; // i.e. 'buy'
+  liquidity: string; // i.e. 'taker'
+  forceTaker: boolean; // i.e. true
+  price: string; // i.e. '34347.7'
+  size: string; // i.e. '0.0000004'
+  funds: string; // i.e. '0.00834654'
+  fee: string; // i.e. '0.00000734914'
+  feeRate: string; // i.e. '0.001'
+  feeCurrency: string; // i.e. 'USDT'
+  stop: string; // i.e. ''
+  tradeType: string; // i.e. 'TRADE'
+  type: string; // i.e. 'market'
+  createdAt: number; // i.e. 1240526092060
+};
+
 export type KucoinErrorResponse = {
   code: string;
   msg: string;
@@ -176,5 +244,6 @@ export type KucoinMarketOrderParameters = {
   side: string;
   symbol: string;
   type: string;
-  funds: string;
+  size?: string;
+  funds?: string;
 };

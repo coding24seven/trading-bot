@@ -49,8 +49,8 @@ export default class Comparator {
         baseStartAmount: 0,
         baseStartAmountPerHand: null,
         exchangeFee: Comparator.exchangeFee,
-        baseMinimumTradeSizeAllowed: null,
-        quoteMinimumTradeSizeAllowed: null,
+        baseMinimumTradeSize: null,
+        quoteMinimumTradeSize: null,
         id: null,
         itsAccountId: null,
       });

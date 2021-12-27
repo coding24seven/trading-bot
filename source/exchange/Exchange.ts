@@ -4,6 +4,9 @@ import kucoin from "kucoin-node-api";
 import {
   AccountConfig,
   KucoinErrorResponse,
+  KucoinGetFilledOrderByIdItem,
+  KucoinGetFilledOrderByIdResponse,
+  KucoinGetOrderByIdResponse,
   KucoinMarketOrderParameters,
   KucoinOrderPlacedResponse,
   KucoinSymbolData,
@@ -13,22 +16,13 @@ import {
 import ExchangeCodes from "../types/exchangeCodes.js";
 
 export class Exchange {
-  static defaultEnvironment: string = "sandbox";
-  static environment: string =
-    process.env.EXCHANGE_API_ENVIRONMENT || Exchange.defaultEnvironment;
   static market: string = process.env.MARKET!;
-  static defaultSymbol: string = "BTC-USDT";
+  static defaultSymbol: string = process.env.SYMBOL_GLOBAL!;
   static publicConfig: AccountConfig = {
     apiKey: "",
     secretKey: "",
     passphrase: "",
-    environment: Exchange.environment,
-  };
-  static privateConfig: AccountConfig = {
-    apiKey: process.env.API_0_KEY!,
-    secretKey: process.env.API_0_SECRET_KEY!,
-    passphrase: process.env.API_0_PASSPHRASE!,
-    environment: Exchange.environment,
+    environment: "live",
   };
 
   static startWSTicker(
@@ -37,6 +31,11 @@ export class Exchange {
   ) {
     kucoin.init(Exchange.publicConfig);
     kucoin.initSocket({ topic: "ticker", symbols: [symbol] }, callback);
+  }
+
+  static startWSAllTicker(callback: (messageAsString: string) => void) {
+    kucoin.init(Exchange.publicConfig);
+    kucoin.initSocket({ topic: "allTicker" }, callback);
   }
 
   static async getSymbolData(
@@ -81,20 +80,68 @@ export class Exchange {
     };
   }
 
-  static async buy({
-    symbol,
-    funds,
-  }): Promise<KucoinOrderPlacedResponse | KucoinErrorResponse> {
-    kucoin.init(Exchange.privateConfig);
+  static async tradeMarket(
+    config: AccountConfig,
+    { symbol, amount, isBuy }
+  ): Promise<KucoinOrderPlacedResponse | KucoinErrorResponse> {
+    const side: string = isBuy ? "buy" : "sell";
+    const baseOrQuote: string = isBuy ? "funds" : "size";
 
     const parameters: KucoinMarketOrderParameters = {
       clientOid: randomUUID(),
-      side: "buy",
-      symbol: symbol || Exchange.defaultSymbol,
       type: "market",
-      funds,
+      side,
+      symbol,
+      [baseOrQuote]: amount,
     };
 
+    kucoin.init(config);
+
     return await kucoin.placeOrder(parameters);
+  }
+
+  static async getOrderById(
+    config: AccountConfig,
+    orderId: string
+  ): Promise<KucoinGetOrderByIdResponse> {
+    kucoin.init(config);
+
+    return await kucoin.getOrderById({ id: orderId });
+  }
+
+  static getFilledOrderById(
+    config: AccountConfig,
+    orderId: string,
+    requestIntervalMs: number,
+    timeoutMs: number
+  ): Promise<KucoinGetFilledOrderByIdItem | null> {
+    kucoin.init(config);
+    let response: KucoinGetFilledOrderByIdResponse;
+
+    return new Promise((resolve, reject) => {
+      let timeout: NodeJS.Timeout;
+      const interval: NodeJS.Timer = setInterval(async () => {
+        response = await kucoin.listFills({
+          orderId,
+        });
+
+        const expectedItemQuantity: number = 1;
+
+        if (
+          response.code === ExchangeCodes.responseSuccess &&
+          response.data.items.length === expectedItemQuantity
+        ) {
+          clearInterval(interval);
+          clearTimeout(timeout);
+          const indexOfQueriedOrder: number = 0;
+          resolve(response.data.items[indexOfQueriedOrder]);
+        }
+      }, requestIntervalMs);
+
+      timeout = setTimeout(() => {
+        clearInterval(interval);
+        reject(null);
+      }, timeoutMs);
+    });
   }
 }
