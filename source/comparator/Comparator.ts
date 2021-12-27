@@ -8,8 +8,8 @@ export default class Comparator {
   static from: number = 20000;
   static to: number = 100000;
 
-  static run(pair: string) {
-    Comparator.botConfigs = Comparator.generateBotConfigs(pair);
+  static run(symbol: string) {
+    Comparator.botConfigs = Comparator.generateBotConfigs(symbol);
   }
 
   static addEventListeners() {
@@ -23,7 +23,7 @@ export default class Comparator {
     Comparator.botConfigsWithResults.push(data);
   }
 
-  static generateBotConfigs(pair: string): BotConfig[] {
+  static generateBotConfigs(symbol: string): BotConfig[] {
     const handSpanMin: number = 0.006;
     const handSpanStep: number = 0.01;
     const handSpanMax: number = 0.17;
@@ -35,7 +35,7 @@ export default class Comparator {
       handSpan += handSpanStep
     ) {
       arr.push({
-        pair,
+        symbol,
         from: Comparator.from,
         to: Comparator.to,
         quoteFrom: 30000,

@@ -35,10 +35,10 @@ export default class Bot {
     this.id = data.config.id;
     this.itsAccountId = data.config.itsAccountId;
     this.hands = data.vars.hands;
-    this.symbol = data.config.pair;
+    this.symbol = data.config.symbol;
     this.trader = new Trader(
       data.config.itsAccountId!,
-      data.config.pair,
+      data.config.symbol,
       store.getExchangeFee(this.itsAccountId)!
     );
     eventBus.on(eventBus.events!.LAST_PRICE, this.onLastPrice.bind(this));

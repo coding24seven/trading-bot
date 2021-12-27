@@ -41,7 +41,7 @@ export type BotData = {
 };
 
 export type BotConfig = {
-  pair: string;
+  symbol: string;
   from: number;
   to: number;
   quoteFrom: number;
