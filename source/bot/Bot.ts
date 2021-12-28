@@ -1,3 +1,4 @@
+import "dotenv/config";
 import eventBus from "../events/eventBus.js";
 import store from "../store/Store.js";
 import Trader from "../trader/Trader.js";
@@ -7,6 +8,7 @@ import {
   BotHand,
   BotResults,
   PairTradeSizes,
+  PriceStreamCallbackParameters,
   TradeHistoryItem,
 } from "../types";
 import { Exchange } from "../exchange/Exchange.js";
@@ -29,6 +31,12 @@ export default class Bot {
   count: number = 0;
   onLastPriceHasRunAtLeastOnce: boolean = false;
   tradeHistory: TradeHistoryItem[] = []; // not added to store atm
+  dateMs: number = Date.now();
+  processLastPriceIntervalDefaultMs: number = 1000;
+  processLastPriceIntervalMs: number = parseInt(
+    process.env.LAST_PRICE_CALLBACK_INTERVAL_MS ||
+      String(this.processLastPriceIntervalDefaultMs)
+  );
 
   constructor(data: BotData) {
     this.data = data;
@@ -109,7 +117,15 @@ export default class Bot {
     };
   }
 
-  async onLastPrice(lastPrice: number) {
+  async onLastPrice({ symbol, lastPrice }: PriceStreamCallbackParameters) {
+    const intervalNotCompleted: boolean =
+      Date.now() < this.dateMs + this.processLastPriceIntervalMs;
+
+    if (intervalNotCompleted || this.symbol !== symbol) return;
+
+    console.log(lastPrice, symbol);
+
+    this.dateMs = Date.now();
     this.lastPrice = lastPrice;
     this.recordLowestAndHighestPrice(lastPrice);
 

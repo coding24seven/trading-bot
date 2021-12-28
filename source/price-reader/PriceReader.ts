@@ -6,7 +6,10 @@
 import "dotenv/config";
 import eventBus from "../events/eventBus.js";
 import CsvFileReader from "../file-reader/CsvFileReader.js";
-import { KucoinNodeApiTickerMessage } from "../types";
+import {
+  KucoinNodeApiTickerMessage,
+  PriceStreamCallbackParameters,
+} from "../types";
 import Messages from "../types/messages.js";
 import { Exchange } from "../exchange/Exchange.js";
 
@@ -20,28 +23,50 @@ export default class PriceReader {
       String(PriceReader.callbackIntervalDefaultMs)
   );
 
-  static startLiveStream(callback: (lastPrice: number) => void) {
-    Exchange.startWSTicker(
-      process.env.SYMBOL_GLOBAL,
-      (messageAsString: string) => {
-        const intervalNotCompleted: boolean =
-          Date.now() < PriceReader.dateMs + PriceReader.callbackIntervalMs;
+  static startOneSymbolLivePriceStream(
+    symbol: string,
+    callback: (lastPrice: number) => void
+  ) {
+    Exchange.startWSTicker(symbol, (tickerMessageAsString: string) => {
+      const intervalNotCompleted: boolean =
+        Date.now() < PriceReader.dateMs + PriceReader.callbackIntervalMs;
 
-        if (intervalNotCompleted) return;
+      if (intervalNotCompleted) return;
 
-        PriceReader.dateMs = Date.now();
+      PriceReader.dateMs = Date.now();
 
-        const message: KucoinNodeApiTickerMessage = JSON.parse(messageAsString);
+      const message: KucoinNodeApiTickerMessage = JSON.parse(
+        tickerMessageAsString
+      );
 
-        if (!message.data?.price) return;
+      if (!message.data?.price) return;
 
-        const lastPrice: number = parseFloat(message.data.price);
+      const lastPrice: number = parseFloat(message.data.price);
 
-        if (PriceReader.priceIsValid(lastPrice)) {
-          callback(lastPrice);
-        }
+      if (PriceReader.priceIsValid(lastPrice)) {
+        callback(lastPrice);
       }
-    );
+    });
+  }
+
+  static startAllSymbolsLivePriceStream(
+    callback: ({ symbol, lastPrice }: PriceStreamCallbackParameters) => void
+  ) {
+    Exchange.startWSAllSymbolsTicker((tickerMessageAsString: string) => {
+      /* this callback runs once per each symbol message received */
+      const message: KucoinNodeApiTickerMessage = JSON.parse(
+        tickerMessageAsString
+      );
+
+      if (!message.data?.price) return;
+
+      const symbol: string = message.subject;
+      const lastPrice: number = parseFloat(message.data.price);
+
+      if (PriceReader.priceIsValid(lastPrice)) {
+        callback({ symbol, lastPrice });
+      }
+    });
   }
 
   static startHistoricalStream(filePaths: string[], column: number) {
@@ -56,7 +81,10 @@ export default class PriceReader {
         const price: number = row[column];
 
         if (PriceReader.priceIsValid(price)) {
-          eventBus.emit(eventBus.events!.LAST_PRICE, price);
+          eventBus.emit(eventBus.events!.LAST_PRICE, {
+            symbol: process.env.SYMBOL_GLOBAL,
+            lastPrice: price,
+          });
         }
       });
     });

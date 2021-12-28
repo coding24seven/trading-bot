@@ -118,6 +118,11 @@ export type PairTradeSizes = {
   quote: number;
 };
 
+export type PriceStreamCallbackParameters = {
+  symbol: string;
+  lastPrice: number;
+};
+
 export type KucoinNodeApiTickerMessage = {
   type: string;
   topic: string;

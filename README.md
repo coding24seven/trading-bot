@@ -43,7 +43,7 @@ This repository contains the source code and documentation powering the trading-
 1. `npm run historical` to analyse the performance of specific bot configuations in botConfig.ts against the historical data in the provided files
 1. `npm run generate` to obtain the winning bot configurations generated through Comparator.ts
 1. `npm run log` to log out the store's state populated with bot configurations from botConfig.ts
-1. `npm run collect` to display and save to file live exchange prices as they come
+1. `npm run collect BTC-USDT` (or any other valid symbol in place of `BTC-USDT`) to display live exchange prices for the symbol while saving them to file
 
 ### Kucoin exchange info
 

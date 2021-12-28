@@ -27,14 +27,18 @@ export class Exchange {
 
   static startWSTicker(
     symbol: string = Exchange.defaultSymbol,
-    callback: (messageAsString: string) => void
+    callback: (tickerMessageAsString: string) => void
   ) {
     kucoin.init(Exchange.publicConfig);
     kucoin.initSocket({ topic: "ticker", symbols: [symbol] }, callback);
   }
 
-  static startWSAllTicker(callback: (messageAsString: string) => void) {
+  static startWSAllSymbolsTicker(
+    callback: (tickerMessageAsString: string) => void
+  ) {
     kucoin.init(Exchange.publicConfig);
+
+    /* the provided callback runs once per each symbol message received */
     kucoin.initSocket({ topic: "allTicker" }, callback);
   }
 

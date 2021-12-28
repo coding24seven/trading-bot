@@ -44,11 +44,11 @@ trade();
 async function trade() {
   // console.log(await Exchange.getSymbolData(symbol));
 
-  Exchange.startWSAllTicker((messageAsString) => {
+  Exchange.startWSAllSymbolsTicker((messageAsString) => {
     const messageParsed = JSON.parse(messageAsString);
 
     if (messageParsed.subject === "BTC-USDT") {
-      console.log(messageParsed.data.price);
+      console.log(messageParsed);
       console.log("---------------------");
     }
   });

@@ -1,7 +1,7 @@
 import store from "../store/Store.js";
 import Account from "../account/Account.js";
 import PriceReader from "../price-reader/PriceReader.js";
-import { AccountData } from "../types";
+import { AccountData, PriceStreamCallbackParameters } from "../types";
 import eventBus from "../events/eventBus.js";
 
 export default class Runner {
@@ -28,9 +28,11 @@ export default class Runner {
 
       PriceReader.startHistoricalStream(fileNames, columnWithPrice);
     } else {
-      PriceReader.startLiveStream((lastPrice: number) => {
-        eventBus.emit(eventBus.events!.LAST_PRICE, lastPrice);
-      });
+      PriceReader.startAllSymbolsLivePriceStream(
+        ({ symbol, lastPrice }: PriceStreamCallbackParameters) => {
+          eventBus.emit(eventBus.events!.LAST_PRICE, { symbol, lastPrice });
+        }
+      );
     }
   }
 }
