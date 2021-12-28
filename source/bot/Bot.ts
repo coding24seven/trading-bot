@@ -65,6 +65,111 @@ export default class Bot {
     );
   }
 
+  async onLastPrice({ symbol, lastPrice }: PriceStreamCallbackParameters) {
+    if (!store.isHistoricalPrice) {
+      const intervalNotCompleted: boolean =
+        Date.now() < this.dateMs + this.processLastPriceIntervalMs;
+
+      if (intervalNotCompleted || this.symbol !== symbol) return;
+
+      console.log(lastPrice, symbol);
+      this.dateMs = Date.now();
+    }
+
+    this.lastPrice = lastPrice;
+    this.recordLowestAndHighestPrice(lastPrice);
+
+    if (!this.onLastPriceHasRunAtLeastOnce) {
+      if (store.isHistoricalPrice) {
+        // todo: replace the hardcoded 'BTC-USDT' values for historical price with exchange api values
+        this.data.config.baseMinimumTradeSize = 0.00001;
+        this.data.config.quoteMinimumTradeSize = 0.01;
+        this.data.config.baseIncrement = 0.00000001;
+        this.data.config.quoteIncrement = 0.000001;
+      } else {
+        await this.setValidTradeParameters();
+      }
+    }
+
+    this.processLastPrice(lastPrice);
+
+    this.onLastPriceHasRunAtLeastOnce = true;
+  }
+
+  processLastPrice(lastPrice: number) {
+    const buyingHands: BotHand[] = this.hands.filter(
+      (hand: BotHand) =>
+        !hand.tradeIsPending &&
+        this.isQuoteCurrencyEnoughToTrade(hand.quote) &&
+        lastPrice < hand.buyBelow
+    );
+
+    buyingHands.forEach(async (hand: BotHand) => {
+      const quoteToSpend: number = this.makeQuoteValidForTrade(hand.quote);
+      let baseReceived: number | null;
+
+      if (store.isHistoricalPrice) {
+        baseReceived = this.trader.tradeFake(true, quoteToSpend, lastPrice);
+      } else {
+        hand.tradeIsPending = true;
+        baseReceived = await this.trader.trade(true, quoteToSpend);
+      }
+
+      if (!baseReceived) return;
+
+      hand.quote -= quoteToSpend;
+      hand.base += baseReceived;
+      hand.buyCount++;
+      hand.tradeIsPending = false;
+      this.buyCountTotal++;
+      this.updateAfterTrade(hand, lastPrice, "buy");
+    });
+
+    const sellingHands: BotHand[] = this.hands.filter(
+      (hand: BotHand) =>
+        !hand.tradeIsPending &&
+        this.isBaseCurrencyEnoughToTrade(hand.base) &&
+        lastPrice > hand.sellAbove
+    );
+
+    sellingHands.forEach(async (hand: BotHand) => {
+      const baseToSpend: number = this.makeBaseValidForTrade(hand.base);
+      let quoteReceived: number | null;
+
+      if (store.isHistoricalPrice) {
+        quoteReceived = this.trader.tradeFake(false, baseToSpend, lastPrice);
+      } else {
+        hand.tradeIsPending = true;
+        quoteReceived = await this.trader.trade(false, baseToSpend);
+      }
+
+      if (!quoteReceived) return;
+
+      hand.base -= baseToSpend;
+      hand.quote += quoteReceived;
+      hand.sellCount++;
+      hand.tradeIsPending = false;
+      this.sellCountTotal++;
+      this.updateAfterTrade(hand, lastPrice, "sell");
+    });
+  }
+
+  isBaseCurrencyEnoughToTrade(base: number): boolean {
+    if (!this.data.config.baseMinimumTradeSize) {
+      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
+    }
+
+    return base >= this.data.config.baseMinimumTradeSize;
+  }
+
+  isQuoteCurrencyEnoughToTrade(quote: number): boolean {
+    if (!this.data.config.quoteMinimumTradeSize) {
+      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
+    }
+
+    return quote >= this.data.config.quoteMinimumTradeSize;
+  }
+
   getBotDataWithResults(
     options: { tradeHistoryIncluded: boolean } | null = null
   ): BotDataWithResults {
@@ -115,35 +220,36 @@ export default class Bot {
     };
   }
 
-  async onLastPrice({ symbol, lastPrice }: PriceStreamCallbackParameters) {
-    if (!store.isHistoricalPrice) {
-      const intervalNotCompleted: boolean =
-        Date.now() < this.dateMs + this.processLastPriceIntervalMs;
+  getQuoteTotalIncludingBaseSoldAsPlanned(): number {
+    const arr: BotHand[] = JSON.parse(JSON.stringify(this.hands));
 
-      if (intervalNotCompleted || this.symbol !== symbol) return;
-
-      console.log(lastPrice, symbol);
-      this.dateMs = Date.now();
-    }
-
-    this.lastPrice = lastPrice;
-    this.recordLowestAndHighestPrice(lastPrice);
-
-    if (!this.onLastPriceHasRunAtLeastOnce) {
-      if (store.isHistoricalPrice) {
-        // todo: replace the hardcoded 'BTC-USDT' values for historical price with exchange api values
-        this.data.config.baseMinimumTradeSize = 0.00001;
-        this.data.config.quoteMinimumTradeSize = 0.01;
-        this.data.config.baseIncrement = 0.00000001;
-        this.data.config.quoteIncrement = 0.000001;
-      } else {
-        await this.setValidTradeParameters();
+    arr.forEach((hand: BotHand) => {
+      if (hand.base > 0) {
+        hand.quote += hand.base * hand.sellAbove;
+        hand.base = 0;
       }
-    }
+    });
 
-    this.processLastPrice(lastPrice);
+    return arr.reduce(
+      (accumulator: number, item: BotHand) => accumulator + item.quote,
+      0
+    );
+  }
 
-    this.onLastPriceHasRunAtLeastOnce = true;
+  getTradeHistoryItem(
+    hand: BotHand,
+    lastPrice: number,
+    type: string
+  ): TradeHistoryItem {
+    return {
+      id: hand.id,
+      buyBelow: hand.buyBelow,
+      sellAbove: hand.sellAbove,
+      buyCount: hand.buyCount,
+      sellCount: hand.sellCount,
+      lastPrice,
+      type,
+    };
   }
 
   async setValidTradeParameters() {
@@ -161,22 +267,6 @@ export default class Bot {
     );
     this.data.config.baseIncrement = parseFloat(symbolData.baseIncrement);
     this.data.config.quoteIncrement = parseFloat(symbolData.quoteIncrement);
-  }
-
-  baseCurrencyIsEnoughToTrade(base: number): boolean {
-    if (!this.data.config.baseMinimumTradeSize) {
-      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
-    }
-
-    return base >= this.data.config.baseMinimumTradeSize;
-  }
-
-  quoteCurrencyIsEnoughToTrade(quote: number): boolean {
-    if (!this.data.config.quoteMinimumTradeSize) {
-      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET);
-    }
-
-    return quote >= this.data.config.quoteMinimumTradeSize;
   }
 
   makeBaseValidForTrade(base: number): number {
@@ -199,64 +289,6 @@ export default class Bot {
     return getValueWithValidDecimalPlaces(quote, quoteIncrement);
   }
 
-  processLastPrice(lastPrice: number) {
-    const buyingHands: BotHand[] = this.hands.filter(
-      (hand: BotHand) =>
-        !hand.tradeIsPending &&
-        this.quoteCurrencyIsEnoughToTrade(hand.quote) &&
-        lastPrice < hand.buyBelow
-    );
-
-    buyingHands.forEach(async (hand: BotHand) => {
-      const quoteToSpend: number = this.makeQuoteValidForTrade(hand.quote);
-      let baseReceived: number | null;
-
-      if (store.isHistoricalPrice) {
-        baseReceived = this.trader.tradeFake(true, quoteToSpend, lastPrice);
-      } else {
-        hand.tradeIsPending = true;
-        baseReceived = await this.trader.trade(true, quoteToSpend);
-      }
-
-      if (!baseReceived) return;
-
-      hand.quote -= quoteToSpend;
-      hand.base += baseReceived;
-      hand.buyCount++;
-      hand.tradeIsPending = false;
-      this.buyCountTotal++;
-      this.updateAfterTrade(hand, lastPrice, "buy");
-    });
-
-    const sellingHands: BotHand[] = this.hands.filter(
-      (hand: BotHand) =>
-        !hand.tradeIsPending &&
-        this.baseCurrencyIsEnoughToTrade(hand.base) &&
-        lastPrice > hand.sellAbove
-    );
-
-    sellingHands.forEach(async (hand: BotHand) => {
-      const baseToSpend: number = this.makeBaseValidForTrade(hand.base);
-      let quoteReceived: number | null;
-
-      if (store.isHistoricalPrice) {
-        quoteReceived = this.trader.tradeFake(false, baseToSpend, lastPrice);
-      } else {
-        hand.tradeIsPending = true;
-        quoteReceived = await this.trader.trade(false, baseToSpend);
-      }
-
-      if (!quoteReceived) return;
-
-      hand.base -= baseToSpend;
-      hand.quote += quoteReceived;
-      hand.sellCount++;
-      hand.tradeIsPending = false;
-      this.sellCountTotal++;
-      this.updateAfterTrade(hand, lastPrice, "sell");
-    });
-  }
-
   updateAfterTrade(hand: BotHand, lastPrice: number, type: string) {
     const tradeHistoryItem: TradeHistoryItem = this.getTradeHistoryItem(
       hand,
@@ -275,22 +307,6 @@ export default class Bot {
     store.setResults(this.itsAccountId, this.id, this.getResults());
   }
 
-  getQuoteTotalIncludingBaseSoldAsPlanned(): number {
-    const arr: BotHand[] = JSON.parse(JSON.stringify(this.hands));
-
-    arr.forEach((hand: BotHand) => {
-      if (hand.base > 0) {
-        hand.quote += hand.base * hand.sellAbove;
-        hand.base = 0;
-      }
-    });
-
-    return arr.reduce(
-      (accumulator: number, item: BotHand) => accumulator + item.quote,
-      0
-    );
-  }
-
   recordLowestAndHighestPrice(lastPrice: number) {
     this.lowestPriceRecorded =
       lastPrice < this.lowestPriceRecorded
@@ -301,21 +317,5 @@ export default class Bot {
       lastPrice > this.highestPriceRecorded
         ? lastPrice
         : this.highestPriceRecorded;
-  }
-
-  getTradeHistoryItem(
-    hand: BotHand,
-    lastPrice: number,
-    type: string
-  ): TradeHistoryItem {
-    return {
-      id: hand.id,
-      buyBelow: hand.buyBelow,
-      sellAbove: hand.sellAbove,
-      buyCount: hand.buyCount,
-      sellCount: hand.sellCount,
-      lastPrice,
-      type,
-    };
   }
 }
