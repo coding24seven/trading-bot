@@ -84,8 +84,8 @@ export default class Bot {
         // todo: replace the hardcoded 'BTC-USDT' values for historical price with exchange api values
         this.data.config.baseMinimumTradeSize = 0.00001;
         this.data.config.quoteMinimumTradeSize = 0.01;
-        this.data.config.baseIncrement = 0.00000001;
-        this.data.config.quoteIncrement = 0.000001;
+        this.data.config.baseIncrement = '0.00000001';
+        this.data.config.quoteIncrement = "0.000001";
       } else {
         await this.setValidTradeParameters();
       }
@@ -265,8 +265,8 @@ export default class Bot {
     this.data.config.quoteMinimumTradeSize = parseFloat(
       symbolData.quoteMinSize
     );
-    this.data.config.baseIncrement = parseFloat(symbolData.baseIncrement);
-    this.data.config.quoteIncrement = parseFloat(symbolData.quoteIncrement);
+    this.data.config.baseIncrement = symbolData.baseIncrement;
+    this.data.config.quoteIncrement = symbolData.quoteIncrement;
   }
 
   makeBaseValidForTrade(base: number): number {

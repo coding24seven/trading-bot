@@ -1,7 +1,5 @@
-export function countDecimals(value: number): number {
-  if (Math.floor(value) === value) return 0;
-
-  return String(value).split(".")[1]?.length || 0;
+export function countDecimals(numberAsString: string): number {
+  return numberAsString.split(".")[1]?.length || 0;
 }
 
 /*
@@ -9,7 +7,7 @@ export function countDecimals(value: number): number {
  */
 export function getValueWithValidDecimalPlaces(
   value: number,
-  increment: number
+  increment: string
 ): number {
   const validDecimalPlaces: number = countDecimals(increment);
   const targetStringLength: number = 1 + validDecimalPlaces;

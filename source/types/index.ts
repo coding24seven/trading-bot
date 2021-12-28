@@ -57,8 +57,8 @@ export type BotConfig = {
   exchangeFee: number;
   baseMinimumTradeSize: number | null;
   quoteMinimumTradeSize: number | null;
-  baseIncrement: number | null;
-  quoteIncrement: number | null;
+  baseIncrement: string | null;
+  quoteIncrement: string | null;
   id: number | null;
   itsAccountId: number | null;
 };

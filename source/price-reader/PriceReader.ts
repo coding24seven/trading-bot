@@ -77,10 +77,12 @@ export default class PriceReader {
 
       this.cachedFileContent[filePath] = rowsPopulatedWithNumbers;
 
-      rowsPopulatedWithNumbers.forEach((row: number[]) => {
+      rowsPopulatedWithNumbers.forEach((row: number[], i: number) => {
         const price: number = row[column];
+        const isLastBlankLine: boolean =
+          i === rowsPopulatedWithNumbers.length - 1 && price === undefined;
 
-        if (PriceReader.priceIsValid(price)) {
+        if (!isLastBlankLine && PriceReader.priceIsValid(price)) {
           eventBus.emit(eventBus.events!.LAST_PRICE, {
             symbol: process.env.SYMBOL_GLOBAL,
             lastPrice: price,
