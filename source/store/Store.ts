@@ -360,8 +360,6 @@ class Store {
         base: 0,
         buyCount: 0,
         sellCount: 0,
-        readyToBuy: false,
-        readyToSell: false,
         tradeIsPending: false,
       });
 

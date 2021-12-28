@@ -60,7 +60,7 @@ export class Exchange {
         (item: KucoinSymbolData) => item.symbol === symbol
       );
     } catch (e) {
-      console.log("my error", e);
+      console.error(e);
     }
   }
 

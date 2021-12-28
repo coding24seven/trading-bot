@@ -57,6 +57,8 @@ export type BotConfig = {
   exchangeFee: number;
   baseMinimumTradeSize: number | null;
   quoteMinimumTradeSize: number | null;
+  baseIncrement: number | null;
+  quoteIncrement: number | null;
   id: number | null;
   itsAccountId: number | null;
 };
@@ -81,8 +83,6 @@ export type BotResults = {
   quoteTotalIncludingBaseSoldAsPlanned: number;
   buyCountTotal: number;
   sellCountTotal: number;
-  buyResetCount: number;
-  sellResetCount: number;
   lastPrice: number;
   lowestPriceRecorded: number;
   highestPriceRecorded: number;
@@ -98,8 +98,6 @@ export type BotHand = {
   base: number;
   buyCount: number;
   sellCount: number;
-  readyToBuy: boolean;
-  readyToSell: boolean;
   tradeIsPending: boolean;
 };
 

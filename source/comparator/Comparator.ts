@@ -51,6 +51,8 @@ export default class Comparator {
         exchangeFee: Comparator.exchangeFee,
         baseMinimumTradeSize: null,
         quoteMinimumTradeSize: null,
+        baseIncrement: null,
+        quoteIncrement: null,
         id: null,
         itsAccountId: null,
       });

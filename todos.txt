@@ -1,7 +1,3 @@
-find a diffrent solution for typescript config!
-
-minimum trade amount required by exchange - get value from exchange for each pair
-
 check what happens if the program crashes. make sure the program can be stopped/crashed and resumed at any time without detriment.
 
 alert if balance is insufficient to trade

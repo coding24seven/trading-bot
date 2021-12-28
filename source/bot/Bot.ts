@@ -3,16 +3,18 @@ import eventBus from "../events/eventBus.js";
 import store from "../store/Store.js";
 import Trader from "../trader/Trader.js";
 import {
+  BotConfig,
   BotData,
   BotDataWithResults,
   BotHand,
   BotResults,
-  PairTradeSizes,
+  KucoinSymbolData,
   PriceStreamCallbackParameters,
   TradeHistoryItem,
 } from "../types";
 import { Exchange } from "../exchange/Exchange.js";
 import Messages from "../types/messages.js";
+import { getValueWithValidDecimalPlaces } from "../utils/index.js";
 
 export default class Bot {
   data: BotData;
@@ -26,8 +28,6 @@ export default class Bot {
   highestPriceRecorded: number = -Infinity;
   buyCountTotal: number = 0;
   sellCountTotal: number = 0;
-  buyResetCount: number = 0;
-  sellResetCount: number = 0;
   count: number = 0;
   onLastPriceHasRunAtLeastOnce: boolean = false;
   tradeHistory: TradeHistoryItem[] = []; // not added to store atm
@@ -109,8 +109,6 @@ export default class Bot {
       quoteTotalIncludingBaseSoldAsPlanned,
       buyCountTotal: this.buyCountTotal,
       sellCountTotal: this.sellCountTotal,
-      buyResetCount: this.buyResetCount,
-      sellResetCount: this.sellResetCount,
       lastPrice: this.lastPrice,
       lowestPriceRecorded: this.lowestPriceRecorded,
       highestPriceRecorded: this.highestPriceRecorded,
@@ -118,43 +116,51 @@ export default class Bot {
   }
 
   async onLastPrice({ symbol, lastPrice }: PriceStreamCallbackParameters) {
-    const intervalNotCompleted: boolean =
-      Date.now() < this.dateMs + this.processLastPriceIntervalMs;
+    if (!store.isHistoricalPrice) {
+      const intervalNotCompleted: boolean =
+        Date.now() < this.dateMs + this.processLastPriceIntervalMs;
 
-    if (intervalNotCompleted || this.symbol !== symbol) return;
+      if (intervalNotCompleted || this.symbol !== symbol) return;
 
-    console.log(lastPrice, symbol);
+      console.log(lastPrice, symbol);
+      this.dateMs = Date.now();
+    }
 
-    this.dateMs = Date.now();
     this.lastPrice = lastPrice;
     this.recordLowestAndHighestPrice(lastPrice);
 
     if (!this.onLastPriceHasRunAtLeastOnce) {
       if (store.isHistoricalPrice) {
-        // todo: remove the hardcoded values for historical price
+        // todo: replace the hardcoded 'BTC-USDT' values for historical price with exchange api values
         this.data.config.baseMinimumTradeSize = 0.00001;
         this.data.config.quoteMinimumTradeSize = 0.01;
+        this.data.config.baseIncrement = 0.00000001;
+        this.data.config.quoteIncrement = 0.000001;
       } else {
-        await this.setMinimumTradeSizes();
+        await this.setValidTradeParameters();
       }
     }
 
-    this.processLastPriceStandard(lastPrice);
+    this.processLastPrice(lastPrice);
 
     this.onLastPriceHasRunAtLeastOnce = true;
   }
 
-  async setMinimumTradeSizes() {
-    const minimumTradeSizes: PairTradeSizes | null = await Exchange.getMinimumTradeSizes(
-      this.symbol
-    );
+  async setValidTradeParameters() {
+    const symbolData:
+      | KucoinSymbolData
+      | undefined = await Exchange.getSymbolData(this.symbol);
 
-    if (!minimumTradeSizes) {
-      throw new Error(Messages.EXCHANGE_MINIMUM_TRADE_SIZES_RESPONSE_FAILED);
+    if (!symbolData) {
+      throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED);
     }
 
-    this.data.config.baseMinimumTradeSize = minimumTradeSizes.base;
-    this.data.config.quoteMinimumTradeSize = minimumTradeSizes.quote;
+    this.data.config.baseMinimumTradeSize = parseFloat(symbolData.baseMinSize);
+    this.data.config.quoteMinimumTradeSize = parseFloat(
+      symbolData.quoteMinSize
+    );
+    this.data.config.baseIncrement = parseFloat(symbolData.baseIncrement);
+    this.data.config.quoteIncrement = parseFloat(symbolData.quoteIncrement);
   }
 
   baseCurrencyIsEnoughToTrade(base: number): boolean {
@@ -173,16 +179,27 @@ export default class Bot {
     return quote >= this.data.config.quoteMinimumTradeSize;
   }
 
-  // todo: remove the hardcoded increment
-  makeQuoteValidForTrade(value: number): number {
-    return Math.floor(value * 1000000) / 1000000;
+  makeBaseValidForTrade(base: number): number {
+    const { baseIncrement }: BotConfig = this.data.config;
+
+    if (!baseIncrement) {
+      throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET);
+    }
+
+    return getValueWithValidDecimalPlaces(base, baseIncrement);
   }
 
-  makeBaseValidForTrade(value: number): number {
-    return Math.floor(value * 100000000) / 100000000;
+  makeQuoteValidForTrade(quote: number): number {
+    const { quoteIncrement }: BotConfig = this.data.config;
+
+    if (!quoteIncrement) {
+      throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET);
+    }
+
+    return getValueWithValidDecimalPlaces(quote, quoteIncrement);
   }
 
-  processLastPriceStandard(lastPrice: number) {
+  processLastPrice(lastPrice: number) {
     const buyingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
         !hand.tradeIsPending &&
@@ -248,10 +265,9 @@ export default class Bot {
     );
     this.tradeHistory.push(tradeHistoryItem);
 
-    console.log(tradeHistoryItem);
-
     if (store.isHistoricalPrice) return;
 
+    console.log(tradeHistoryItem);
     this.storeCurrentResults();
   }
 

@@ -39,19 +39,19 @@ function readApiEnvironment(): AccountConfig[] {
 
 const exchangeAccountConfig: AccountConfig = readApiEnvironment()[0];
 console.log(exchangeAccountConfig);
-trade();
+runTest();
 
-async function trade() {
-  // console.log(await Exchange.getSymbolData(symbol));
+async function runTest() {
+  console.log(await Exchange.getSymbolData(symbol));
 
-  Exchange.startWSAllSymbolsTicker((messageAsString) => {
-    const messageParsed = JSON.parse(messageAsString);
-
-    if (messageParsed.subject === "BTC-USDT") {
-      console.log(messageParsed);
-      console.log("---------------------");
-    }
-  });
+  // Exchange.startWSAllSymbolsTicker((messageAsString) => {
+  //   const messageParsed = JSON.parse(messageAsString);
+  //
+  //   if (messageParsed.subject === "BTC-USDT") {
+  //     console.log(messageParsed);
+  //     console.log("---------------------");
+  //   }
+  // });
 
   // const response:
   //   | KucoinOrderPlacedResponse
