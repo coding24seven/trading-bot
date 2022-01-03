@@ -6,38 +6,48 @@ import Runner from "../runner/Runner.js";
 import fs from "fs";
 import { BotConfig, BotDataWithResults } from "../types";
 
+const commandLineArguments: string[] = process.argv;
+const filePath: string = commandLineArguments[2];
+const priceColumnIndexAsString: string = commandLineArguments[3];
+const priceColumnIndex: number = parseInt(priceColumnIndexAsString);
 const isHistoricalPrice: boolean = true;
 
-Comparator.run("BTC-USDT");
+if (filePath && priceColumnIndex) {
+  begin();
+}
 
-console.log("bot count:", Comparator.botConfigs.length);
+async function begin() {
+  Comparator.run("BTC-USDT");
 
-Comparator.botConfigs.forEach((botConfig: BotConfig, i: number) => {
-  Comparator.addEventListeners();
+  console.log("bot count:", Comparator.botConfigs.length);
 
-  store.setUp({ isHistoricalPrice, botConfigFromGenerator: botConfig });
+  Comparator.botConfigs.forEach((botConfig: BotConfig, i: number) => {
+    Comparator.addEventListeners();
 
-  Runner.runBots();
-  Runner.runPriceReader(isHistoricalPrice);
+    store.setUp({ isHistoricalPrice, botConfigFromGenerator: botConfig });
 
-  eventBus.removeAllListeners();
+    Runner.runBots();
+    Runner.runPriceReader(isHistoricalPrice, filePath, priceColumnIndex);
 
-  console.log("count", i + 1);
-});
+    eventBus.removeAllListeners();
 
-const sortedResults: BotDataWithResults[] = Comparator.sortConfigsByProfit();
+    console.log("count", i + 1);
+  });
 
-fs.promises.writeFile(
-  "logs/bots-sorted.json",
-  JSON.stringify(sortedResults, null, 2)
-);
+  const sortedResults: BotDataWithResults[] = Comparator.sortConfigsByProfit();
 
-const mostProfitableConfigsToShowCount: number = 6;
+  fs.promises.writeFile(
+    "logs/bots-sorted.json",
+    JSON.stringify(sortedResults, null, 2)
+  );
 
-console.log(
-  JSON.stringify(
-    sortedResults.slice(-mostProfitableConfigsToShowCount),
-    null,
-    2
-  )
-);
+  const mostProfitableConfigsToShowCount: number = 6;
+
+  console.log(
+    JSON.stringify(
+      sortedResults.slice(-mostProfitableConfigsToShowCount),
+      null,
+      2
+    )
+  );
+}

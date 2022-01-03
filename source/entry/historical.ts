@@ -3,9 +3,15 @@ import store from "../store/Store.js";
 import Runner from "../runner/Runner.js";
 import eventBus from "../events/eventBus.js";
 
+const commandLineArguments: string[] = process.argv;
+const filePath: string = commandLineArguments[2];
+const priceColumnIndexAsString: string = commandLineArguments[3];
+const priceColumnIndex: number = parseInt(priceColumnIndexAsString);
 const isHistoricalPrice: boolean = true;
 
-begin();
+if (filePath && priceColumnIndex) {
+  begin();
+}
 
 async function begin() {
   await store.setUp({ isHistoricalPrice });
@@ -16,5 +22,5 @@ async function begin() {
   );
 
   Runner.runBots();
-  Runner.runPriceReader(isHistoricalPrice);
+  Runner.runPriceReader(isHistoricalPrice, filePath, priceColumnIndex);
 }

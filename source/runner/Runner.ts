@@ -11,22 +11,22 @@ export default class Runner {
     });
   }
 
-  static runPriceReader(isHistoricalPrice: boolean = false) {
-    if (isHistoricalPrice) {
+  static runPriceReader(
+    isHistoricalPrice: boolean = false,
+    filePath?: string,
+    priceColumnIndex: number = 0
+  ) {
+    if (isHistoricalPrice && filePath) {
       const directory: string = "historical-price-files";
-      const columnWithPrice: number = 2;
 
       const monthNumbers: number[] = [6];
       // const fileNames = monthNumbers.map(
       //   (number) => `${directory}/BTCUSDT-1m-2021-0${number}.csv`
       // );
 
-      // const fileNames = [`${directory}/small.csv`];
-      const fileNames: string[] = [
-        `${directory}/last-prices-collected-over-two-weeks.csv`,
-      ];
+      const fileNames: string[] = [filePath];
 
-      PriceReader.startHistoricalStream(fileNames, columnWithPrice);
+      PriceReader.startHistoricalStream(fileNames, priceColumnIndex);
     } else {
       PriceReader.startAllSymbolsLivePriceStream(
         ({ symbol, lastPrice }: PriceStreamCallbackParameters) => {
