@@ -1,6 +1,5 @@
 /.idea
 /.env
 /node_modules
-/historical-price-files
 /logs
 /dist
