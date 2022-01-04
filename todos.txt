@@ -1,8 +1,0 @@
-check what happens if the program crashes. make sure the program can be stopped/crashed and resumed at any time without detriment.
-
-alert if balance is insufficient to trade
-
-add a scenario where you take some of the generated profit, from the usdt pool, for example, monthly
-
-create topUpBot.js file to add cryptocurrency to the bot
-
