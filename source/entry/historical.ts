@@ -6,10 +6,10 @@ import eventBus from "../events/eventBus.js";
 const commandLineArguments: string[] = process.argv;
 const filePath: string = commandLineArguments[2];
 const priceColumnIndexAsString: string = commandLineArguments[3];
-const priceColumnIndex: number = parseInt(priceColumnIndexAsString);
+const priceColumnIndex: number = parseInt(priceColumnIndexAsString) || 0;
 const isHistoricalPrice: boolean = true;
 
-if (filePath && priceColumnIndex) {
+if (filePath) {
   begin();
 }
 

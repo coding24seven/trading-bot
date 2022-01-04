@@ -5,6 +5,7 @@
     "target": "ESNext",
     "moduleResolution": "node",
     "sourceMap": true,
+    "rootDir": "./",
     "outDir": "dist",
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true

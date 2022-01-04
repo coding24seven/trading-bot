@@ -7,6 +7,7 @@ import PriceReader from "../price-reader/PriceReader.js";
 
 const commandLineArguments: string[] = process.argv;
 const symbol: string = commandLineArguments[2];
+const outputFilePath: string = commandLineArguments[3];
 
 collect();
 
@@ -19,10 +20,16 @@ function collect() {
     return;
   }
 
-  console.log(`Collecting prices for symbol: ${symbol}`);
+  if (!outputFilePath) {
+    console.error(
+      "Please specify an output file path in the command line, for example: my-output-file.csv"
+    );
 
-  const outputFilePath: string =
-    "historical-price-files/last-prices-collected-at-real-time.csv";
+    return;
+  }
+
+  console.log(`Collecting prices for symbol: ${symbol}`);
+  console.log(`Writing to file: ${outputFilePath}`);
 
   PriceReader.startOneSymbolLivePriceStream(
     symbol,
@@ -30,7 +37,7 @@ function collect() {
       try {
         await fs.promises.appendFile(
           outputFilePath,
-          `0, 0, ${lastPrice.toString()}\n`
+          `${lastPrice.toString()}\n`
         );
 
         console.log(lastPrice);
