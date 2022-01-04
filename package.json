@@ -11,8 +11,7 @@
     "historical": "tsc && node dist/source/entry/historical.js",
     "generate": "tsc && node dist/source/entry/generate.js",
     "collect": "tsc && node dist/source/entry/collectLastPrice.js",
-    "log": "tsc && node dist/source/entry/logStore.js",
-    "test": "tsc && node dist/exchangeApiTest.js"
+    "log": "tsc && node dist/source/entry/logStore.js"
   },
   "author": "",
   "license": "ISC",
