@@ -43,7 +43,7 @@ This repository contains the source code and documentation powering the trading-
 1. `npm run historical historical-file-path price-column-index` to analyse the performance of specific bot configuations in botConfig.ts against the historical data in the provided files. Example: `npm run historical historical-price-files/BTCUSDT-1m-2021-05.csv 2`
 1. `npm run generate historical-file-path price-column-index` to obtain the winning bot configurations generated through Comparator.ts. Example: `npm run generate historical-price-files/BTCUSDT-1m-2021-05.csv 2`
 1. `npm run log` to log out the store's state populated with bot configurations from botConfig.ts
-1. `npm run collect BTC-USDT` (or any other valid symbol in place of `BTC-USDT`) to display live exchange prices for the symbol while saving them to file
+1. `npm run collect BTC-USDT output-file-path.csv` (or any other valid symbol in place of `BTC-USDT`) to display live exchange prices for the symbol while saving them to file
 
 ### Kucoin exchange info
 
