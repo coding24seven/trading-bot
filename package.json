@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
+    "big.js": "^6.2.1",
     "dotenv": "^10.0.0",
     "kucoin-node-api": "^2.1.4"
   },
