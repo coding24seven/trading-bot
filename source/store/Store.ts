@@ -269,7 +269,9 @@ class Store {
     ).length
 
     botConfig.quoteStartAmountPerHand =
-      botConfig.quoteStartAmount / handsToTopUpWithQuoteCount
+      handsToTopUpWithQuoteCount > 0
+        ? botConfig.quoteStartAmount / handsToTopUpWithQuoteCount
+        : 0
 
     hands.forEach((hand: BotHand) => {
       if (
@@ -294,7 +296,9 @@ class Store {
     ).length
 
     botConfig.baseStartAmountPerHand =
-      botConfig.baseStartAmount / handsToTopUpWithBaseCount
+      handsToTopUpWithBaseCount > 0
+        ? botConfig.baseStartAmount / handsToTopUpWithBaseCount
+        : 0
 
     hands.forEach((hand: BotHand) => {
       if (
