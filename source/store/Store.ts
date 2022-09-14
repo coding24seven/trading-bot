@@ -319,7 +319,7 @@ class Store {
 
     if (!this.isProfitGreaterThanExchangeFee(config)) {
       throw new Error(
-        `hand span ${config.handSpan} is ${Messages.HAND_SPAN_TOO_NARROW}`
+        `hand span ${config.handSpanPercent} is ${Messages.HAND_SPAN_TOO_NARROW}`
       )
     }
   }
@@ -328,7 +328,7 @@ class Store {
     return handCount >= 2
   }
 
-  isProfitGreaterThanExchangeFee({ itsAccountId, handSpan }): boolean {
+  isProfitGreaterThanExchangeFee({ itsAccountId, handSpanPercent }): boolean {
     const exchangeFee: number | null = this.getExchangeFee(itsAccountId)
 
     if (exchangeFee === null) {
@@ -337,15 +337,15 @@ class Store {
 
     const buyAndSellExchangeFee: number = 2 * exchangeFee
 
-    return buyAndSellExchangeFee < handSpan
+    return buyAndSellExchangeFee < handSpanPercent
   }
 
   buildHands(config: BotConfig): BotHand[] {
-    const { from, to, handSpan }: BotConfig = config
+    const { from, to, handSpanPercent }: BotConfig = config
     const hands: BotHand[] = []
     let buyBelow: number = from
     let id: number = 0
-    const increment: number = (to - from) * handSpan
+    const increment: number = (to - from) * (handSpanPercent / 100)
 
     while (buyBelow < to) {
       const sellAbove: number = buyBelow + increment

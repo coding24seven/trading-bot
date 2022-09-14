@@ -49,7 +49,7 @@ export type BotConfig = {
   baseFrom: number
   baseTo: number
   handCount: number | null
-  handSpan: number
+  handSpanPercent: number
   quoteStartAmount: number
   quoteStartAmountPerHand: number | null
   baseStartAmount: number
