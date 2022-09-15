@@ -1,3 +1,4 @@
+import Big from 'big.js'
 import botConfigs from '../bot/botConfig.js'
 import axios, { AxiosResponse } from 'axios'
 import readlineImported, { Interface } from 'readline'
@@ -270,7 +271,9 @@ class Store {
 
     botConfig.quoteStartAmountPerHand =
       handsToTopUpWithQuoteCount > 0
-        ? botConfig.quoteStartAmount / handsToTopUpWithQuoteCount
+        ? Big(botConfig.quoteStartAmount)
+            .div(handsToTopUpWithQuoteCount)
+            .toNumber()
         : 0
 
     hands.forEach((hand: BotHand) => {
@@ -297,7 +300,9 @@ class Store {
 
     botConfig.baseStartAmountPerHand =
       handsToTopUpWithBaseCount > 0
-        ? botConfig.baseStartAmount / handsToTopUpWithBaseCount
+        ? Big(botConfig.baseStartAmount)
+            .div(handsToTopUpWithBaseCount)
+            .toNumber()
         : 0
 
     hands.forEach((hand: BotHand) => {
@@ -349,10 +354,14 @@ class Store {
     const hands: BotHand[] = []
     let buyBelow: number = from
     let id: number = 0
-    const increment: number = (to - from) * (handSpanPercent / 100)
+    const handSpanPercentDecimal = handSpanPercent / 100
+    const increment: number = Big(to)
+      .minus(from)
+      .mul(handSpanPercentDecimal)
+      .toNumber()
 
     while (buyBelow < to) {
-      const sellAbove: number = buyBelow + increment
+      const sellAbove: number = Big(buyBelow).plus(increment).toNumber()
 
       hands.push({
         id,
