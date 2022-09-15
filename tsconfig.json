@@ -10,5 +10,8 @@
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true
   },
-  "lib": ["ESNext"]
+  "lib": ["ESNext"],
+  "ts-node": {
+    "esm": true
+  }
 }
