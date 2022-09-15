@@ -8,6 +8,7 @@ import {
 import { Exchange } from '../exchange/Exchange.js'
 import ExchangeCodes from '../types/exchangeCodes.js'
 import Big from 'big.js'
+import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Trader {
   symbol: string
@@ -60,17 +61,23 @@ export default class Trader {
 
   tradeFake(isBuy: boolean, amountToSpend: number, lastPrice: number): number {
     if (isBuy) {
+      const baseIncrement = '0.00000001'
+      const decimalsToRetain = countDecimals(baseIncrement)
+
       const baseReceived: Big = this.deductExchangeFeeFake(
         Big(amountToSpend).div(lastPrice)
       )
 
-      return baseReceived.toNumber()
+      return trimDecimalsToFixed(baseReceived.toNumber(), decimalsToRetain)
     } else {
+      const quoteIncrement = '0.000001'
+      const decimalsToRetain = countDecimals(quoteIncrement)
+
       const quoteReceived: Big = this.deductExchangeFeeFake(
         Big(amountToSpend).mul(lastPrice)
       )
 
-      return quoteReceived.toNumber()
+      return trimDecimalsToFixed(quoteReceived.toNumber(), decimalsToRetain)
     }
   }
 

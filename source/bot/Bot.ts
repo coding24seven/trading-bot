@@ -15,6 +15,7 @@ import {
 import { Exchange } from '../exchange/Exchange.js'
 import Messages from '../types/messages.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
+import Big from 'big.js'
 
 export default class Bot {
   data: BotData
@@ -117,8 +118,8 @@ export default class Bot {
 
       if (!baseReceived) return
 
-      hand.quote -= quoteToSpend
-      hand.base += baseReceived
+      hand.quote = Big(hand.quote).minus(quoteToSpend).toNumber()
+      hand.base = Big(hand.base).plus(baseReceived).toNumber()
       hand.buyCount++
       hand.tradeIsPending = false
       this.buyCountTotal++
@@ -145,8 +146,8 @@ export default class Bot {
 
       if (!quoteReceived) return
 
-      hand.base -= baseToSpend
-      hand.quote += quoteReceived
+      hand.base = Big(hand.base).minus(baseToSpend).toNumber()
+      hand.quote = Big(hand.quote).plus(quoteReceived).toNumber()
       hand.sellCount++
       hand.tradeIsPending = false
       this.sellCountTotal++
@@ -192,13 +193,15 @@ export default class Bot {
       return
     }
 
-    const quoteTotal: number = this.hands.reduce(
-      (accumulator: number, item: BotHand) => accumulator + item.quote,
+    const baseTotal: number = this.hands.reduce(
+      (accumulator: number, item: BotHand) =>
+        Big(accumulator).plus(item.base).toNumber(),
       0
     )
 
-    const baseTotal: number = this.hands.reduce(
-      (accumulator: number, item: BotHand) => accumulator + item.base,
+    const quoteTotal: number = this.hands.reduce(
+      (accumulator: number, item: BotHand) =>
+        Big(accumulator).plus(item.quote).toNumber(),
       0
     )
 
@@ -221,18 +224,24 @@ export default class Bot {
     }
   }
 
+  /* todo: remove fixed decimals (6) */
   getQuoteTotalIncludingBaseSoldAsPlanned(): number {
     const arr: BotHand[] = JSON.parse(JSON.stringify(this.hands))
 
     arr.forEach((hand: BotHand) => {
       if (hand.base > 0) {
-        hand.quote += hand.base * hand.sellAbove
+        const valueToAdd = Big(hand.base).mul(hand.sellAbove)
+        hand.quote = trimDecimalsToFixed(
+          valueToAdd.plus(hand.quote).toNumber(),
+          6
+        )
         hand.base = 0
       }
     })
 
     return arr.reduce(
-      (accumulator: number, item: BotHand) => accumulator + item.quote,
+      (accumulator: number, item: BotHand) =>
+        Big(accumulator).plus(item.quote).toNumber(),
       0
     )
   }

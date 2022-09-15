@@ -15,6 +15,7 @@ import {
   StoreSetupParameters,
 } from '../types'
 import Messages from '../types/messages.js'
+import { trimDecimalsToFixed } from '../utils/index.js'
 
 class Store {
   appEnvironment: AppEnvironment | null = null
@@ -269,11 +270,15 @@ class Store {
       handQualifiesForTopUp(hand)
     ).length
 
+    /* todo: remove fixed decimals (6) */
     botConfig.quoteStartAmountPerHand =
       handsToTopUpWithQuoteCount > 0
-        ? Big(botConfig.quoteStartAmount)
-            .div(handsToTopUpWithQuoteCount)
-            .toNumber()
+        ? trimDecimalsToFixed(
+            Big(botConfig.quoteStartAmount)
+              .div(handsToTopUpWithQuoteCount)
+              .toNumber(),
+            6
+          )
         : 0
 
     hands.forEach((hand: BotHand) => {
@@ -298,11 +303,15 @@ class Store {
       handQualifiesForTopUp(hand)
     ).length
 
+    /* todo: remove fixed decimals (8) */
     botConfig.baseStartAmountPerHand =
       handsToTopUpWithBaseCount > 0
-        ? Big(botConfig.baseStartAmount)
-            .div(handsToTopUpWithBaseCount)
-            .toNumber()
+        ? trimDecimalsToFixed(
+            Big(botConfig.baseStartAmount)
+              .div(handsToTopUpWithBaseCount)
+              .toNumber(),
+            8
+          )
         : 0
 
     hands.forEach((hand: BotHand) => {
