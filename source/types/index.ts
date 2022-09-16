@@ -59,6 +59,8 @@ export type BotConfig = {
   quoteMinimumTradeSize: number | null
   baseIncrement: string | null
   quoteIncrement: string | null
+  baseDecimals: number | null
+  quoteDecimals: number | null
   id: number | null
   itsAccountId: number | null
 }

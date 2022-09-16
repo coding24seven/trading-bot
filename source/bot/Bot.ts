@@ -30,7 +30,6 @@ export default class Bot {
   buyCountTotal: number = 0
   sellCountTotal: number = 0
   count: number = 0
-  onLastPriceHasRunAtLeastOnce: boolean = false
   tradeHistory: TradeHistoryItem[] = [] // not added to store atm
   dateMs: number = Date.now()
   processLastPriceIntervalDefaultMs: number = 1000
@@ -80,21 +79,7 @@ export default class Bot {
     this.lastPrice = lastPrice
     this.recordLowestAndHighestPrice(lastPrice)
 
-    if (!this.onLastPriceHasRunAtLeastOnce) {
-      if (store.isHistoricalPrice) {
-        // todo: replace the hardcoded 'BTC-USDT' values for historical price with exchange api values
-        this.data.config.baseMinimumTradeSize = 0.00001
-        this.data.config.quoteMinimumTradeSize = 0.01
-        this.data.config.baseIncrement = '0.00000001'
-        this.data.config.quoteIncrement = '0.000001'
-      } else {
-        await this.setValidTradeParameters()
-      }
-    }
-
     this.processLastPrice(lastPrice)
-
-    this.onLastPriceHasRunAtLeastOnce = true
   }
 
   processLastPrice(lastPrice: number) {
@@ -224,7 +209,6 @@ export default class Bot {
     }
   }
 
-  /* todo: remove fixed decimals (6) */
   getQuoteTotalIncludingBaseSoldAsPlanned(): number {
     const arr: BotHand[] = JSON.parse(JSON.stringify(this.hands))
 
@@ -233,7 +217,7 @@ export default class Bot {
         const valueToAdd = Big(hand.base).mul(hand.sellAbove)
         hand.quote = trimDecimalsToFixed(
           valueToAdd.plus(hand.quote).toNumber(),
-          6
+          this.data.config.quoteDecimals!
         )
         hand.base = 0
       }
@@ -260,20 +244,6 @@ export default class Bot {
       lastPrice,
       type,
     }
-  }
-
-  async setValidTradeParameters() {
-    const symbolData: KucoinSymbolData | undefined =
-      await Exchange.getSymbolData(this.symbol)
-
-    if (!symbolData) {
-      throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
-    }
-
-    this.data.config.baseMinimumTradeSize = parseFloat(symbolData.baseMinSize)
-    this.data.config.quoteMinimumTradeSize = parseFloat(symbolData.quoteMinSize)
-    this.data.config.baseIncrement = symbolData.baseIncrement
-    this.data.config.quoteIncrement = symbolData.quoteIncrement
   }
 
   makeBaseValidForTrade(base: number): number {

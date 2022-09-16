@@ -12,12 +12,15 @@ import {
   BotData,
   BotHand,
   BotResults,
+  KucoinSymbolData,
   StoreSetupParameters,
 } from '../types'
 import Messages from '../types/messages.js'
-import { trimDecimalsToFixed } from '../utils/index.js'
+import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
+import { Exchange } from '../exchange/Exchange.js'
 
 class Store {
+  allSymbolsData: KucoinSymbolData[] | undefined
   appEnvironment: AppEnvironment | null = null
   apiEnvironment: AccountConfig[] = []
   botConfigIndexesForAllAccounts: BotConfigIndexesPerAccount[] = []
@@ -33,12 +36,18 @@ class Store {
       this.readBotConfigIndexesForAllAccounts()
   }
 
-  setUp({
+  async setUp({
     continueWithExistingDatabase = true,
     isHistoricalPrice = false,
     createsStoreAndExits = false,
     botConfigFromGenerator = null,
   }: StoreSetupParameters): Promise<void> {
+    this.allSymbolsData = await Exchange.getAllSymbolsData()
+
+    if (!this.allSymbolsData) {
+      throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
+    }
+
     this.isHistoricalPrice = isHistoricalPrice
     this.botConfigFromGenerator = botConfigFromGenerator
 
@@ -235,12 +244,25 @@ class Store {
         : this.botConfigIndexesForAllAccounts[
             accountIndex
           ].botConfigIndexesPerAccount.map((index: number) => botConfigs[index]) // e.g. [ 1, 3 ] -> [{key:val}, {key:val}]
-
       selectedBotConfigs.forEach((config: BotConfig, botIndex: number) => {
+        const symbolData = this.allSymbolsData!.find(
+          (data) => data.symbol === config.symbol
+        )
+
+        if (!symbolData) {
+          throw new Error(Messages.SYMBOL_DATA_NOT_FOUND)
+        }
+
         const extendedConfig: BotConfig = {
           ...config,
           id: botIndex,
           itsAccountId: accountIndex,
+          baseMinimumTradeSize: parseFloat(symbolData.baseMinSize),
+          quoteMinimumTradeSize: parseFloat(symbolData.quoteMinSize),
+          baseIncrement: symbolData.baseIncrement,
+          quoteIncrement: symbolData.quoteIncrement,
+          baseDecimals: countDecimals(symbolData.baseIncrement),
+          quoteDecimals: countDecimals(symbolData.quoteIncrement),
         }
 
         const hands: BotHand[] = this.buildHands(extendedConfig)
@@ -270,14 +292,13 @@ class Store {
       handQualifiesForTopUp(hand)
     ).length
 
-    /* todo: remove fixed decimals (6) */
     botConfig.quoteStartAmountPerHand =
       handsToTopUpWithQuoteCount > 0
         ? trimDecimalsToFixed(
             Big(botConfig.quoteStartAmount)
               .div(handsToTopUpWithQuoteCount)
               .toNumber(),
-            6
+            botConfig.quoteDecimals!
           )
         : 0
 
@@ -303,14 +324,13 @@ class Store {
       handQualifiesForTopUp(hand)
     ).length
 
-    /* todo: remove fixed decimals (8) */
     botConfig.baseStartAmountPerHand =
       handsToTopUpWithBaseCount > 0
         ? trimDecimalsToFixed(
             Big(botConfig.baseStartAmount)
               .div(handsToTopUpWithBaseCount)
               .toNumber(),
-            8
+            botConfig.baseDecimals!
           )
         : 0
 
