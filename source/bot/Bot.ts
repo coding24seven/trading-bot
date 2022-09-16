@@ -1,3 +1,4 @@
+import Big from 'big.js'
 import 'dotenv/config'
 import eventBus from '../events/eventBus.js'
 import store from '../store/Store.js'
@@ -7,15 +8,11 @@ import {
   BotData,
   BotDataWithResults,
   BotHand,
-  BotResults,
-  KucoinSymbolData,
-  PriceStreamCallbackParameters,
-  TradeHistoryItem,
+  BotResults, PriceStreamCallbackParameters,
+  TradeHistoryItem
 } from '../types'
-import { Exchange } from '../exchange/Exchange.js'
 import Messages from '../types/messages.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
-import Big from 'big.js'
 
 export default class Bot {
   data: BotData

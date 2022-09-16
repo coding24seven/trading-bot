@@ -1,5 +1,4 @@
-import events from "events";
-import EventEmitter from "events";
+import { default as EventEmitter, default as events } from "events";
 const eventBus: EventEmitterExtended = new events.EventEmitter();
 
 type EventEmitterExtended = EventEmitter & {

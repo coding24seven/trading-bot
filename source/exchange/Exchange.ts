@@ -1,5 +1,5 @@
-import 'dotenv/config'
 import { randomUUID } from 'crypto'
+import 'dotenv/config'
 import kucoin from 'kucoin-node-api'
 import {
   AccountConfig,
@@ -11,7 +11,7 @@ import {
   KucoinOrderPlacedResponse,
   KucoinSymbolData,
   KucoinSymbolsResponse,
-  PairTradeSizes,
+  PairTradeSizes
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
 

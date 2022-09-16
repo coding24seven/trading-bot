@@ -1,8 +1,8 @@
-import store from "../store/Store.js";
 import Account from "../account/Account.js";
-import PriceReader from "../price-reader/PriceReader.js";
-import { AccountData, PriceStreamCallbackParameters } from "../types";
 import eventBus from "../events/eventBus.js";
+import PriceReader from "../price-reader/PriceReader.js";
+import store from "../store/Store.js";
+import { AccountData, PriceStreamCallbackParameters } from "../types";
 
 export default class Runner {
   static runBots() {

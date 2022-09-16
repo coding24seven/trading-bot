@@ -1,13 +1,13 @@
+import Big from 'big.js'
+import { Exchange } from '../exchange/Exchange.js'
 import store from '../store/Store.js'
 import {
   AccountConfig,
   KucoinErrorResponse,
   KucoinGetFilledOrderByIdItem,
-  KucoinOrderPlacedResponse,
+  KucoinOrderPlacedResponse
 } from '../types'
-import { Exchange } from '../exchange/Exchange.js'
 import ExchangeCodes from '../types/exchangeCodes.js'
-import Big from 'big.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Trader {

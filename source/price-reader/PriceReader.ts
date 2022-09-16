@@ -5,13 +5,13 @@
 
 import 'dotenv/config'
 import eventBus from '../events/eventBus.js'
+import { Exchange } from '../exchange/Exchange.js'
 import CsvFileReader from '../file-reader/CsvFileReader.js'
 import {
   KucoinNodeApiTickerMessage,
-  PriceStreamCallbackParameters,
+  PriceStreamCallbackParameters
 } from '../types'
 import Messages from '../types/messages.js'
-import { Exchange } from '../exchange/Exchange.js'
 
 export default class PriceReader {
   static cachedFileContent: { [key: string]: number[][] } = {}

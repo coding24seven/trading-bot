@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto'
 
 export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean

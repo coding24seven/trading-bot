@@ -2,9 +2,9 @@
  * deletes this app's database file
  */
 
+import { AxiosResponse } from "axios";
 import "dotenv/config";
 import store from "../store/Store.js";
-import { AxiosResponse } from "axios";
 
 begin();
 

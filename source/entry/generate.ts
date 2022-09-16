@@ -1,9 +1,9 @@
 import "dotenv/config";
-import store from "../store/Store.js";
+import fs from "fs";
 import Comparator from "../comparator/Comparator.js";
 import eventBus from "../events/eventBus.js";
 import Runner from "../runner/Runner.js";
-import fs from "fs";
+import store from "../store/Store.js";
 import { BotConfig, BotDataWithResults } from "../types";
 
 const commandLineArguments: string[] = process.argv;

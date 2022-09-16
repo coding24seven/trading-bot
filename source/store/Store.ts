@@ -1,7 +1,8 @@
-import Big from 'big.js'
-import botConfigs from '../bot/botConfig.js'
 import axios, { AxiosResponse } from 'axios'
+import Big from 'big.js'
 import readlineImported, { Interface } from 'readline'
+import botConfigs from '../bot/botConfig.js'
+import { Exchange } from '../exchange/Exchange.js'
 import {
   AccountConfig,
   AccountData,
@@ -13,11 +14,10 @@ import {
   BotHand,
   BotResults,
   KucoinSymbolData,
-  StoreSetupParameters,
+  StoreSetupParameters
 } from '../types'
 import Messages from '../types/messages.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
-import { Exchange } from '../exchange/Exchange.js'
 
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined

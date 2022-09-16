@@ -1,6 +1,6 @@
 import "dotenv/config";
-import store from "../store/Store.js";
 import Runner from "../runner/Runner.js";
+import store from "../store/Store.js";
 
 const commandLineArguments: string[] = process.argv;
 
