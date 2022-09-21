@@ -9,6 +9,7 @@
     "new": "tsc && node dist/source/entry/index.js starts:with:new:store",
     "delete": "tsc && node dist/source/entry/delete.js",
     "historical": "tsc && node dist/source/entry/historical.js",
+    "test": "tsc && node dist/source/entry/historical.js",
     "generate": "tsc && node dist/source/entry/generate.js",
     "collect": "tsc && node dist/source/entry/collectLastPrice.js",
     "log": "tsc && node dist/source/entry/logStore.js"
