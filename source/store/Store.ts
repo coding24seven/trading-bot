@@ -164,7 +164,7 @@ class Store {
     if (appId && databaseUrl && databasePort) {
       requestUrl = `${databaseUrl}:${databasePort}/accounts/${appId}`
     } else {
-      throw new Error(Messages.DATA_MISSING_IN_APP_ENVIRONMENT)
+      throw new Error(Messages.CONFIG_DATA_MISSING_IN_APP_ENVIRONMENT)
     }
 
     return {
