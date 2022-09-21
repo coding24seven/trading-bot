@@ -1,4 +1,3 @@
-
 export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean
   isHistoricalPrice?: boolean
@@ -28,6 +27,7 @@ export type AccountConfig = {
   passphrase: string
   environment: string
   exchangeFee?: number
+  botConfigPath?: string
 }
 
 export type BotConfigIndexesPerAccount = {

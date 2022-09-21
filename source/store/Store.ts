@@ -1,7 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 import Big from 'big.js'
 import readlineImported, { Interface } from 'readline'
-import botConfigs from '../bot/botConfig.js'
 import { Exchange } from '../exchange/Exchange.js'
 import {
   AccountConfig,
@@ -14,7 +13,7 @@ import {
   BotHand,
   BotResults,
   KucoinSymbolData,
-  StoreSetupParameters
+  StoreSetupParameters,
 } from '../types'
 import Messages from '../types/messages.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
@@ -25,7 +24,8 @@ class Store {
   apiEnvironment: AccountConfig[] = []
   botConfigIndexesForAllAccounts: BotConfigIndexesPerAccount[] = []
   accounts: AccountData[] = []
-  bots: BotData[][] = [] // outer array index reflects owning account index
+  botConfigsInitialPerAccount: BotConfig[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
+  bots: BotData[][] = []
   isHistoricalPrice: boolean = false
   botConfigFromGenerator: BotConfig | null = null
 
@@ -42,14 +42,19 @@ class Store {
     createsStoreAndExits = false,
     botConfigFromGenerator = null,
   }: StoreSetupParameters): Promise<void> {
+    this.isHistoricalPrice = isHistoricalPrice
+    this.botConfigFromGenerator = botConfigFromGenerator
     this.allSymbolsData = await Exchange.getAllSymbolsData()
 
     if (!this.allSymbolsData) {
       throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
     }
 
-    this.isHistoricalPrice = isHistoricalPrice
-    this.botConfigFromGenerator = botConfigFromGenerator
+    for (const apiConfig of this.apiEnvironment) {
+      this.botConfigsInitialPerAccount.push(
+        (await import(apiConfig.botConfigPath!)).default
+      )
+    }
 
     if (isHistoricalPrice || createsStoreAndExits) {
       this.createAccountsWithBots()
@@ -167,14 +172,23 @@ class Store {
       const passphrase: string | undefined = env[`API_${i}_PASSPHRASE`]
       const environment: string | undefined =
         env[`API_${i}_EXCHANGE_ENVIRONMENT`]
+      const botConfigPath: string | undefined = env[`API_${i}_BOT_CONFIG_PATH`]
 
-      if (apiKey && secretKey && exchangeFee && passphrase && environment) {
+      if (
+        apiKey &&
+        secretKey &&
+        exchangeFee &&
+        passphrase &&
+        environment &&
+        botConfigPath
+      ) {
         arr.push({
           apiKey,
           secretKey,
           passphrase,
           environment,
           exchangeFee: parseFloat(exchangeFee),
+          botConfigPath,
         })
       }
 
@@ -239,11 +253,16 @@ class Store {
       accountIndex++
     ) {
       const arrayOfBotsPerAccount: BotData[] = []
+
       const selectedBotConfigs: BotConfig[] = this.botConfigFromGenerator
         ? [this.botConfigFromGenerator]
         : this.botConfigIndexesForAllAccounts[
             accountIndex
-          ].botConfigIndexesPerAccount.map((index: number) => botConfigs[index]) // e.g. [ 1, 3 ] -> [{key:val}, {key:val}]
+          ].botConfigIndexesPerAccount.map(
+            (botIndex: number) =>
+              this.botConfigsInitialPerAccount[accountIndex][botIndex]
+          )
+
       selectedBotConfigs.forEach((config: BotConfig, botIndex: number) => {
         const symbolData = this.allSymbolsData!.find(
           (data) => data.symbol === config.symbol
