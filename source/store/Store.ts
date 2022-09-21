@@ -21,7 +21,7 @@ import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
   appEnvironment: AppEnvironment | null = null
-  apiEnvironment: AccountConfig[] = []
+  accountEnvironment: AccountConfig[] = []
   botConfigIndexesForAllAccounts: BotConfigIndexesPerAccount[] = []
   accounts: AccountData[] = []
   botConfigsInitialPerAccount: BotConfig[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
@@ -31,7 +31,7 @@ class Store {
 
   constructor() {
     this.appEnvironment = this.readAppEnvironment()
-    this.apiEnvironment = this.readApiEnvironment()
+    this.accountEnvironment = this.readAccountEnvironment()
     this.botConfigIndexesForAllAccounts =
       this.readBotConfigIndexesForAllAccounts()
   }
@@ -69,7 +69,7 @@ class Store {
       throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
     }
 
-    for (const apiConfig of this.apiEnvironment) {
+    for (const apiConfig of this.accountEnvironment) {
       this.botConfigsInitialPerAccount.push(
         (await import(apiConfig.botConfigPath!)).default
       )
@@ -175,9 +175,9 @@ class Store {
     }
   }
 
-  readApiEnvironment(): AccountConfig[] {
+  readAccountEnvironment(): AccountConfig[] {
     const { env }: NodeJS.Process = process
-    const arr: AccountConfig[] = []
+    const accounts: AccountConfig[] = []
     let i: number = 0
 
     while (env[`ACCOUNT_${i}_EXISTS`]) {
@@ -199,7 +199,7 @@ class Store {
         environment &&
         botConfigPath
       ) {
-        arr.push({
+        accounts.push({
           apiKey,
           secretKey,
           passphrase,
@@ -212,7 +212,7 @@ class Store {
       i++
     }
 
-    return arr
+    return accounts
   }
 
   readBotConfigIndexesForAllAccounts(): BotConfigIndexesPerAccount[] {
@@ -250,11 +250,11 @@ class Store {
 
     for (
       let accountIndex: number = 0;
-      accountIndex < this.apiEnvironment.length;
+      accountIndex < this.accountEnvironment.length;
       accountIndex++
     ) {
       arr.push({
-        config: this.apiEnvironment[accountIndex],
+        config: this.accountEnvironment[accountIndex],
       })
     }
 
@@ -266,7 +266,7 @@ class Store {
 
     for (
       let accountIndex: number = 0;
-      accountIndex < this.apiEnvironment.length;
+      accountIndex < this.accountEnvironment.length;
       accountIndex++
     ) {
       const arrayOfBotsPerAccount: BotData[] = []
