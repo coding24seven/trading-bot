@@ -165,14 +165,16 @@ class Store {
     const arr: AccountConfig[] = []
     let i: number = 0
 
-    while (env[`API_${i}_EXISTS`]) {
-      const apiKey: string | undefined = env[`API_${i}_KEY`]
-      const secretKey: string | undefined = env[`API_${i}_SECRET_KEY`]
-      const exchangeFee: string | undefined = env[`API_${i}_EXCHANGE_FEE`]
-      const passphrase: string | undefined = env[`API_${i}_PASSPHRASE`]
+    while (env[`ACCOUNT_${i}_EXISTS`]) {
+      const apiKey: string | undefined = env[`ACCOUNT_${i}_API_KEY`]
+      const secretKey: string | undefined = env[`ACCOUNT_${i}_API_SECRET_KEY`]
+      const exchangeFee: string | undefined =
+        env[`ACCOUNT_${i}_API_EXCHANGE_FEE`]
+      const passphrase: string | undefined = env[`ACCOUNT_${i}_API_PASSPHRASE`]
       const environment: string | undefined =
-        env[`API_${i}_EXCHANGE_ENVIRONMENT`]
-      const botConfigPath: string | undefined = env[`API_${i}_BOT_CONFIG_PATH`]
+        env[`ACCOUNT_${i}_API_EXCHANGE_ENVIRONMENT`]
+      const botConfigPath: string | undefined =
+        env[`ACCOUNT_${i}_BOT_CONFIG_PATH`]
 
       if (
         apiKey &&
@@ -203,8 +205,8 @@ class Store {
     const arr: BotConfigIndexesPerAccount[] = []
     let i: number = 0
 
-    while (env[`API_${i}_EXISTS`]) {
-      const value: string | undefined = env[`API_${i}_BOT_CONFIG_INDEXES`]
+    while (env[`ACCOUNT_${i}_EXISTS`]) {
+      const value: string | undefined = env[`ACCOUNT_${i}_BOT_CONFIG_INDEXES`]
 
       if (value) {
         arr.push({
