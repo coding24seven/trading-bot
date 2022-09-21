@@ -36,6 +36,25 @@ class Store {
       this.readBotConfigIndexesForAllAccounts()
   }
 
+  get accountsAsString(): string {
+    return JSON.stringify(this.accounts, null, 2)
+  }
+
+  /*
+   * removes api credentials (so the remainder can be stored in database)
+   */
+  get accountsWithoutConfig(): AccountDataStripped[] {
+    const strippedAccounts: AccountData[] = JSON.parse(
+      JSON.stringify(this.accounts)
+    )
+
+    strippedAccounts.forEach((account: AccountData) => {
+      delete account.config
+    })
+
+    return strippedAccounts
+  }
+
   async setUp({
     continueWithExistingDatabase = true,
     isHistoricalPrice = false,
@@ -134,10 +153,6 @@ class Store {
     }
 
     this.linkBotsWithAccounts()
-  }
-
-  get accountsAsString(): string {
-    return JSON.stringify(this.accounts, null, 2)
   }
 
   readAppEnvironment(): AppEnvironment {
@@ -505,21 +520,6 @@ class Store {
       throw new Error(Messages.DATABASE_REQUEST_GENERIC_PROBLEM)
     }
     // todo: NOTIFY (BY EMAIL?) ABOUT READ/WRITE TO DATABASE ERROR
-  }
-
-  /*
-   * removes api credentials (so the remainder can be stored in database)
-   */
-  get accountsWithoutConfig(): AccountDataStripped[] {
-    const strippedAccounts: AccountData[] = JSON.parse(
-      JSON.stringify(this.accounts)
-    )
-
-    strippedAccounts.forEach((account: AccountData) => {
-      delete account.config
-    })
-
-    return strippedAccounts
   }
 }
 
