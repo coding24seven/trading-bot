@@ -8,8 +8,9 @@ import {
   BotData,
   BotDataWithResults,
   BotHand,
-  BotResults, PriceStreamCallbackParameters,
-  TradeHistoryItem
+  BotResults,
+  PriceStreamCallbackParameters,
+  TradeHistoryItem,
 } from '../types'
 import Messages from '../types/messages.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
@@ -44,7 +45,7 @@ export default class Bot {
     this.trader = new Trader(
       data.config.itsAccountId!,
       data.config.symbol,
-      store.getExchangeFee(this.itsAccountId)!
+      data.config.tradeFee!
     )
     eventBus.on(eventBus.events!.LAST_PRICE, this.onLastPrice.bind(this))
     eventBus.on(

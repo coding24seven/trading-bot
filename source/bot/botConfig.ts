@@ -18,7 +18,7 @@ const botConfigs: BotConfig[] = [
     quoteStartAmountPerHand: null,
     baseStartAmount: 0,
     baseStartAmountPerHand: null,
-    exchangeFee: 0.001,
+    tradeFee: null,
     baseMinimumTradeSize: null,
     quoteMinimumTradeSize: null,
     baseIncrement: null,

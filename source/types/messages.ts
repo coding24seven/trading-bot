@@ -17,6 +17,7 @@ enum Messages {
   EXCHANGE_MINIMUM_TRADE_SIZES_RESPONSE_FAILED = 'exchange: minimum trade sizes could not be obtained',
   EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED = 'exchange: symbol data could not be obtained',
   SYMBOL_DATA_NOT_FOUND = 'symbol data not found',
+  TICKER_NOT_FOUND = 'ticker not found',
   MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET = 'minimum trade sizes allowed by the exchange have not been set',
   TRADE_SIZE_INCREMENT_NOT_SET = 'trade-size increment allowed by the exchange has not been set',
   IS_NOT_A_NUMBER = 'is not a number',

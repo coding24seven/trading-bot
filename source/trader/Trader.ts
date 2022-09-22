@@ -5,20 +5,20 @@ import {
   AccountConfig,
   KucoinErrorResponse,
   KucoinGetFilledOrderByIdItem,
-  KucoinOrderPlacedResponse
+  KucoinOrderPlacedResponse,
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Trader {
   symbol: string
-  exchangeFee: number
+  tradeFee: number /* used in fake trades only */
   accountConfig: AccountConfig
 
-  constructor(accountId: number, symbol: string, exchangeFee: number) {
+  constructor(accountId: number, symbol: string, tradeFee: number) {
     this.symbol = symbol
     this.accountConfig = store.getAccountConfig(accountId)
-    this.exchangeFee = exchangeFee
+    this.tradeFee = tradeFee
   }
 
   async trade(isBuy: boolean, amountToSpend: number): Promise<number | null> {
@@ -64,7 +64,7 @@ export default class Trader {
       const baseIncrement = '0.00000001'
       const decimalsToRetain = countDecimals(baseIncrement)
 
-      const baseReceived: Big = this.deductExchangeFeeFake(
+      const baseReceived: Big = this.deductTradeFeeFake(
         Big(amountToSpend).div(lastPrice)
       )
 
@@ -73,7 +73,7 @@ export default class Trader {
       const quoteIncrement = '0.000001'
       const decimalsToRetain = countDecimals(quoteIncrement)
 
-      const quoteReceived: Big = this.deductExchangeFeeFake(
+      const quoteReceived: Big = this.deductTradeFeeFake(
         Big(amountToSpend).mul(lastPrice)
       )
 
@@ -81,8 +81,8 @@ export default class Trader {
     }
   }
 
-  deductExchangeFeeFake(value: Big): Big {
-    const amountDeducted = value.mul(this.exchangeFee)
+  deductTradeFeeFake(value: Big): Big {
+    const amountDeducted = value.mul(this.tradeFee)
 
     return value.minus(amountDeducted)
   }

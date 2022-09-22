@@ -4,7 +4,6 @@ import { BotConfig, BotDataWithResults, BotVariables } from '../types'
 export default class Comparator {
   static botConfigsWithResults: BotDataWithResults[] = []
   static botConfigs: BotConfig[] = []
-  static exchangeFee: number = 0.001
   static from: number = 20000
   static to: number = 100000
 
@@ -48,7 +47,7 @@ export default class Comparator {
         quoteStartAmountPerHand: null,
         baseStartAmount: 0,
         baseStartAmountPerHand: null,
-        exchangeFee: Comparator.exchangeFee,
+        tradeFee: null,
         baseMinimumTradeSize: null,
         quoteMinimumTradeSize: null,
         baseIncrement: null,

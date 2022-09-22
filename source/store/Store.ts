@@ -13,6 +13,7 @@ import {
   BotHand,
   BotResults,
   KucoinSymbolData,
+  KucoinTicker,
   StoreSetupParameters,
 } from '../types'
 import Messages from '../types/messages.js'
@@ -20,6 +21,7 @@ import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
+  allTickers: KucoinTicker[] | undefined
   appEnvironment: AppEnvironment | null = null
   accountEnvironment: AccountConfig[] = []
   botConfigIndexesForAllAccounts: BotConfigIndexesPerAccount[] = []
@@ -64,6 +66,7 @@ class Store {
     this.isHistoricalPrice = isHistoricalPrice
     this.botConfigFromGenerator = botConfigFromGenerator
     this.allSymbolsData = await Exchange.getAllSymbolsData()
+    this.allTickers = await Exchange.getAllTickers()
 
     if (!this.allSymbolsData) {
       throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
@@ -183,28 +186,18 @@ class Store {
     while (env[`ACCOUNT_${i}_EXISTS`]) {
       const apiKey: string | undefined = env[`ACCOUNT_${i}_API_KEY`]
       const secretKey: string | undefined = env[`ACCOUNT_${i}_API_SECRET_KEY`]
-      const exchangeFee: string | undefined =
-        env[`ACCOUNT_${i}_API_EXCHANGE_FEE`]
       const passphrase: string | undefined = env[`ACCOUNT_${i}_API_PASSPHRASE`]
       const environment: string | undefined =
         env[`ACCOUNT_${i}_API_EXCHANGE_ENVIRONMENT`]
       const botConfigPath: string | undefined =
         env[`ACCOUNT_${i}_BOT_CONFIG_PATH`]
 
-      if (
-        apiKey &&
-        secretKey &&
-        exchangeFee &&
-        passphrase &&
-        environment &&
-        botConfigPath
-      ) {
+      if (apiKey && secretKey && passphrase && environment && botConfigPath) {
         accounts.push({
           apiKey,
           secretKey,
           passphrase,
           environment,
-          exchangeFee: parseFloat(exchangeFee),
           botConfigPath,
         })
       }
@@ -282,11 +275,18 @@ class Store {
 
       selectedBotConfigs.forEach((config: BotConfig, botIndex: number) => {
         const symbolData = this.allSymbolsData!.find(
-          (data) => data.symbol === config.symbol
+          (data: KucoinSymbolData) => data.symbol === config.symbol
+        )
+
+        const ticker = this.allTickers!.find(
+          (ticker: KucoinTicker) => ticker.symbol === config.symbol
         )
 
         if (!symbolData) {
           throw new Error(Messages.SYMBOL_DATA_NOT_FOUND)
+        }
+        if (!ticker) {
+          throw new Error(Messages.TICKER_NOT_FOUND)
         }
 
         const extendedConfig: BotConfig = {
@@ -299,6 +299,7 @@ class Store {
           quoteIncrement: symbolData.quoteIncrement,
           baseDecimals: countDecimals(symbolData.baseIncrement),
           quoteDecimals: countDecimals(symbolData.quoteIncrement),
+          tradeFee: parseFloat(ticker.takerFeeRate),
         }
 
         const hands: BotHand[] = this.buildHands(extendedConfig)
@@ -391,7 +392,7 @@ class Store {
       throw new Error(`${Messages.HAND_COUNT_INVALID}. it must be >= 2`)
     }
 
-    if (!this.isProfitGreaterThanExchangeFee(config)) {
+    if (!this.isProfitGreaterThanTradeFee(config)) {
       throw new Error(
         `hand span ${config.handSpanPercent} is ${Messages.HAND_SPAN_TOO_NARROW}`
       )
@@ -402,16 +403,15 @@ class Store {
     return handCount >= 2
   }
 
-  isProfitGreaterThanExchangeFee({ itsAccountId, handSpanPercent }): boolean {
-    const exchangeFee: number | null = this.getExchangeFee(itsAccountId)
-
-    if (exchangeFee === null) {
+  isProfitGreaterThanTradeFee({ handSpanPercent, tradeFee }): boolean {
+    if (tradeFee === null) {
       throw new Error(Messages.EXCHANGE_FEE_MUST_NOT_BE_NULL)
     }
 
-    const buyAndSellExchangeFee: number = 2 * exchangeFee
+    const handSpanDecimal: number = Big(handSpanPercent).div(100).toNumber()
+    const buyAndSellFee: number = Big(tradeFee).mul(2).toNumber()
 
-    return buyAndSellExchangeFee < handSpanPercent
+    return buyAndSellFee < handSpanDecimal
   }
 
   buildHands(config: BotConfig): BotHand[] {
@@ -444,10 +444,6 @@ class Store {
     }
 
     return hands
-  }
-
-  getExchangeFee(accountId): number | null {
-    return this.accounts[accountId].config?.exchangeFee || null
   }
 
   setResults(

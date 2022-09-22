@@ -26,7 +26,6 @@ export type AccountConfig = {
   secretKey: string
   passphrase: string
   environment: string
-  exchangeFee?: number
   botConfigPath?: string
 }
 
@@ -53,7 +52,7 @@ export type BotConfig = {
   quoteStartAmountPerHand: number | null
   baseStartAmount: number
   baseStartAmountPerHand: number | null
-  exchangeFee: number
+  tradeFee: number | null
   baseMinimumTradeSize: number | null
   quoteMinimumTradeSize: number | null
   baseIncrement: string | null
