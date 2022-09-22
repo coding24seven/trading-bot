@@ -4,6 +4,7 @@ import kucoin from 'kucoin-node-api'
 import {
   AccountConfig,
   KucoinErrorResponse,
+  KucoinGetAllTickersResponse,
   KucoinGetFilledOrderByIdItem,
   KucoinGetFilledOrderByIdResponse,
   KucoinGetOrderByIdResponse,
@@ -11,7 +12,8 @@ import {
   KucoinOrderPlacedResponse,
   KucoinSymbolData,
   KucoinSymbolsResponse,
-  PairTradeSizes
+  KucoinTicker,
+  PairTradeSizes,
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
 
@@ -40,6 +42,38 @@ export class Exchange {
 
     /* the provided callback runs once per each symbol message received */
     kucoin.initSocket({ topic: 'allTicker' }, callback)
+  }
+
+  static async getAllTickers(): Promise<KucoinTicker[] | undefined> {
+    kucoin.init(Exchange.publicConfig)
+
+    try {
+      const response: KucoinGetAllTickersResponse = await kucoin.getAllTickers()
+
+      if (response.code !== ExchangeCodes.responseSuccess) {
+        return
+      }
+
+      return response.data.ticker
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  static async getTickersFromSymbols(
+    symbols: string[]
+  ): Promise<KucoinTicker[] | undefined> {
+    const tickers: KucoinTicker[] | undefined = await Exchange.getAllTickers()
+
+    if (!tickers) {
+      return
+    }
+
+    const selectedTickers = tickers.filter((ticker: KucoinTicker) =>
+      symbols.includes(ticker.symbol)
+    )
+
+    return selectedTickers
   }
 
   static async getAllSymbolsData(): Promise<KucoinSymbolData[] | undefined> {
