@@ -1,6 +1,7 @@
 enum Messages {
   NO_BOT_DATA_AVAILABLE = 'no bot data available',
-  CONFIG_DATA_MISSING_IN_APP_ENVIRONMENT = 'config data missing in app environment',
+  APP_ENVIRONMENT_CONFIG_DATA_INVALID = 'invalid config data in app environment',
+  ACCOUNT_ENVIRONMENT_CONFIG_DATA_INVALID = 'invalid config data in account environment',
   BOT_CONFIG_INDEXES_MISSING = 'bot-config indexes are missing',
   HAND_COUNT_INVALID = 'hand count is invalid',
   HAND_SPAN_TOO_NARROW = 'too narrow to offset exchange fee. increase hand span.',

@@ -1,3 +1,5 @@
+import { AccountEnvironmentType } from './account-environment-type'
+
 export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean
   isHistoricalPrice?: boolean
@@ -25,7 +27,7 @@ export type AccountConfig = {
   apiKey: string
   secretKey: string
   passphrase: string
-  environment: string
+  environment: AccountEnvironmentType.sandbox | AccountEnvironmentType.live
   botConfigPath?: string
 }
 

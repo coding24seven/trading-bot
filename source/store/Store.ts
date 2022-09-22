@@ -16,6 +16,7 @@ import {
   KucoinTicker,
   StoreSetupParameters,
 } from '../types'
+import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import Messages from '../types/messages.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
@@ -167,7 +168,7 @@ class Store {
     if (appId && databaseUrl && databasePort) {
       requestUrl = `${databaseUrl}:${databasePort}/accounts/${appId}`
     } else {
-      throw new Error(Messages.CONFIG_DATA_MISSING_IN_APP_ENVIRONMENT)
+      throw new Error(Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID)
     }
 
     return {
@@ -192,7 +193,17 @@ class Store {
       const botConfigPath: string | undefined =
         env[`ACCOUNT_${i}_BOT_CONFIG_PATH`]
 
-      if (apiKey && secretKey && passphrase && environment && botConfigPath) {
+      const accountEnvironmentIsValid =
+        environment === AccountEnvironmentType.sandbox ||
+        environment === AccountEnvironmentType.live
+
+      if (
+        apiKey &&
+        secretKey &&
+        passphrase &&
+        accountEnvironmentIsValid &&
+        botConfigPath
+      ) {
         accounts.push({
           apiKey,
           secretKey,
@@ -200,6 +211,8 @@ class Store {
           environment,
           botConfigPath,
         })
+      } else {
+        throw new Error(Messages.ACCOUNT_ENVIRONMENT_CONFIG_DATA_INVALID)
       }
 
       i++

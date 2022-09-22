@@ -15,6 +15,7 @@ import {
   KucoinTicker,
   PairTradeSizes,
 } from '../types'
+import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import ExchangeCodes from '../types/exchangeCodes.js'
 
 export class Exchange {
@@ -24,7 +25,7 @@ export class Exchange {
     apiKey: '',
     secretKey: '',
     passphrase: '',
-    environment: 'live',
+    environment: AccountEnvironmentType.live,
   }
 
   static startWSTicker(
