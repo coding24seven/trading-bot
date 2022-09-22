@@ -432,7 +432,9 @@ class Store {
     const hands: BotHand[] = []
     let buyBelow: number = from
     let id: number = 0
-    const handSpanPercentDecimal = handSpanPercent / 100
+    const handSpanPercentDecimal: number = Big(handSpanPercent)
+      .div(100)
+      .toNumber()
     const increment: number = Big(to)
       .minus(from)
       .mul(handSpanPercentDecimal)
