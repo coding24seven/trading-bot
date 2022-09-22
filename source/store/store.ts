@@ -80,7 +80,7 @@ class Store {
     }
 
     if (isHistoricalPrice || createsStoreAndExits) {
-      this.createAccountsWithBots()
+      this.createAccountAndBotConfigs()
       return Promise.resolve()
     }
 
@@ -125,7 +125,7 @@ class Store {
   }
 
   private async setUpAnew(): Promise<AxiosResponse | never> {
-    this.createAccountsWithBots()
+    this.createAccountAndBotConfigs()
     const response: AxiosResponse | undefined = await this.writeDatabase()
 
     if (!response) {
@@ -146,17 +146,17 @@ class Store {
       }
     })
 
-    this.createAccountsWithBots({ skipBotSetup: true })
+    this.createAccountAndBotConfigs({ skipBotSetup: true })
   }
 
-  createAccountsWithBots(options: { skipBotSetup: boolean } | null = null) {
-    this.accounts = this.setUpAccounts()
+  createAccountAndBotConfigs(options: { skipBotSetup: boolean } | null = null) {
+    this.accounts = this.setUpAccountConfigs()
 
     if (!options?.skipBotSetup) {
-      this.bots = this.setUpBots()
+      this.bots = this.setUpBotConfigs()
     }
 
-    this.linkBotsWithAccounts()
+    this.linkBotConfigsWithAccountConfigs()
   }
 
   readAppEnvironment(): AppEnvironment {
@@ -245,13 +245,13 @@ class Store {
     return arr
   }
 
-  linkBotsWithAccounts() {
+  linkBotConfigsWithAccountConfigs() {
     this.accounts.forEach((account: AccountData, accountIndex: number) => {
       account.bots = this.bots[accountIndex]
     })
   }
 
-  setUpAccounts(): AccountData[] {
+  setUpAccountConfigs(): AccountData[] {
     const arr: AccountData[] = []
 
     for (
@@ -267,7 +267,7 @@ class Store {
     return arr
   }
 
-  setUpBots(): BotData[][] {
+  setUpBotConfigs(): BotData[][] {
     const arr: BotData[][] = []
 
     for (
