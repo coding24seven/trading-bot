@@ -11,7 +11,7 @@ export type AppEnvironment = {
   appId: string
   databaseUrl: string
   databasePort: string
-  requestUrl: string
+  databasePath: string
 }
 
 export type AccountData = {

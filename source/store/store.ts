@@ -161,12 +161,12 @@ class Store {
 
   readAppEnvironment(): AppEnvironment {
     const appId: string | undefined = process.env.APP_ID
-    const databaseUrl: string | undefined = process.env.DATABASE_URL
+    const databaseUrl: string | undefined = process.env.DATABASE_DOMAIN
     const databasePort: string | undefined = process.env.DATABASE_PORT
-    let requestUrl: string
+    let databasePath: string
 
     if (appId && databaseUrl && databasePort) {
-      requestUrl = `${databaseUrl}:${databasePort}/accounts/${appId}`
+      databasePath = `${databaseUrl}:${databasePort}/accounts/${appId}`
     } else {
       throw new Error(Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID)
     }
@@ -175,7 +175,7 @@ class Store {
       appId,
       databaseUrl,
       databasePort,
-      requestUrl,
+      databasePath,
     }
   }
 
@@ -485,7 +485,7 @@ class Store {
 
   async readDatabase(): Promise<AxiosResponse | undefined> {
     try {
-      return await axios.get(this.appEnvironment!.requestUrl)
+      return await axios.get(this.appEnvironment!.databasePath)
     } catch (error) {
       return this.handleDatabaseError(error)
     }
@@ -494,7 +494,7 @@ class Store {
   async writeDatabase(): Promise<AxiosResponse | undefined> {
     try {
       return await axios.post(
-        this.appEnvironment!.requestUrl,
+        this.appEnvironment!.databasePath,
         this.accountsWithoutConfig,
         {
           headers: {
@@ -510,7 +510,7 @@ class Store {
 
   async deleteDatabase(): Promise<AxiosResponse | undefined> {
     try {
-      return await axios.delete(this.appEnvironment!.requestUrl, {
+      return await axios.delete(this.appEnvironment!.databasePath, {
         headers: {
           password: process.env.DATABASE_PASSWORD,
         },
