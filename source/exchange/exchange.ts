@@ -13,13 +13,11 @@ import {
   KucoinSymbolData,
   KucoinSymbolsResponse,
   KucoinTicker,
-  PairTradeSizes,
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import ExchangeCodes from '../types/exchangeCodes.js'
 
 export class Exchange {
-  static market: string = process.env.MARKET!
   static publicConfig: AccountConfig = {
     apiKey: '',
     secretKey: '',
@@ -89,47 +87,6 @@ export class Exchange {
       return response.data
     } catch (e) {
       throw new Error(e)
-    }
-  }
-
-  static async getSymbolData(
-    symbol: string
-  ): Promise<KucoinSymbolData | undefined> {
-    kucoin.init(Exchange.publicConfig)
-
-    try {
-      const response: KucoinSymbolsResponse = await kucoin.getSymbols(
-        Exchange.market
-      )
-
-      if (response.code !== ExchangeCodes.responseSuccess) {
-        return
-      }
-
-      return response.data.find(
-        (item: KucoinSymbolData) => item.symbol === symbol
-      )
-    } catch (e) {
-      throw new Error(e)
-    }
-  }
-
-  static async getMinimumTradeSizes(
-    symbol: string
-  ): Promise<PairTradeSizes | null> {
-    const symbolData: KucoinSymbolData | undefined =
-      await Exchange.getSymbolData(symbol)
-
-    const base: string | undefined = symbolData?.baseMinSize
-    const quote: string | undefined = symbolData?.quoteMinSize
-
-    if (!base || !quote) {
-      return null
-    }
-
-    return {
-      base: parseFloat(base),
-      quote: parseFloat(quote),
     }
   }
 
