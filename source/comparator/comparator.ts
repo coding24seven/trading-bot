@@ -1,4 +1,4 @@
-import eventBus from '../events/eventBus.js'
+import eventBus from '../events/event-bus.js'
 import { BotConfig, BotDataWithResults, BotVariables } from '../types'
 
 export default class Comparator {

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import Big from 'big.js'
 import readlineImported, { Interface } from 'readline'
-import { Exchange } from '../exchange/Exchange.js'
+import { Exchange } from '../exchange/exchange.js'
 import {
   AccountConfig,
   AccountData,

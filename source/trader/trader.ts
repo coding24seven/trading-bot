@@ -1,6 +1,6 @@
 import Big from 'big.js'
-import { Exchange } from '../exchange/Exchange.js'
-import store from '../store/Store.js'
+import { Exchange } from '../exchange/exchange.js'
+import store from '../store/store.js'
 import {
   AccountConfig,
   KucoinErrorResponse,

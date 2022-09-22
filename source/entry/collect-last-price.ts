@@ -3,7 +3,7 @@
  */
 
 import fs from "fs";
-import PriceReader from "../price-reader/PriceReader.js";
+import PriceReader from "../price-reader/price-reader.js";
 
 const commandLineArguments: string[] = process.argv;
 const symbol: string = commandLineArguments[2];

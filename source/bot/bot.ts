@@ -1,8 +1,8 @@
 import Big from 'big.js'
 import 'dotenv/config'
-import eventBus from '../events/eventBus.js'
-import store from '../store/Store.js'
-import Trader from '../trader/Trader.js'
+import eventBus from '../events/event-bus.js'
+import store from '../store/store.js'
+import Trader from '../trader/trader.js'
 import {
   BotConfig,
   BotData,

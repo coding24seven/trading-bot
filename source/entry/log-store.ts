@@ -1,5 +1,5 @@
 import "dotenv/config";
-import store from "../store/Store.js";
+import store from "../store/store.js";
 
 begin();
 

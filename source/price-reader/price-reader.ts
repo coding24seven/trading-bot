@@ -4,9 +4,9 @@
  */
 
 import 'dotenv/config'
-import eventBus from '../events/eventBus.js'
-import { Exchange } from '../exchange/Exchange.js'
-import CsvFileReader from '../file-reader/CsvFileReader.js'
+import eventBus from '../events/event-bus.js'
+import { Exchange } from '../exchange/exchange.js'
+import CsvFileReader from '../file-reader/csv-file-reader.js'
 import {
   KucoinNodeApiTickerMessage,
   PriceStreamCallbackParameters

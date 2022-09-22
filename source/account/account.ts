@@ -1,4 +1,4 @@
-import Bot from "../bot/Bot.js";
+import Bot from "../bot/bot.js";
 import { AccountData, BotData } from "../types";
 import Messages from "../types/messages.js";
 
