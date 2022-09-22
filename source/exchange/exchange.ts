@@ -20,7 +20,6 @@ import ExchangeCodes from '../types/exchangeCodes.js'
 
 export class Exchange {
   static market: string = process.env.MARKET!
-  static defaultSymbol: string = process.env.SYMBOL_GLOBAL!
   static publicConfig: AccountConfig = {
     apiKey: '',
     secretKey: '',
@@ -29,7 +28,7 @@ export class Exchange {
   }
 
   static startWSTicker(
-    symbol: string = Exchange.defaultSymbol,
+    symbol: string,
     callback: (tickerMessageAsString: string) => void
   ) {
     kucoin.init(Exchange.publicConfig)
@@ -94,7 +93,7 @@ export class Exchange {
   }
 
   static async getSymbolData(
-    symbol: string = Exchange.defaultSymbol
+    symbol: string
   ): Promise<KucoinSymbolData | undefined> {
     kucoin.init(Exchange.publicConfig)
 
@@ -116,7 +115,7 @@ export class Exchange {
   }
 
   static async getMinimumTradeSizes(
-    symbol: string = Exchange.defaultSymbol
+    symbol: string
   ): Promise<PairTradeSizes | null> {
     const symbolData: KucoinSymbolData | undefined =
       await Exchange.getSymbolData(symbol)

@@ -76,7 +76,6 @@ export default class Bot {
 
     this.lastPrice = lastPrice
     this.recordLowestAndHighestPrice(lastPrice)
-
     this.processLastPrice(lastPrice)
   }
 
