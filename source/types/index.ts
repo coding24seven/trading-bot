@@ -9,7 +9,7 @@ export type StoreSetupParameters = {
 
 export type AppEnvironment = {
   appId: string
-  databaseUrl: string
+  databaseDomain: string
   databasePort: string
   databasePath: string
 }

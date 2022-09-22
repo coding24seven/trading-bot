@@ -161,19 +161,19 @@ class Store {
 
   readAppEnvironment(): AppEnvironment {
     const appId: string | undefined = process.env.APP_ID
-    const databaseUrl: string | undefined = process.env.DATABASE_DOMAIN
+    const databaseDomain: string | undefined = process.env.DATABASE_DOMAIN
     const databasePort: string | undefined = process.env.DATABASE_PORT
     let databasePath: string
 
-    if (appId && databaseUrl && databasePort) {
-      databasePath = `${databaseUrl}:${databasePort}/accounts/${appId}`
+    if (appId && databaseDomain && databasePort) {
+      databasePath = `${databaseDomain}:${databasePort}/accounts/${appId}`
     } else {
       throw new Error(Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID)
     }
 
     return {
       appId,
-      databaseUrl,
+      databaseDomain,
       databasePort,
       databasePath,
     }
