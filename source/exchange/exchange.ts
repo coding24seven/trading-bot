@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto'
 import 'dotenv/config'
 import kucoin from 'kucoin-node-api'
 import {
-  AccountConfig,
+  KucoinAccountConfig,
   KucoinErrorResponse,
   KucoinGetAllTickersResponse,
   KucoinGetFilledOrderByIdItem,
@@ -18,7 +18,7 @@ import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import ExchangeCodes from '../types/exchangeCodes.js'
 
 export class Exchange {
-  static publicConfig: AccountConfig = {
+  static publicConfig: KucoinAccountConfig = {
     apiKey: '',
     secretKey: '',
     passphrase: '',
@@ -91,7 +91,7 @@ export class Exchange {
   }
 
   static async tradeMarket(
-    config: AccountConfig,
+    config: KucoinAccountConfig,
     { symbol, amount, isBuy }
   ): Promise<KucoinOrderPlacedResponse | KucoinErrorResponse> {
     const side: string = isBuy ? 'buy' : 'sell'
@@ -111,7 +111,7 @@ export class Exchange {
   }
 
   static async getOrderById(
-    config: AccountConfig,
+    config: KucoinAccountConfig,
     orderId: string
   ): Promise<KucoinGetOrderByIdResponse> {
     kucoin.init(config)
@@ -120,7 +120,7 @@ export class Exchange {
   }
 
   static getFilledOrderById(
-    config: AccountConfig,
+    config: KucoinAccountConfig,
     orderId: string,
     requestIntervalMs: number,
     timeoutMs: number

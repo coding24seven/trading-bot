@@ -28,7 +28,15 @@ export type AccountConfig = {
   secretKey: string
   passphrase: string
   environment: AccountEnvironmentType.sandbox | AccountEnvironmentType.live
-  botConfigPath?: string
+  botConfigPath: string
+  botConfigIndexes: number[]
+}
+
+export type KucoinAccountConfig = {
+  apiKey: string
+  secretKey: string
+  passphrase: string
+  environment: AccountEnvironmentType.sandbox | AccountEnvironmentType.live
 }
 
 export type BotConfigIndexesPerAccount = {
