@@ -4,9 +4,7 @@ import eventBus from '../events/event-bus.js'
 import store from '../store/store.js'
 import Trader from '../trader/trader.js'
 import {
-  BotConfigStatic,
   BotConfigDynamic,
-  BotConfigFull,
   BotData,
   BotDataWithResults,
   BotHand,
@@ -42,7 +40,7 @@ export default class Bot {
     this.data = data
     this.id = data.dynamic.id
     this.itsAccountId = data.dynamic.itsAccountId
-    this.hands = data.vars.hands
+    this.hands = data.hands
     this.symbol = data.static.symbol
     this.trader = new Trader(
       data.dynamic.itsAccountId!,

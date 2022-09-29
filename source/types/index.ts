@@ -38,7 +38,8 @@ export type BotConfigIndexesPerAccount = {
 export type BotData = {
   static: BotConfigStatic
   dynamic: BotConfigDynamic
-  vars: BotVariables
+  hands: BotHand[]
+  results?: BotResults
 }
 
 export type BotConfigStatic = {
@@ -72,15 +73,10 @@ export type BotConfigDynamic = {
 export type BotConfigFull = BotConfigStatic & BotConfigDynamic
 
 export type BotDataWithResults = {
-  hands: BotHand[]
-  tradeHistory?: TradeHistoryItem[]
   config: BotConfigFull
-  results: BotResults | undefined
-}
-
-export type BotVariables = {
   hands: BotHand[]
-  results?: BotResults
+  results: BotResults | undefined
+  tradeHistory?: TradeHistoryItem[]
 }
 
 export type BotResults = {

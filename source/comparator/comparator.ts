@@ -1,5 +1,5 @@
 import eventBus from '../events/event-bus.js'
-import { BotConfigStatic, BotDataWithResults, BotVariables } from '../types'
+import { BotConfigStatic, BotDataWithResults } from '../types'
 
 export default class Comparator {
   static botConfigsWithResults: BotDataWithResults[] = []
@@ -52,7 +52,7 @@ export default class Comparator {
 
   static sortConfigsByProfit(): BotDataWithResults[] {
     return Comparator.botConfigsWithResults.sort(
-      (previousItem: BotVariables, currentItem: BotVariables) =>
+      (previousItem: BotDataWithResults, currentItem: BotDataWithResults) =>
         previousItem.results!.quoteTotalIncludingBaseSoldAsPlanned -
         currentItem.results!.quoteTotalIncludingBaseSoldAsPlanned
       // previousItem.results.sellCountTotal - currentItem.results.sellCountTotal

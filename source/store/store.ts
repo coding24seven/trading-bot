@@ -277,7 +277,7 @@ class Store {
       accountIndex < this.accountEnvironment.length;
       accountIndex++
     ) {
-      const botConfigs: BotData[] = [] // todo: fix variable name to reflect type
+      const botConfigs: BotData[] = []
 
       const selectedBotConfigs: BotConfigStatic[] = this.botConfigFromGenerator
         ? [this.botConfigFromGenerator]
@@ -337,19 +337,17 @@ class Store {
           hands = this.topUpHandsWithBase(hands, configStatic, configDynamic)
           hands = this.topUpHandsWithQuote(hands, configStatic, configDynamic)
 
-          const botData: BotData = {
+          const botConfig: BotData = {
             static: configStatic,
             dynamic: configDynamic,
-            vars: {
-              hands,
-            },
+            hands,
           }
 
           this.throwErrorIfBotConfigInvalid({
-            ...botData.static,
-            ...botData.dynamic,
+            ...botConfig.static,
+            ...botConfig.dynamic,
           })
-          botConfigs.push(botData)
+          botConfigs.push(botConfig)
         }
       )
 
@@ -515,7 +513,7 @@ class Store {
       return
     }
 
-    this.accounts[accountId].bots![botId].vars.results = results
+    this.accounts[accountId].bots![botId].results = results
 
     if (!this.isHistoricalPrice) {
       this.writeDatabase()
@@ -523,7 +521,7 @@ class Store {
   }
 
   getResults(accountId, botId): BotResults | undefined {
-    return this.accounts[accountId].bots![botId].vars.results
+    return this.accounts[accountId].bots![botId].results
   }
 
   getAccountConfig(accountId): AccountConfig {
