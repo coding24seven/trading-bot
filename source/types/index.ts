@@ -4,7 +4,7 @@ export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean
   isHistoricalPrice?: boolean
   createsStoreAndExits?: boolean
-  botConfigFromGenerator?: BotConfig | null
+  botConfigFromGenerator?: BotConfigStatic | null
 }
 
 export type AppEnvironment = {
@@ -36,11 +36,12 @@ export type BotConfigIndexesPerAccount = {
 }
 
 export type BotData = {
-  config: BotConfig
+  static: BotConfigStatic
+  dynamic: BotConfigDynamic
   vars: BotVariables
 }
 
-export type BotConfig = {
+export type BotConfigStatic = {
   symbol: string
   from: number
   to: number
@@ -48,11 +49,14 @@ export type BotConfig = {
   quoteTo: number
   baseFrom: number
   baseTo: number
-  handCount: number | null
   handSpanPercent: number
   quoteStartAmount: number
-  quoteStartAmountPerHand: number | null
   baseStartAmount: number
+}
+
+export type BotConfigDynamic = {
+  handCount: number | null
+  quoteStartAmountPerHand: number | null
   baseStartAmountPerHand: number | null
   tradeFee: number | null
   baseMinimumTradeSize: number | null
@@ -65,10 +69,12 @@ export type BotConfig = {
   itsAccountId: number | null
 }
 
+export type BotConfigFull = BotConfigStatic & BotConfigDynamic
+
 export type BotDataWithResults = {
   hands: BotHand[]
   tradeHistory?: TradeHistoryItem[]
-  config: BotConfig
+  config: BotConfigFull
   results: BotResults | undefined
 }
 

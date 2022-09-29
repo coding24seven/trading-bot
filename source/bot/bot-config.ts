@@ -1,9 +1,9 @@
 /*
  * each bot is fed one configuration object chosen from the set below
  */
-import { BotConfig } from '../types'
+import { BotConfigStatic } from '../types'
 
-const botConfigs: BotConfig[] = [
+const botConfigs: BotConfigStatic[] = [
   {
     symbol: 'BTC-USDT',
     from: 20000,
@@ -12,21 +12,9 @@ const botConfigs: BotConfig[] = [
     baseTo: 0,
     quoteFrom: 20000,
     quoteTo: 30000,
-    handCount: null,
-    handSpanPercent: 15,
     quoteStartAmount: 93,
-    quoteStartAmountPerHand: null,
     baseStartAmount: 0,
-    baseStartAmountPerHand: null,
-    tradeFee: null,
-    baseMinimumTradeSize: null,
-    quoteMinimumTradeSize: null,
-    baseIncrement: null,
-    quoteIncrement: null,
-    baseDecimals: null,
-    quoteDecimals: null,
-    id: null,
-    itsAccountId: null,
+    handSpanPercent: 15,
   },
 ]
 

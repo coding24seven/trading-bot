@@ -1,47 +1,47 @@
-import "dotenv/config";
-import fs from "fs";
-import Comparator from "../comparator/comparator.js";
-import eventBus from "../events/event-bus.js";
-import Runner from "../runner/runner.js";
-import store from "../store/store.js";
-import { BotConfig, BotDataWithResults } from "../types";
+import 'dotenv/config'
+import fs from 'fs'
+import Comparator from '../comparator/comparator.js'
+import eventBus from '../events/event-bus.js'
+import Runner from '../runner/runner.js'
+import store from '../store/store.js'
+import { BotConfigStatic, BotDataWithResults } from '../types'
 
-const commandLineArguments: string[] = process.argv;
-const filePath: string = commandLineArguments[2];
-const priceColumnIndexAsString: string = commandLineArguments[3];
-const priceColumnIndex: number = parseInt(priceColumnIndexAsString) || 0;
-const isHistoricalPrice: boolean = true;
+const commandLineArguments: string[] = process.argv
+const filePath: string = commandLineArguments[2]
+const priceColumnIndexAsString: string = commandLineArguments[3]
+const priceColumnIndex: number = parseInt(priceColumnIndexAsString) || 0
+const isHistoricalPrice: boolean = true
 
 if (filePath) {
-  begin();
+  begin()
 }
 
 async function begin() {
-  Comparator.run("BTC-USDT");
+  Comparator.run('BTC-USDT')
 
-  console.log("bot count:", Comparator.botConfigs.length);
+  console.log('bot count:', Comparator.botConfigs.length)
 
-  Comparator.botConfigs.forEach((botConfig: BotConfig, i: number) => {
-    Comparator.addEventListeners();
+  Comparator.botConfigs.forEach((botConfig: BotConfigStatic, i: number) => {
+    Comparator.addEventListeners()
 
-    store.setUp({ isHistoricalPrice, botConfigFromGenerator: botConfig });
+    store.setUp({ isHistoricalPrice, botConfigFromGenerator: botConfig })
 
-    Runner.runBots();
-    Runner.runPriceReader(isHistoricalPrice, filePath, priceColumnIndex);
+    Runner.runBots()
+    Runner.runPriceReader(isHistoricalPrice, filePath, priceColumnIndex)
 
-    eventBus.removeAllListeners();
+    eventBus.removeAllListeners()
 
-    console.log("count", i + 1);
-  });
+    console.log('count', i + 1)
+  })
 
-  const sortedResults: BotDataWithResults[] = Comparator.sortConfigsByProfit();
+  const sortedResults: BotDataWithResults[] = Comparator.sortConfigsByProfit()
 
   fs.promises.writeFile(
-    "logs/bots-sorted.json",
+    'logs/bots-sorted.json',
     JSON.stringify(sortedResults, null, 2)
-  );
+  )
 
-  const mostProfitableConfigsToShowCount: number = 6;
+  const mostProfitableConfigsToShowCount: number = 6
 
   console.log(
     JSON.stringify(
@@ -49,5 +49,5 @@ async function begin() {
       null,
       2
     )
-  );
+  )
 }

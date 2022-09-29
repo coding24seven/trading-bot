@@ -7,8 +7,10 @@ import {
   AccountData,
   AccountDataStripped,
   AppEnvironment,
-  BotConfig,
+  BotConfigDynamic,
+  BotConfigFull,
   BotConfigIndexesPerAccount,
+  BotConfigStatic,
   BotData,
   BotHand,
   BotResults,
@@ -27,10 +29,10 @@ class Store {
   accountEnvironment: AccountConfig[] = []
   botConfigIndexesForAllAccounts: BotConfigIndexesPerAccount[] = []
   accounts: AccountData[] = []
-  botConfigsInitialPerAccount: BotConfig[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
+  botConfigsInitialPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
   bots: BotData[][] = []
   isHistoricalPrice: boolean = false
-  botConfigFromGenerator: BotConfig | null = null
+  botConfigFromGenerator: BotConfigStatic | null = null
 
   constructor() {
     this.appEnvironment = this.readAppEnvironment()
@@ -268,16 +270,16 @@ class Store {
   }
 
   setUpBotConfigs(): BotData[][] {
-    const arr: BotData[][] = []
+    const botsPerAccount: BotData[][] = []
 
     for (
       let accountIndex: number = 0;
       accountIndex < this.accountEnvironment.length;
       accountIndex++
     ) {
-      const arrayOfBotsPerAccount: BotData[] = []
+      const botConfigs: BotData[] = [] // todo: fix variable name to reflect type
 
-      const selectedBotConfigs: BotConfig[] = this.botConfigFromGenerator
+      const selectedBotConfigs: BotConfigStatic[] = this.botConfigFromGenerator
         ? [this.botConfigFromGenerator]
         : this.botConfigIndexesForAllAccounts[
             accountIndex
@@ -286,121 +288,164 @@ class Store {
               this.botConfigsInitialPerAccount[accountIndex][botIndex]
           )
 
-      selectedBotConfigs.forEach((config: BotConfig, botIndex: number) => {
-        const symbolData = this.allSymbolsData!.find(
-          (data: KucoinSymbolData) => data.symbol === config.symbol
-        )
+      selectedBotConfigs.forEach(
+        (configStatic: BotConfigStatic, botIndex: number) => {
+          const symbolData = this.allSymbolsData!.find(
+            (data: KucoinSymbolData) => data.symbol === configStatic.symbol
+          )
 
-        const ticker = this.allTickers!.find(
-          (ticker: KucoinTicker) => ticker.symbol === config.symbol
-        )
+          const ticker = this.allTickers!.find(
+            (ticker: KucoinTicker) => ticker.symbol === configStatic.symbol
+          )
 
-        if (!symbolData) {
-          throw new Error(Messages.SYMBOL_DATA_NOT_FOUND)
+          if (!symbolData) {
+            throw new Error(Messages.SYMBOL_DATA_NOT_FOUND)
+          }
+          if (!ticker) {
+            throw new Error(Messages.TICKER_NOT_FOUND)
+          }
+
+          let hands: BotHand[] = this.buildHands(configStatic)
+
+          const quoteDecimals = countDecimals(symbolData.quoteIncrement)
+          const quoteStartAmountPerHand = trimDecimalsToFixed(
+            this.calculateQuoteStartAmountPerHand(hands, configStatic),
+            quoteDecimals
+          )
+
+          const baseDecimals = countDecimals(symbolData.baseIncrement)
+          const baseStartAmountPerHand = trimDecimalsToFixed(
+            this.calculateBaseStartAmountPerHand(hands, configStatic),
+            baseDecimals
+          )
+
+          const configDynamic: BotConfigDynamic = {
+            id: botIndex,
+            itsAccountId: accountIndex,
+            baseMinimumTradeSize: parseFloat(symbolData.baseMinSize),
+            quoteMinimumTradeSize: parseFloat(symbolData.quoteMinSize),
+            baseIncrement: symbolData.baseIncrement,
+            quoteIncrement: symbolData.quoteIncrement,
+            baseDecimals,
+            quoteDecimals,
+            handCount: hands.length,
+            quoteStartAmountPerHand,
+            baseStartAmountPerHand,
+            tradeFee: parseFloat(ticker.takerFeeRate),
+          }
+
+          hands = this.topUpHandsWithBase(hands, configStatic, configDynamic)
+          hands = this.topUpHandsWithQuote(hands, configStatic, configDynamic)
+
+          const botData: BotData = {
+            static: configStatic,
+            dynamic: configDynamic,
+            vars: {
+              hands,
+            },
+          }
+
+          this.throwErrorIfBotConfigInvalid({
+            ...botData.static,
+            ...botData.dynamic,
+          })
+          botConfigs.push(botData)
         }
-        if (!ticker) {
-          throw new Error(Messages.TICKER_NOT_FOUND)
-        }
+      )
 
-        const extendedConfig: BotConfig = {
-          ...config,
-          id: botIndex,
-          itsAccountId: accountIndex,
-          baseMinimumTradeSize: parseFloat(symbolData.baseMinSize),
-          quoteMinimumTradeSize: parseFloat(symbolData.quoteMinSize),
-          baseIncrement: symbolData.baseIncrement,
-          quoteIncrement: symbolData.quoteIncrement,
-          baseDecimals: countDecimals(symbolData.baseIncrement),
-          quoteDecimals: countDecimals(symbolData.quoteIncrement),
-          tradeFee: parseFloat(ticker.takerFeeRate),
-        }
-
-        const hands: BotHand[] = this.buildHands(extendedConfig)
-        extendedConfig.handCount = hands.length
-        this.topUpHandsWithQuote(hands, extendedConfig)
-        this.topUpHandsWithBase(hands, extendedConfig)
-
-        const botData: BotData = {
-          config: extendedConfig,
-          vars: {
-            hands,
-          },
-        }
-
-        this.throwErrorIfBotConfigInvalid(botData.config)
-        arrayOfBotsPerAccount.push(botData)
-      })
-
-      arr.push(arrayOfBotsPerAccount)
+      botsPerAccount.push(botConfigs)
     }
 
-    return arr
+    return botsPerAccount
   }
 
-  topUpHandsWithQuote(hands: BotHand[], botConfig: BotConfig) {
+  calculateQuoteStartAmountPerHand(
+    hands: BotHand[],
+    configStatic: BotConfigStatic
+  ): number {
     const handsToTopUpWithQuoteCount: number = hands.filter((hand: BotHand) =>
-      handQualifiesForTopUp(hand)
+      this.quoteHandQualifiesForTopUp(hand, configStatic)
     ).length
 
-    botConfig.quoteStartAmountPerHand =
-      handsToTopUpWithQuoteCount > 0
-        ? trimDecimalsToFixed(
-            Big(botConfig.quoteStartAmount)
-              .div(handsToTopUpWithQuoteCount)
-              .toNumber(),
-            botConfig.quoteDecimals!
-          )
-        : 0
+    return handsToTopUpWithQuoteCount > 0
+      ? Big(configStatic.quoteStartAmount)
+          .div(handsToTopUpWithQuoteCount)
+          .toNumber()
+      : 0
+  }
 
-    hands.forEach((hand: BotHand) => {
+  topUpHandsWithQuote(
+    hands: BotHand[],
+    configStatic: BotConfigStatic,
+    configDynamic: BotConfigDynamic
+  ): BotHand[] {
+    const toppedUpHands = JSON.parse(JSON.stringify(hands))
+
+    toppedUpHands.forEach((hand: BotHand) => {
       if (
-        handQualifiesForTopUp(hand) &&
-        botConfig.quoteStartAmountPerHand !== null
+        this.quoteHandQualifiesForTopUp(hand, configStatic) &&
+        configDynamic.quoteStartAmountPerHand !== null
       ) {
-        hand.quote = botConfig.quoteStartAmountPerHand
+        hand.quote = configDynamic.quoteStartAmountPerHand
       }
     })
 
-    function handQualifiesForTopUp(hand) {
-      return (
-        hand.buyBelow >= botConfig.quoteFrom &&
-        hand.buyBelow <= botConfig.quoteTo
-      )
-    }
+    return toppedUpHands
   }
 
-  topUpHandsWithBase(hands: BotHand[], botConfig: BotConfig) {
+  quoteHandQualifiesForTopUp(
+    hand: BotHand,
+    botConfig: BotConfigStatic
+  ): boolean {
+    return (
+      hand.buyBelow >= botConfig.quoteFrom && hand.buyBelow <= botConfig.quoteTo
+    )
+  }
+
+  calculateBaseStartAmountPerHand(
+    hands: BotHand[],
+    configStatic: BotConfigStatic
+  ): number {
     const handsToTopUpWithBaseCount: number = hands.filter((hand: BotHand) =>
-      handQualifiesForTopUp(hand)
+      this.baseHandQualifiesForTopUp(hand, configStatic)
     ).length
 
-    botConfig.baseStartAmountPerHand =
-      handsToTopUpWithBaseCount > 0
-        ? trimDecimalsToFixed(
-            Big(botConfig.baseStartAmount)
-              .div(handsToTopUpWithBaseCount)
-              .toNumber(),
-            botConfig.baseDecimals!
-          )
-        : 0
+    return handsToTopUpWithBaseCount > 0
+      ? Big(configStatic.baseStartAmount)
+          .div(handsToTopUpWithBaseCount)
+          .toNumber()
+      : 0
+  }
 
-    hands.forEach((hand: BotHand) => {
+  topUpHandsWithBase(
+    hands: BotHand[],
+    configStatic: BotConfigStatic,
+    configDynamic: BotConfigDynamic
+  ): BotHand[] {
+    const toppedUpHands = JSON.parse(JSON.stringify(hands))
+
+    toppedUpHands.forEach((hand: BotHand) => {
       if (
-        handQualifiesForTopUp(hand) &&
-        botConfig.baseStartAmountPerHand !== null
+        this.baseHandQualifiesForTopUp(hand, configStatic) &&
+        configDynamic.baseStartAmountPerHand !== null
       ) {
-        hand.base = botConfig.baseStartAmountPerHand
+        hand.base = configDynamic.baseStartAmountPerHand
       }
     })
 
-    function handQualifiesForTopUp(hand: BotHand): boolean {
-      return (
-        hand.buyBelow >= botConfig.baseFrom && hand.buyBelow <= botConfig.baseTo
-      )
-    }
+    return toppedUpHands
   }
 
-  throwErrorIfBotConfigInvalid(config: BotConfig) {
+  baseHandQualifiesForTopUp(
+    hand: BotHand,
+    botConfig: BotConfigStatic
+  ): boolean {
+    return (
+      hand.buyBelow >= botConfig.baseFrom && hand.buyBelow <= botConfig.baseTo
+    )
+  }
+
+  throwErrorIfBotConfigInvalid(config: BotConfigFull) {
     if (!this.isHandCountValid(config)) {
       throw new Error(`${Messages.HAND_COUNT_INVALID}. it must be >= 2`)
     }
@@ -427,8 +472,8 @@ class Store {
     return buyAndSellFee < handSpanDecimal
   }
 
-  buildHands(config: BotConfig): BotHand[] {
-    const { from, to, handSpanPercent }: BotConfig = config
+  buildHands(configStatic: BotConfigStatic): BotHand[] {
+    const { from, to, handSpanPercent }: BotConfigStatic = configStatic
     const hands: BotHand[] = []
     let buyBelow: number = from
     let id: number = 0

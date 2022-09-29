@@ -4,7 +4,9 @@ import eventBus from '../events/event-bus.js'
 import store from '../store/store.js'
 import Trader from '../trader/trader.js'
 import {
-  BotConfig,
+  BotConfigStatic,
+  BotConfigDynamic,
+  BotConfigFull,
   BotData,
   BotDataWithResults,
   BotHand,
@@ -38,14 +40,14 @@ export default class Bot {
 
   constructor(data: BotData) {
     this.data = data
-    this.id = data.config.id
-    this.itsAccountId = data.config.itsAccountId
+    this.id = data.dynamic.id
+    this.itsAccountId = data.dynamic.itsAccountId
     this.hands = data.vars.hands
-    this.symbol = data.config.symbol
+    this.symbol = data.static.symbol
     this.trader = new Trader(
-      data.config.itsAccountId!,
-      data.config.symbol,
-      data.config.tradeFee!
+      data.dynamic.itsAccountId!,
+      data.static.symbol,
+      data.dynamic.tradeFee!
     )
     eventBus.on(eventBus.events!.LAST_PRICE, this.onLastPrice.bind(this))
     eventBus.on(
@@ -138,19 +140,19 @@ export default class Bot {
   }
 
   isBaseCurrencyEnoughToTrade(base: number): boolean {
-    if (!this.data.config.baseMinimumTradeSize) {
+    if (!this.data.dynamic.baseMinimumTradeSize) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
-    return base >= this.data.config.baseMinimumTradeSize
+    return base >= this.data.dynamic.baseMinimumTradeSize
   }
 
   isQuoteCurrencyEnoughToTrade(quote: number): boolean {
-    if (!this.data.config.quoteMinimumTradeSize) {
+    if (!this.data.dynamic.quoteMinimumTradeSize) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
-    return quote >= this.data.config.quoteMinimumTradeSize
+    return quote >= this.data.dynamic.quoteMinimumTradeSize
   }
 
   getBotDataWithResults(
@@ -165,7 +167,10 @@ export default class Bot {
     return {
       hands: this.hands,
       ...(tradeHistoryIncluded && { tradeHistory: this.tradeHistory }),
-      config: this.data!.config,
+      config: {
+        ...this.data.static,
+        ...this.data.dynamic,
+      },
       results: store.getResults(this.itsAccountId, this.id),
     }
   }
@@ -214,7 +219,7 @@ export default class Bot {
         const valueToAdd = Big(hand.base).mul(hand.sellAbove)
         hand.quote = trimDecimalsToFixed(
           valueToAdd.plus(hand.quote).toNumber(),
-          this.data.config.quoteDecimals!
+          this.data.dynamic.quoteDecimals!
         )
         hand.base = 0
       }
@@ -244,7 +249,7 @@ export default class Bot {
   }
 
   makeBaseValidForTrade(base: number): number {
-    const { baseIncrement }: BotConfig = this.data.config
+    const { baseIncrement }: BotConfigDynamic = this.data.dynamic
 
     if (!baseIncrement) {
       throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)
@@ -254,7 +259,7 @@ export default class Bot {
   }
 
   makeQuoteValidForTrade(quote: number): number {
-    const { quoteIncrement }: BotConfig = this.data.config
+    const { quoteIncrement }: BotConfigDynamic = this.data.dynamic
 
     if (!quoteIncrement) {
       throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)

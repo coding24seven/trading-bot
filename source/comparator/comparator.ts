@@ -1,9 +1,9 @@
 import eventBus from '../events/event-bus.js'
-import { BotConfig, BotDataWithResults, BotVariables } from '../types'
+import { BotConfigStatic, BotDataWithResults, BotVariables } from '../types'
 
 export default class Comparator {
   static botConfigsWithResults: BotDataWithResults[] = []
-  static botConfigs: BotConfig[] = []
+  static botConfigs: BotConfigStatic[] = []
   static from: number = 20000
   static to: number = 100000
 
@@ -22,11 +22,11 @@ export default class Comparator {
     Comparator.botConfigsWithResults.push(data)
   }
 
-  static generateBotConfigs(symbol: string): BotConfig[] {
+  static generateBotConfigs(symbol: string): BotConfigStatic[] {
     const handSpanPercentMin: number = 1
     const handSpanPercentStep: number = 1
     const handSpanPercentMax: number = 17
-    const arr: BotConfig[] = []
+    const arr: BotConfigStatic[] = []
 
     for (
       let handSpanPercent: number = handSpanPercentMin;
@@ -41,21 +41,9 @@ export default class Comparator {
         baseTo: 40000,
         quoteFrom: 30000,
         quoteTo: 40000,
-        handCount: null,
         handSpanPercent,
         quoteStartAmount: 100,
-        quoteStartAmountPerHand: null,
         baseStartAmount: 0,
-        baseStartAmountPerHand: null,
-        tradeFee: null,
-        baseMinimumTradeSize: null,
-        quoteMinimumTradeSize: null,
-        baseIncrement: null,
-        quoteIncrement: null,
-        baseDecimals: null,
-        quoteDecimals: null,
-        id: null,
-        itsAccountId: null,
       })
     }
 
