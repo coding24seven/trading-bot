@@ -16,11 +16,11 @@ export type AppEnvironment = {
 
 export type AccountData = {
   config: AccountConfig
-  bots?: BotData[]
+  bots: BotData[]
 }
 
 export type AccountDataStripped = {
-  bots?: BotData[]
+  bots: BotData[]
 }
 
 export type AccountConfig = {

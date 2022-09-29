@@ -240,6 +240,7 @@ class Store {
     ) {
       arr.push({
         config: this.accountEnvironment[accountIndex],
+        bots: [],
       })
     }
 
