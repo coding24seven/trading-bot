@@ -45,15 +45,7 @@ class Store {
    * removes api credentials (so the remainder can be stored in database)
    */
   get accountsWithoutConfig(): AccountDataStripped[] {
-    const strippedAccounts: AccountData[] = JSON.parse(
-      JSON.stringify(this.accounts)
-    )
-
-    strippedAccounts.forEach((account: AccountData) => {
-      delete account.config
-    })
-
-    return strippedAccounts
+    return this.accounts.map(({ config, ...rest }: AccountData) => rest)
   }
 
   async setUp({

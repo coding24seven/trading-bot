@@ -15,7 +15,7 @@ export type AppEnvironment = {
 }
 
 export type AccountData = {
-  config?: AccountConfig
+  config: AccountConfig
   bots?: BotData[]
 }
 
