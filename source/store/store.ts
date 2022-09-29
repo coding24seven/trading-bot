@@ -9,7 +9,6 @@ import {
   AppEnvironment,
   BotConfigDynamic,
   BotConfigFull,
-  BotConfigIndexesPerAccount,
   BotConfigStatic,
   BotData,
   BotHand,
@@ -27,7 +26,6 @@ class Store {
   allTickers: KucoinTicker[] | undefined
   appEnvironment: AppEnvironment | null = null
   accountEnvironment: AccountConfig[] = []
-  botConfigIndexesForAllAccounts: BotConfigIndexesPerAccount[] = []
   accounts: AccountData[] = []
   botConfigsInitialPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
   bots: BotData[][] = []
@@ -37,8 +35,6 @@ class Store {
   constructor() {
     this.appEnvironment = this.readAppEnvironment()
     this.accountEnvironment = this.readAccountEnvironment()
-    this.botConfigIndexesForAllAccounts =
-      this.readBotConfigIndexesForAllAccounts()
   }
 
   get accountsAsString(): string {
@@ -194,6 +190,17 @@ class Store {
         env[`ACCOUNT_${i}_API_EXCHANGE_ENVIRONMENT`]
       const botConfigPath: string | undefined =
         env[`ACCOUNT_${i}_BOT_CONFIG_PATH`]
+      const botConfigIndexesString: string | undefined =
+        env[`ACCOUNT_${i}_BOT_CONFIG_INDEXES`] // e.g. '1,3'
+      let botConfigIndexes: number[] | undefined // e.g. [ 1, 3 ]
+
+      if (botConfigIndexesString) {
+        botConfigIndexes = botConfigIndexesString
+          .split(/[,\s]+/)
+          .map((item: string) => parseInt(item))
+      } else {
+        throw new Error(Messages.BOT_CONFIG_INDEXES_MISSING)
+      }
 
       const accountEnvironmentIsValid =
         environment === AccountEnvironmentType.sandbox ||
@@ -204,7 +211,8 @@ class Store {
         secretKey &&
         passphrase &&
         accountEnvironmentIsValid &&
-        botConfigPath
+        botConfigPath &&
+        botConfigIndexes
       ) {
         accounts.push({
           apiKey,
@@ -212,6 +220,7 @@ class Store {
           passphrase,
           environment,
           botConfigPath,
+          botConfigIndexes,
         })
       } else {
         throw new Error(Messages.ACCOUNT_ENVIRONMENT_CONFIG_DATA_INVALID)
@@ -221,30 +230,6 @@ class Store {
     }
 
     return accounts
-  }
-
-  readBotConfigIndexesForAllAccounts(): BotConfigIndexesPerAccount[] {
-    const { env }: NodeJS.Process = process
-    const arr: BotConfigIndexesPerAccount[] = []
-    let i: number = 0
-
-    while (env[`ACCOUNT_${i}_EXISTS`]) {
-      const value: string | undefined = env[`ACCOUNT_${i}_BOT_CONFIG_INDEXES`]
-
-      if (value) {
-        arr.push({
-          botConfigIndexesPerAccount: value
-            .split(',')
-            .map((item: string) => parseInt(item)), // e.g. '1,3' -> [ 1, 3 ]
-        })
-      } else {
-        throw new Error(Messages.BOT_CONFIG_INDEXES_MISSING)
-      }
-
-      i++
-    }
-
-    return arr
   }
 
   linkBotConfigsWithAccountConfigs() {
@@ -281,9 +266,7 @@ class Store {
 
       const selectedBotConfigs: BotConfigStatic[] = this.botConfigFromGenerator
         ? [this.botConfigFromGenerator]
-        : this.botConfigIndexesForAllAccounts[
-            accountIndex
-          ].botConfigIndexesPerAccount.map(
+        : this.accounts[accountIndex].config!.botConfigIndexes.map(
             (botIndex: number) =>
               this.botConfigsInitialPerAccount[accountIndex][botIndex]
           )

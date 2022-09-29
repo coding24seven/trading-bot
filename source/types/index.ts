@@ -39,10 +39,6 @@ export type KucoinAccountConfig = {
   environment: AccountEnvironmentType.sandbox | AccountEnvironmentType.live
 }
 
-export type BotConfigIndexesPerAccount = {
-  botConfigIndexesPerAccount: number[]
-}
-
 export type BotData = {
   static: BotConfigStatic
   dynamic: BotConfigDynamic
