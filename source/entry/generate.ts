@@ -4,7 +4,7 @@ import Comparator from '../comparator/comparator.js'
 import eventBus from '../events/event-bus.js'
 import Runner from '../runner/runner.js'
 import store from '../store/store.js'
-import { BotConfigStatic, BotDataWithResults } from '../types'
+import { BotConfigStatic, BotData } from '../types'
 
 const commandLineArguments: string[] = process.argv
 const filePath: string = commandLineArguments[2]
@@ -34,7 +34,7 @@ async function begin() {
     console.log('count', i + 1)
   })
 
-  const sortedResults: BotDataWithResults[] = Comparator.sortConfigsByProfit()
+  const sortedResults: BotData[] = Comparator.sortConfigsByProfit()
 
   fs.promises.writeFile(
     'logs/bots-sorted.json',

@@ -72,13 +72,6 @@ export type BotConfigDynamic = {
 
 export type BotConfigFull = BotConfigStatic & BotConfigDynamic
 
-export type BotDataWithResults = {
-  config: BotConfigFull
-  hands: BotHand[]
-  results: BotResults | undefined
-  tradeHistory?: TradeHistoryItem[]
-}
-
 export type BotResults = {
   quoteTotal: number
   baseTotal: number

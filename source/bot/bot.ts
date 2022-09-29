@@ -6,7 +6,6 @@ import Trader from '../trader/trader.js'
 import {
   BotConfigDynamic,
   BotData,
-  BotDataWithResults,
   BotHand,
   BotResults,
   PriceStreamCallbackParameters,
@@ -155,7 +154,7 @@ export default class Bot {
 
   getBotDataWithResults(
     options: { tradeHistoryIncluded: boolean } | null = null
-  ): BotDataWithResults {
+  ): BotData {
     let tradeHistoryIncluded: boolean = false
 
     if (options) {
@@ -165,10 +164,8 @@ export default class Bot {
     return {
       hands: this.hands,
       ...(tradeHistoryIncluded && { tradeHistory: this.tradeHistory }),
-      config: {
-        ...this.data.static,
-        ...this.data.dynamic,
-      },
+      static: this.data.static,
+      dynamic: this.data.dynamic,
       results: store.getResults(this.itsAccountId, this.id),
     }
   }
