@@ -194,15 +194,12 @@ class Store {
         throw new Error(Messages.BOT_CONFIG_INDEXES_MISSING)
       }
 
-      const accountEnvironmentIsValid =
-        environment === AccountEnvironmentType.sandbox ||
-        environment === AccountEnvironmentType.live
-
       if (
         apiKey &&
         secretKey &&
         passphrase &&
-        accountEnvironmentIsValid &&
+        (environment === AccountEnvironmentType.sandbox ||
+          environment === AccountEnvironmentType.live) &&
         botConfigPath &&
         botConfigIndexes
       ) {
