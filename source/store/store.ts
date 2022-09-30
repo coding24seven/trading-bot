@@ -25,16 +25,16 @@ class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
   allTickers: KucoinTicker[] | undefined
   appEnvironment: AppEnvironment | null = null
-  accountEnvironment: AccountConfig[] = []
+  accountsEnvironment: AccountConfig[] = []
   accounts: AccountData[] = []
-  botConfigsInitialPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
-  bots: BotData[][] = []
+  botConfigsStaticPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
+  botsPerAccount: BotData[][] = []
   isHistoricalPrice: boolean = false
   botConfigFromGenerator: BotConfigStatic | null = null
 
   constructor() {
     this.appEnvironment = this.readAppEnvironment()
-    this.accountEnvironment = this.readAccountEnvironment()
+    this.accountsEnvironment = this.readAccountsEnvironment()
   }
 
   get accountsAsString(): string {
@@ -63,8 +63,8 @@ class Store {
       throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
     }
 
-    for (const apiConfig of this.accountEnvironment) {
-      this.botConfigsInitialPerAccount.push(
+    for (const apiConfig of this.accountsEnvironment) {
+      this.botConfigsStaticPerAccount.push(
         (await import(apiConfig.botConfigPath!)).default
       )
     }
@@ -132,7 +132,7 @@ class Store {
       const bots: BotData[] | undefined = data[accountIndex].bots
 
       if (bots) {
-        this.bots[accountIndex] = bots
+        this.botsPerAccount[accountIndex] = bots
       }
     })
 
@@ -143,7 +143,7 @@ class Store {
     this.accounts = this.setUpAccountConfigs()
 
     if (!options?.skipBotSetup) {
-      this.bots = this.setUpBotConfigs()
+      this.botsPerAccount = this.setUpBotConfigs()
     }
 
     this.linkBotConfigsWithAccountConfigs()
@@ -169,7 +169,7 @@ class Store {
     }
   }
 
-  readAccountEnvironment(): AccountConfig[] {
+  readAccountsEnvironment(): AccountConfig[] {
     const { env }: NodeJS.Process = process
     const accounts: AccountConfig[] = []
     let i: number = 0
@@ -226,7 +226,7 @@ class Store {
 
   linkBotConfigsWithAccountConfigs() {
     this.accounts.forEach((account: AccountData, accountIndex: number) => {
-      account.bots = this.bots[accountIndex]
+      account.bots = this.botsPerAccount[accountIndex]
     })
   }
 
@@ -235,11 +235,11 @@ class Store {
 
     for (
       let accountIndex: number = 0;
-      accountIndex < this.accountEnvironment.length;
+      accountIndex < this.accountsEnvironment.length;
       accountIndex++
     ) {
       arr.push({
-        config: this.accountEnvironment[accountIndex],
+        config: this.accountsEnvironment[accountIndex],
         bots: [],
       })
     }
@@ -252,7 +252,7 @@ class Store {
 
     for (
       let accountIndex: number = 0;
-      accountIndex < this.accountEnvironment.length;
+      accountIndex < this.accountsEnvironment.length;
       accountIndex++
     ) {
       const botConfigs: BotData[] = []
@@ -261,7 +261,7 @@ class Store {
         ? [this.botConfigFromGenerator]
         : this.accounts[accountIndex].config!.botConfigIndexes.map(
             (botIndex: number) =>
-              this.botConfigsInitialPerAccount[accountIndex][botIndex]
+              this.botConfigsStaticPerAccount[accountIndex][botIndex]
           )
 
       selectedBotConfigs.forEach(
