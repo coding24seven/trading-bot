@@ -40,8 +40,8 @@ export type KucoinAccountConfig = {
 }
 
 export type BotData = {
-  static: BotConfigStatic
-  dynamic: BotConfigDynamic
+  configStatic: BotConfigStatic
+  configDynamic: BotConfigDynamic
   hands: BotHand[]
   results?: BotResults
 }

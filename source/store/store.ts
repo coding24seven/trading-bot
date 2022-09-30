@@ -314,14 +314,14 @@ class Store {
           hands = this.topUpHandsWithQuote(hands, configStatic, configDynamic)
 
           const botConfig: BotData = {
-            static: configStatic,
-            dynamic: configDynamic,
+            configStatic: configStatic,
+            configDynamic: configDynamic,
             hands,
           }
 
           this.throwErrorIfBotConfigInvalid({
-            ...botConfig.static,
-            ...botConfig.dynamic,
+            ...botConfig.configStatic,
+            ...botConfig.configDynamic,
           })
           botConfigs.push(botConfig)
         }
