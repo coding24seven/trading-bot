@@ -1,6 +1,15 @@
 import fs from 'fs'
 
 export default class CsvFileReader {
+  static fileNameIsValid(fileName: string): boolean {
+    const validFileName = /^.+\.csv$/
+    return validFileName.test(fileName)
+  }
+
+  static columnNumberIsValid(columnNumber: number): boolean {
+    return Number.isInteger(columnNumber) && columnNumber > 0
+  }
+
   static getAsString(filePath): string {
     const file: Buffer = fs.readFileSync(filePath)
     return file.toString()

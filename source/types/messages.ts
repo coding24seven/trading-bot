@@ -1,4 +1,7 @@
 enum Messages {
+  COMMAND_LINE_ARGUMENTS_INVALID = 'command line arguments are invalid',
+  COMMAND_LINE_FILE_NAME_ARGUMENT_MISSING = '--file <file name> argument missing',
+  COMMAND_LINE_COLUMN_NUMBER_ARGUMENT_MISSING = '--column <column number> argument missing',
   NO_BOT_DATA_AVAILABLE = 'no bot data available',
   APP_ENVIRONMENT_CONFIG_DATA_INVALID = 'invalid config data in app environment',
   ACCOUNT_ENVIRONMENT_CONFIG_DATA_INVALID = 'invalid config data in account environment',

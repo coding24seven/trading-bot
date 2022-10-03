@@ -1,5 +1,14 @@
 import { AccountEnvironmentType } from './account-environment-type'
 
+export interface CommandLineArguments {
+  file: string
+  f: string
+  column: number
+  c: number
+  test: boolean
+  t: boolean
+}
+
 export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean
   isHistoricalPrice?: boolean
