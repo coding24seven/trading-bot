@@ -1,3 +1,4 @@
+import { spawn } from 'child_process'
 import 'dotenv/config'
 import eventBus from '../events/event-bus.js'
 import Runner from '../runner/runner.js'
@@ -8,6 +9,14 @@ const filePath: string = commandLineArguments[2]
 const priceColumnIndexAsString: string = commandLineArguments[3]
 const priceColumnIndex: number = parseInt(priceColumnIndexAsString) || 0
 const isHistoricalPrice: boolean = true
+
+const unitTestListener = (data) => {
+  process.env.BOT_DATA = JSON.stringify(data)
+  spawn('npm', ['run', 'jest'], {
+    shell: true,
+    stdio: 'inherit',
+  })
+}
 
 if (filePath) {
   begin()

@@ -3,6 +3,7 @@
 /node_modules
 /logs
 /dist
+/dist-unit-tests
 /historical-price-files
 todos.txt
 /test.*
