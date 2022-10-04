@@ -18,3 +18,7 @@ export function trimDecimalsToFixed(
 
   return returnValue
 }
+
+export function zeroIndexInteger(value: number): number {
+  return value - 1
+}

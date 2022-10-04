@@ -27,7 +27,7 @@ async function begin() {
     store.setUp({ isHistoricalPrice, botConfigFromGenerator: botConfig })
 
     Runner.runBots()
-    Runner.runPriceReader(isHistoricalPrice, filePath, priceColumnIndex)
+    Runner.runPriceReader([filePath], priceColumnIndex)
 
     eventBus.removeAllListeners()
 
