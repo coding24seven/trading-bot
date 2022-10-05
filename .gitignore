@@ -1,6 +1,6 @@
 /.idea
-/.env
-/.env.test
+.env
+.env.test
 /node_modules
 /logs
 /dist
