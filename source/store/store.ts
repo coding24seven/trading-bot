@@ -32,11 +32,6 @@ class Store {
   isHistoricalPrice: boolean = false
   botConfigFromGenerator: BotConfigStatic | null = null
 
-  constructor() {
-    this.appEnvironment = this.readAppEnvironment()
-    this.accountsEnvironment = this.readAccountsEnvironment()
-  }
-
   get accountsAsString(): string {
     return JSON.stringify(this.accounts, null, 2)
   }
@@ -56,6 +51,8 @@ class Store {
   }: StoreSetupParameters): Promise<void> {
     this.isHistoricalPrice = isHistoricalPrice
     this.botConfigFromGenerator = botConfigFromGenerator
+    this.appEnvironment = this.readAppEnvironment()
+    this.accountsEnvironment = this.readAccountsEnvironment()
     this.allSymbolsData = await Exchange.getAllSymbolsData()
     this.allTickers = await Exchange.getAllTickers()
 
@@ -63,9 +60,9 @@ class Store {
       throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
     }
 
-    for (const apiConfig of this.accountsEnvironment) {
+    for (const accountConfig of this.accountsEnvironment) {
       this.botConfigsStaticPerAccount.push(
-        (await import(apiConfig.botConfigPath!)).default
+        (await import(accountConfig.botConfigPath)).default
       )
     }
 
