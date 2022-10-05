@@ -1,5 +1,4 @@
 import Big from 'big.js'
-import 'dotenv/config'
 import eventBus from '../events/event-bus.js'
 import store from '../store/store.js'
 import Trader from '../trader/trader.js'

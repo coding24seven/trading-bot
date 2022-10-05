@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto'
-import 'dotenv/config'
 import kucoin from 'kucoin-node-api'
 import {
   KucoinAccountConfig,
