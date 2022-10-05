@@ -9,7 +9,7 @@
     "new": "tsc && node dist/source/entry/index.js starts:with:new:store",
     "delete": "tsc && node dist/source/entry/delete.js",
     "historical": "tsc && node dist/source/entry/historical.js",
-    "test": "tsc --project tsconfig-unit-tests.json && cd dist-unit-tests && npm init -y > /dev/null && cd .. && node dist-unit-tests/source/entry/historical.js --file tests/test.csv --column 1 --test",
+    "test": "tsc --project tsconfig-unit-tests.json && cd dist-unit-tests && npm init -y > /dev/null && cd .. && node dist-unit-tests/source/entry/historical.js tests/test.csv --test --column 1",
     "jest": "jest",
     "generate": "tsc && node dist/source/entry/generate.js",
     "collect": "tsc && node dist/source/entry/collect-last-price.js",
