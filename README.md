@@ -37,7 +37,7 @@ This repository contains the source code and documentation powering the trading-
 
 ### Command line arguments
 
-1. -- (enables npm run to pass argument flags (such as -t) to script instead of npm command)
+1. -- ((not used in package.json) enables npm run to pass argument flags (such as -t) to script instead of to npm command)
 1. \<csv file path(s)\> OR \<directory-with-csv-files path\>
 1. --column, -c \<column number containing prices in csv file\>
 1. --test, -t (run unit tests)
