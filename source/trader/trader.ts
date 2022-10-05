@@ -12,13 +12,23 @@ import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Trader {
   symbol: string
-  tradeFee: number /* used in fake trades only */
+  tradeFee: number /* used across the project in fake trades only */
   accountConfig: AccountConfig
+  baseIncrement: string /* used in this file in fake trades only */
+  quoteIncrement: string /* used in this file in fake trades only */
 
-  constructor(accountId: number, symbol: string, tradeFee: number) {
+  constructor(
+    accountId: number,
+    symbol: string,
+    tradeFee: number,
+    baseIncrement: string,
+    quoteIncrement: string
+  ) {
     this.symbol = symbol
     this.accountConfig = store.getAccountConfig(accountId)
     this.tradeFee = tradeFee
+    this.baseIncrement = baseIncrement
+    this.quoteIncrement = quoteIncrement
   }
 
   async trade(isBuy: boolean, amountToSpend: number): Promise<number | null> {
@@ -61,8 +71,7 @@ export default class Trader {
 
   tradeFake(isBuy: boolean, amountToSpend: number, lastPrice: number): number {
     if (isBuy) {
-      const baseIncrement = '0.00000001'
-      const decimalsToRetain = countDecimals(baseIncrement)
+      const decimalsToRetain = countDecimals(this.baseIncrement)
 
       const baseReceived: Big = this.deductTradeFeeFake(
         Big(amountToSpend).div(lastPrice)
@@ -70,8 +79,7 @@ export default class Trader {
 
       return trimDecimalsToFixed(baseReceived.toNumber(), decimalsToRetain)
     } else {
-      const quoteIncrement = '0.000001'
-      const decimalsToRetain = countDecimals(quoteIncrement)
+      const decimalsToRetain = countDecimals(this.quoteIncrement)
 
       const quoteReceived: Big = this.deductTradeFeeFake(
         Big(amountToSpend).mul(lastPrice)

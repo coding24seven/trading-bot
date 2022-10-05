@@ -43,7 +43,9 @@ export default class Bot {
     this.trader = new Trader(
       data.configDynamic.itsAccountId!,
       data.configStatic.symbol,
-      data.configDynamic.tradeFee!
+      data.configDynamic.tradeFee!,
+      data.configDynamic.baseIncrement!,
+      data.configDynamic.quoteIncrement!
     )
     eventBus.on(eventBus.events!.LAST_PRICE, this.onLastPrice.bind(this))
     eventBus.on(
