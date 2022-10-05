@@ -98,7 +98,10 @@ export default class Bot {
         baseReceived = await this.trader.trade(true, quoteToSpend)
       }
 
-      if (!baseReceived) return
+      if (!baseReceived) {
+        hand.tradeIsPending = false
+        return
+      }
 
       hand.quote = Big(hand.quote).minus(quoteToSpend).toNumber()
       hand.base = Big(hand.base).plus(baseReceived).toNumber()
@@ -126,7 +129,10 @@ export default class Bot {
         quoteReceived = await this.trader.trade(false, baseToSpend)
       }
 
-      if (!quoteReceived) return
+      if (!quoteReceived) {
+        hand.tradeIsPending = false
+        return
+      }
 
       hand.base = Big(hand.base).minus(baseToSpend).toNumber()
       hand.quote = Big(hand.quote).plus(quoteReceived).toNumber()
