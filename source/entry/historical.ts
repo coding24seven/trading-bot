@@ -1,6 +1,6 @@
 import { spawn } from 'child_process'
-import 'dotenv/config'
 import minimist from 'minimist'
+import { setDotEnv } from '../../config/env.js'
 import eventBus from '../events/event-bus.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'
 import Runner from '../runner/runner.js'
@@ -19,6 +19,9 @@ const {
   t,
 }: CommandLineArguments = commandLineArguments
 
+const isUnitTest: boolean | undefined = test || t
+setDotEnv(isUnitTest ? 'test' : undefined)
+
 if (
   filePathsOrDirectoryPath === undefined ||
   filePathsOrDirectoryPath.length < 1
@@ -34,7 +37,6 @@ if (column === undefined && c === undefined) {
 
 const defaultColumnNumber: number = 1
 const columnNumber: number = column || c || defaultColumnNumber
-const isUnitTest: boolean | undefined = test || t
 const filePaths: string[] = filePathsOrDirectoryPath.every((path: string) =>
   CsvFileReader.filePathIsValid(path)
 )

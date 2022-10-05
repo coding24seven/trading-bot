@@ -1,5 +1,7 @@
 import { AccountEnvironmentType } from './account-environment-type'
 
+export type EnvironmentTypes = 'development' | 'production' | 'test'
+
 export interface CommandLineArguments {
   _: string[]
   column: number
