@@ -22,3 +22,16 @@ export function trimDecimalsToFixed(
 export function zeroIndexInteger(value: number): number {
   return value - 1
 }
+
+export function valuesAreWithinTolerance(
+  values: number[],
+  tolerancePercent: number
+): boolean {
+  const minValue: number = Math.min(...values)
+  const maxValue: number = Math.max(...values)
+  const toleranceDecimal: number = tolerancePercent / 100
+  const increase: Big = Big(minValue).mul(toleranceDecimal)
+  const toleranceCeiling: Big = increase.plus(minValue)
+
+  return toleranceCeiling.toNumber() >= maxValue
+}
