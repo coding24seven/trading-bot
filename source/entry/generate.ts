@@ -1,10 +1,12 @@
-import 'dotenv/config'
 import fs from 'fs'
+import { setDotEnv } from '../../config/env.js'
 import Comparator from '../comparator/comparator.js'
 import eventBus from '../events/event-bus.js'
 import Runner from '../runner/runner.js'
 import store from '../store/store.js'
 import { BotConfigStatic, BotData } from '../types'
+
+setDotEnv()
 
 const commandLineArguments: string[] = process.argv
 const filePath: string = commandLineArguments[2]

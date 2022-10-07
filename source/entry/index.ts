@@ -1,21 +1,24 @@
-import "dotenv/config";
-import Runner from "../runner/runner.js";
-import store from "../store/store.js";
+import 'dotenv/config'
+import { setDotEnv } from '../../config/env.js'
+import Runner from '../runner/runner.js'
+import store from '../store/store.js'
 
-const commandLineArguments: string[] = process.argv;
+setDotEnv()
+
+const commandLineArguments: string[] = process.argv
 
 const continueWithExistingDatabase: boolean = !commandLineArguments.includes(
-  "starts:with:new:store"
-);
+  'starts:with:new:store'
+)
 
-begin();
+begin()
 
 async function begin() {
   try {
-    await store.setUp({ continueWithExistingDatabase });
-    Runner.runBots();
-    Runner.runPriceReader();
+    await store.setUp({ continueWithExistingDatabase })
+    Runner.runBots()
+    Runner.runPriceReader()
   } catch (e) {
-    console.log(e);
+    console.log(e)
   }
 }
