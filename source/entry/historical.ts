@@ -51,7 +51,7 @@ if (!CsvFileReader.columnNumberIsValid(columnNumber)) {
   throw new Error(`${Messages.COLUMN_NUMBER_INVALID}: ${columnNumber}`)
 }
 
-void (async function begin() {
+void (async function () {
   await store.setUp({ isHistoricalPrice })
 
   const startUnitTests = (data: BotData) => {

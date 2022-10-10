@@ -58,9 +58,19 @@ export default class Trader {
       if (isBuy) {
         const baseReceived: number = parseFloat(filledOrderItem.size)
 
+        // todo: remove console.log
+        console.log('----------is buy---------')
+        console.log('filledOrderItem.size', filledOrderItem.size)
+        console.log({ baseReceived })
+        console.log('----------is buy---------')
+
         return baseReceived
       } else {
         const quoteReceived: number = parseFloat(filledOrderItem.funds)
+        console.log('----------is sell---------')
+        console.log('filledOrderItem.funds', filledOrderItem.funds)
+        console.log({ quoteReceived })
+        console.log('----------is sell---------')
 
         return quoteReceived
       }

@@ -1,9 +1,12 @@
-import store from "../store/store.js";
+import { setDotEnv } from '../../config/env.js'
+import store from '../store/store.js'
 
-begin();
+setDotEnv()
+
+begin()
 
 async function begin() {
-  await store.setUp({ createsStoreAndExits: true });
+  await store.setUp({ createsStoreAndExits: true })
 
-  console.log(store.accountsAsString);
+  console.log(store.accountsAsString)
 }

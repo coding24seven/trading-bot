@@ -11,7 +11,7 @@ import {
   TradeHistoryItem,
 } from '../types'
 import Messages from '../types/messages.js'
-import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
+import { countDecimals, getTime, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Bot {
   data: BotData
@@ -70,7 +70,7 @@ export default class Bot {
 
       if (intervalNotCompleted || this.symbol !== symbol) return
 
-      console.log(lastPrice, symbol)
+      console.log(getTime(), symbol, lastPrice)
       this.dateMs = Date.now()
     }
 
