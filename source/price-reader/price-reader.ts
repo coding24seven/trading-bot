@@ -3,7 +3,6 @@
  * (kucoin ticker fires at 100ms interval)
  */
 
-import 'dotenv/config'
 import eventBus from '../events/event-bus.js'
 import { Exchange } from '../exchange/exchange.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'

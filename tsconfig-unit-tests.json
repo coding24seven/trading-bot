@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "sourceMap": false,
+    "rootDir": "./",
+    "outDir": "dist-unit-tests",
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true
+  },
+  "lib": ["ESNext"],
+  "ts-node": {
+    "esm": true
+  }
+}

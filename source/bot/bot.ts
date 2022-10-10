@@ -1,5 +1,4 @@
 import Big from 'big.js'
-import 'dotenv/config'
 import eventBus from '../events/event-bus.js'
 import store from '../store/store.js'
 import Trader from '../trader/trader.js'
@@ -12,7 +11,7 @@ import {
   TradeHistoryItem,
 } from '../types'
 import Messages from '../types/messages.js'
-import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
+import { countDecimals, getTime, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Bot {
   data: BotData
@@ -44,7 +43,9 @@ export default class Bot {
     this.trader = new Trader(
       data.configDynamic.itsAccountId!,
       data.configStatic.symbol,
-      data.configDynamic.tradeFee!
+      data.configDynamic.tradeFee!,
+      data.configDynamic.baseIncrement!,
+      data.configDynamic.quoteIncrement!
     )
     eventBus.on(eventBus.events!.LAST_PRICE, this.onLastPrice.bind(this))
     eventBus.on(
@@ -69,7 +70,7 @@ export default class Bot {
 
       if (intervalNotCompleted || this.symbol !== symbol) return
 
-      console.log(lastPrice, symbol)
+      console.log(getTime(), symbol, lastPrice)
       this.dateMs = Date.now()
     }
 
@@ -97,7 +98,10 @@ export default class Bot {
         baseReceived = await this.trader.trade(true, quoteToSpend)
       }
 
-      if (!baseReceived) return
+      if (!baseReceived) {
+        hand.tradeIsPending = false
+        return
+      }
 
       hand.quote = Big(hand.quote).minus(quoteToSpend).toNumber()
       hand.base = Big(hand.base).plus(baseReceived).toNumber()
@@ -125,7 +129,10 @@ export default class Bot {
         quoteReceived = await this.trader.trade(false, baseToSpend)
       }
 
-      if (!quoteReceived) return
+      if (!quoteReceived) {
+        hand.tradeIsPending = false
+        return
+      }
 
       hand.base = Big(hand.base).minus(baseToSpend).toNumber()
       hand.quote = Big(hand.quote).plus(quoteReceived).toNumber()
