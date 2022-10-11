@@ -17,7 +17,7 @@ export function getTime() {
   return hours + ':' + minutes + ':' + seconds
 }
 
-export function countDecimals<T>(numberAsString: string): number {
+export function countDecimals(numberAsString: string): number {
   return numberAsString.split('.')[1]?.length || 0
 }
 
