@@ -88,8 +88,14 @@ export default class Bot {
     )
 
     buyingHands.forEach(async (hand: BotHand) => {
-      const quoteToSpend: number = this.makeQuoteValidForTrade(hand.quote)
-      let baseReceived: number | null
+      const quoteToSpend: string | undefined = this.makeQuoteValidForTrade(
+        hand.quote
+      )
+      let baseReceived: string | undefined
+
+      if (!quoteToSpend) {
+        return
+      }
 
       if (store.isHistoricalPrice) {
         baseReceived = this.trader.tradeFake(true, quoteToSpend, lastPrice)
@@ -103,8 +109,8 @@ export default class Bot {
         return
       }
 
-      hand.quote = Big(hand.quote).minus(quoteToSpend).toNumber()
-      hand.base = Big(hand.base).plus(baseReceived).toNumber()
+      hand.quote = Big(hand.quote).minus(quoteToSpend).toFixed()
+      hand.base = Big(hand.base).plus(baseReceived).toFixed()
       hand.buyCount++
       hand.tradeIsPending = false
       this.buyCountTotal++
@@ -119,8 +125,14 @@ export default class Bot {
     )
 
     sellingHands.forEach(async (hand: BotHand) => {
-      const baseToSpend: number = this.makeBaseValidForTrade(hand.base)
-      let quoteReceived: number | null
+      const baseToSpend: string | undefined = this.makeBaseValidForTrade(
+        hand.base
+      )
+      let quoteReceived: string | undefined
+
+      if (!baseToSpend) {
+        return
+      }
 
       if (store.isHistoricalPrice) {
         quoteReceived = this.trader.tradeFake(false, baseToSpend, lastPrice)
@@ -134,8 +146,8 @@ export default class Bot {
         return
       }
 
-      hand.base = Big(hand.base).minus(baseToSpend).toNumber()
-      hand.quote = Big(hand.quote).plus(quoteReceived).toNumber()
+      hand.base = Big(hand.base).minus(baseToSpend).toFixed()
+      hand.quote = Big(hand.quote).plus(quoteReceived).toFixed()
       hand.sellCount++
       hand.tradeIsPending = false
       this.sellCountTotal++
@@ -143,20 +155,20 @@ export default class Bot {
     })
   }
 
-  isBaseCurrencyEnoughToTrade(base: number): boolean {
+  isBaseCurrencyEnoughToTrade(base: string): boolean {
     if (!this.data.configDynamic.baseMinimumTradeSize) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
-    return base >= this.data.configDynamic.baseMinimumTradeSize
+    return Big(base).gte(this.data.configDynamic.baseMinimumTradeSize)
   }
 
-  isQuoteCurrencyEnoughToTrade(quote: number): boolean {
+  isQuoteCurrencyEnoughToTrade(quote: string): boolean {
     if (!this.data.configDynamic.quoteMinimumTradeSize) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
-    return quote >= this.data.configDynamic.quoteMinimumTradeSize
+    return Big(quote).gte(this.data.configDynamic.quoteMinimumTradeSize)
   }
 
   getBotDataWithResults(
@@ -182,21 +194,27 @@ export default class Bot {
       return
     }
 
-    const baseTotal: number = this.hands.reduce(
-      (accumulator: number, item: BotHand) =>
-        Big(accumulator).plus(item.base).toNumber(),
-      0
-    )
+    const baseTotal: string = this.hands
+      .reduce(
+        (accumulator: Big, item: BotHand) => Big(accumulator).plus(item.base),
+        Big('0')
+      )
+      .toFixed()
 
-    const quoteTotal: number = this.hands.reduce(
-      (accumulator: number, item: BotHand) =>
-        Big(accumulator).plus(item.quote).toNumber(),
-      0
-    )
+    const quoteTotal: string = this.hands
+      .reduce(
+        (accumulator: Big, item: BotHand) => Big(accumulator).plus(item.quote),
+        Big('0')
+      )
+      .toFixed()
 
-    const baseAtLastPriceToQuoteTotal: number = baseTotal * this.lastPrice
-    const pairTotal: number = quoteTotal + baseAtLastPriceToQuoteTotal
-    const quoteTotalIncludingBaseSoldAsPlanned: number =
+    const baseAtLastPriceToQuoteTotal: string = Big(baseTotal)
+      .mul(this.lastPrice)
+      .toFixed()
+    const pairTotal: string = Big(quoteTotal)
+      .plus(baseAtLastPriceToQuoteTotal)
+      .toFixed()
+    const quoteTotalIncludingBaseSoldAsPlanned: string =
       this.getQuoteTotalIncludingBaseSoldAsPlanned()
 
     return {
@@ -213,25 +231,37 @@ export default class Bot {
     }
   }
 
-  getQuoteTotalIncludingBaseSoldAsPlanned(): number {
+  getQuoteTotalIncludingBaseSoldAsPlanned(): string {
     const arr: BotHand[] = JSON.parse(JSON.stringify(this.hands))
 
     arr.forEach((hand: BotHand) => {
-      if (hand.base > 0) {
+      if (Big(hand.base).gt(0)) {
         const valueToAdd = Big(hand.base).mul(hand.sellAbove)
-        hand.quote = trimDecimalsToFixed(
-          valueToAdd.plus(hand.quote).toNumber(),
+
+        const quoteTotalIncludingBaseSoldAsPlanned = trimDecimalsToFixed(
+          valueToAdd.plus(hand.quote).toFixed(),
           this.data.configDynamic.quoteDecimals!
         )
-        hand.base = 0
+
+        if (typeof quoteTotalIncludingBaseSoldAsPlanned !== 'string') {
+          console.log(
+            `${Messages.BASE_MUST_BE_STRING}: ${quoteTotalIncludingBaseSoldAsPlanned}`
+          )
+
+          return
+        }
+
+        hand.quote = quoteTotalIncludingBaseSoldAsPlanned
+        hand.base = '0'
       }
     })
 
-    return arr.reduce(
-      (accumulator: number, item: BotHand) =>
-        Big(accumulator).plus(item.quote).toNumber(),
-      0
-    )
+    return arr
+      .reduce(
+        (accumulator: Big, item: BotHand) => Big(accumulator).plus(item.quote),
+        Big(0)
+      )
+      .toFixed()
   }
 
   getTradeHistoryItem(
@@ -250,24 +280,46 @@ export default class Bot {
     }
   }
 
-  makeBaseValidForTrade(base: number): number {
+  makeBaseValidForTrade(base: string): string | undefined {
     const { baseIncrement }: BotConfigDynamic = this.data.configDynamic
 
     if (!baseIncrement) {
       throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)
     }
 
-    return trimDecimalsToFixed(base, countDecimals(baseIncrement))
+    const baseValidForTrade = trimDecimalsToFixed(
+      base,
+      countDecimals(baseIncrement)
+    )
+
+    if (typeof baseValidForTrade !== 'string') {
+      console.log(`${Messages.BASE_MUST_BE_STRING}: ${baseValidForTrade}`)
+
+      return
+    }
+
+    return baseValidForTrade
   }
 
-  makeQuoteValidForTrade(quote: number): number {
+  makeQuoteValidForTrade(quote: string): string | undefined {
     const { quoteIncrement }: BotConfigDynamic = this.data.configDynamic
 
     if (!quoteIncrement) {
       throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)
     }
 
-    return trimDecimalsToFixed(quote, countDecimals(quoteIncrement))
+    const quoteValidForTrade = trimDecimalsToFixed(
+      quote,
+      countDecimals(quoteIncrement)
+    )
+
+    if (typeof quoteValidForTrade !== 'string') {
+      console.log(`${Messages.QUOTE_MUST_BE_STRING}: ${quoteValidForTrade}`)
+
+      return
+    }
+
+    return quoteValidForTrade
   }
 
   updateAfterTrade(hand: BotHand, lastPrice: number, type: string) {

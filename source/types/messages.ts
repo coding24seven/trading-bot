@@ -13,6 +13,10 @@ enum Messages {
   BOT_CONFIG_INDEXES_MISSING = 'bot-config indexes are missing',
   HAND_COUNT_INVALID = 'hand count is invalid',
   HAND_SPAN_TOO_NARROW = 'too narrow to offset exchange fee. increase hand span.',
+  BASE_START_AMOUNT_PER_HAND_INVALID = 'base start amount per hand is invalid',
+  QUOTE_START_AMOUNT_PER_HAND_INVALID = 'quote start amount per hand is invalid',
+  BASE_MUST_BE_STRING = 'base must be a string',
+  QUOTE_MUST_BE_STRING = 'quote must be a string',
   OVERWRITE_EXISTING_DATABASE = 'Overwrite (possibly existing) database? (y/n): ',
   DATABASE_SERVER_HAS_NOT_RESPONDED = 'database server has not responded',
   DATABASE_REQUEST_GENERIC_PROBLEM = 'problem with request to database',
@@ -29,7 +33,7 @@ enum Messages {
   TICKER_NOT_FOUND = 'ticker not found',
   MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET = 'minimum trade sizes allowed by the exchange have not been set',
   TRADE_SIZE_INCREMENT_NOT_SET = 'trade-size increment allowed by the exchange has not been set',
-  IS_NOT_A_NUMBER = 'is not a number',
+  IS_NOT_A_NUMBER = 'is not a number (as number and as string)',
 }
 
 export default Messages

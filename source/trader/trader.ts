@@ -8,6 +8,7 @@ import {
   KucoinOrderPlacedResponse,
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
+import Messages from '../types/messages.js'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Trader {
@@ -31,7 +32,10 @@ export default class Trader {
     this.quoteIncrement = quoteIncrement
   }
 
-  async trade(isBuy: boolean, amountToSpend: number): Promise<number | null> {
+  async trade(
+    isBuy: boolean,
+    amountToSpend: string
+  ): Promise<string | undefined> {
     const response: KucoinOrderPlacedResponse | KucoinErrorResponse =
       await Exchange.tradeMarket(this.accountConfig, {
         symbol: this.symbol,
@@ -40,54 +44,73 @@ export default class Trader {
       })
 
     if (
-      response.code === ExchangeCodes.responseSuccess &&
-      (response as KucoinOrderPlacedResponse).data.orderId
+      response.code !== ExchangeCodes.responseSuccess ||
+      !(response as KucoinOrderPlacedResponse).data.orderId
     ) {
-      const filledOrderItem: KucoinGetFilledOrderByIdItem | null =
-        await Exchange.getFilledOrderById(
-          this.accountConfig,
-          (response as KucoinOrderPlacedResponse).data.orderId,
-          5000,
-          60000
-        )
+      return
+    }
 
-      if (!filledOrderItem) {
-        return null
-      }
+    const filledOrderItem: KucoinGetFilledOrderByIdItem | null =
+      await Exchange.getFilledOrderById(
+        this.accountConfig,
+        (response as KucoinOrderPlacedResponse).data.orderId,
+        5000,
+        60000
+      )
 
-      if (isBuy) {
-        const baseReceived: number = parseFloat(filledOrderItem.size)
+    if (!filledOrderItem) {
+      return
+    }
 
-        // todo: remove console.log
-        console.log('----------is buy---------')
-        console.log('filledOrderItem.size', filledOrderItem.size)
-        console.log({ baseReceived })
-        console.log('----------is buy---------')
+    if (isBuy) {
+      const baseReceived: string = filledOrderItem.size
 
-        return baseReceived
-      } else {
-        const quoteReceived: number = parseFloat(filledOrderItem.funds)
-        console.log('----------is sell---------')
-        console.log('filledOrderItem.funds', filledOrderItem.funds)
-        console.log({ quoteReceived })
-        console.log('----------is sell---------')
+      // todo: remove console.log
+      console.log('----------is buy---------')
+      console.log('filledOrderItem.size', filledOrderItem.size)
+      console.log('----------is buy---------')
 
-        return quoteReceived
-      }
+      return baseReceived
     } else {
-      return null
+      const quoteReceived: string = filledOrderItem.funds
+      console.log('----------is sell---------')
+      console.log('filledOrderItem.funds', filledOrderItem.funds)
+      console.log('----------is sell---------')
+
+      return quoteReceived
     }
   }
 
-  tradeFake(isBuy: boolean, amountToSpend: number, lastPrice: number): number {
+  tradeFake(
+    isBuy: boolean,
+    amountToSpend: string,
+    lastPrice: number
+  ): string | undefined {
     if (isBuy) {
       const decimalsToRetain = countDecimals(this.baseIncrement)
 
-      const baseReceived: Big = this.deductTradeFeeFake(
+      const baseReceived: string = this.deductTradeFeeFake(
         Big(amountToSpend).div(lastPrice)
+      ).toFixed()
+
+      const baseReceivedTrimmed = trimDecimalsToFixed(
+        baseReceived,
+        decimalsToRetain
       )
 
-      return trimDecimalsToFixed(baseReceived.toNumber(), decimalsToRetain)
+      if (typeof baseReceivedTrimmed !== 'string') {
+        console.log(
+          `${
+            Messages.BASE_MUST_BE_STRING
+          }: ${baseReceivedTrimmed} in ${__filename.slice(
+            __dirname.length + 1
+          )}`
+        )
+
+        return
+      }
+
+      return baseReceivedTrimmed
     } else {
       const decimalsToRetain = countDecimals(this.quoteIncrement)
 
@@ -95,7 +118,24 @@ export default class Trader {
         Big(amountToSpend).mul(lastPrice)
       )
 
-      return trimDecimalsToFixed(quoteReceived.toNumber(), decimalsToRetain)
+      const quoteReceivedTrimmed = trimDecimalsToFixed(
+        quoteReceived.toFixed(),
+        decimalsToRetain
+      )
+
+      if (typeof quoteReceivedTrimmed !== 'string') {
+        console.log(
+          `${
+            Messages.QUOTE_MUST_BE_STRING
+          }: ${quoteReceivedTrimmed} in ${__filename.slice(
+            __dirname.length + 1
+          )}`
+        )
+
+        return
+      }
+
+      return quoteReceivedTrimmed
     }
   }
 

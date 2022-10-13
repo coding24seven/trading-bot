@@ -1,4 +1,5 @@
 import Big from 'big.js'
+import Messages from '../types/messages.js'
 
 export function getTime() {
   let date: Date = new Date()
@@ -17,23 +18,43 @@ export function getTime() {
   return hours + ':' + minutes + ':' + seconds
 }
 
+export function isNumeric<T>(value: T): boolean {
+  return (
+    (typeof value === 'number' ||
+      (typeof value === 'string' && value.trim() !== '')) &&
+    !isNaN(value as number)
+  )
+}
+
 export function countDecimals(numberAsString: string): number {
   return numberAsString.split('.')[1]?.length || 0
 }
 
-export function trimDecimalsToFixed(
-  value: number,
+export function trimDecimalsToFixed<T extends string | number>(
+  value: T,
   decimalsToRetain: number
-): number {
-  const targetStringLength: number = 1 + decimalsToRetain
-  const factorAsString: string = '1'.padEnd(targetStringLength, '0')
-  const factor: number = parseInt(factorAsString)
+): string | number | void {
+  if (!isNumeric(value)) {
+    throw new Error(Messages.IS_NOT_A_NUMBER)
+  } else if (Number.isInteger(+value)) {
+    return value
+  } else if (typeof value === 'string') {
+    const decimalPoint = '.'
+    const [whole, decimal]: string[] = value.split(decimalPoint)
+    const decimalPartTrimmed: string = decimal.slice(0, decimalsToRetain)
+    const trimmedValue: string = [whole, decimalPartTrimmed].join(decimalPoint)
 
-  const returnValue: number = Big(Math.floor(Big(value).mul(factor).toNumber()))
-    .div(factor)
-    .toNumber()
+    return trimmedValue
+  } else if (typeof value === 'number') {
+    const targetStringLength: number = 1 + decimalsToRetain
+    const factorAsString: string = '1'.padEnd(targetStringLength, '0')
+    const factor: number = parseInt(factorAsString)
+    const trimmedValue: Big = Big(
+      Math.floor(Big(value).mul(factor).toNumber())
+    ).div(factor)
 
-  return returnValue
+    return trimmedValue.toNumber()
+  }
 }
 
 export function zeroIndexInteger(value: number): number {
@@ -41,16 +62,18 @@ export function zeroIndexInteger(value: number): number {
 }
 
 export function valuesAreWithinTolerance(
-  values: number[],
+  values: (string | number)[],
   tolerancePercent: number
 ): boolean {
-  const minValue: number = Math.min(...values)
-  const maxValue: number = Math.max(...values)
-  const toleranceDecimal: number = tolerancePercent / 100
+  values = values.map((value: string | number) => +value)
+
+  const minValue: number = Math.min(...(values as number[]))
+  const maxValue: number = Math.max(...(values as number[]))
+  const toleranceDecimal: Big = Big(tolerancePercent).div(100)
   const increase: Big = Big(minValue).mul(toleranceDecimal)
   const toleranceCeiling: Big = increase.plus(minValue)
 
-  return toleranceCeiling.toNumber() >= maxValue
+  return toleranceCeiling.gte(maxValue)
 }
 
 /* unit test only: simulate buy and sell operations by adding difference between buy and sell prices to quote */
@@ -58,7 +81,7 @@ export function getQuoteAfterBuySellDifference(
   prices: number[][],
   tradeFee: number | Big,
   quote: number | Big
-): number {
+): string {
   tradeFee = Big(tradeFee)
   quote = Big(quote)
   prices = Array.from(prices)
@@ -74,66 +97,6 @@ export function getQuoteAfterBuySellDifference(
   prices.shift()
 
   return prices.length === 0
-    ? quoteAfterFees.toNumber()
+    ? quoteAfterFees.toFixed()
     : getQuoteAfterBuySellDifference(prices, tradeFee, quoteAfterFees)
 }
-
-const quoteDecimals = 6
-
-// todo: remove commented out code
-// export function getQuoteAfterBuySellDifference(
-//   prices: number[][],
-//   tradeFee: number | Big,
-//   quote: number | Big
-// ): number {
-//   tradeFee = Big(tradeFee)
-//   quote = Big(quote)
-//   prices = Array.from(prices)
-//   const [[buyPrice, sellPrice]] = prices
-//   const buySellDifference: Big = Big(sellPrice).minus(buyPrice)
-//   console.log('buySellDifference', buySellDifference.toNumber())
-
-//   const increaseFactor = trimDecimalsToFixed(
-//     buySellDifference.div(buyPrice).toNumber(),
-//     quoteDecimals
-//   )
-//   console.log('increaseFactor', increaseFactor)
-
-//   const quoteIncrease = trimDecimalsToFixed(
-//     quote.mul(increaseFactor).toNumber(),
-//     quoteDecimals
-//   )
-//   console.log('quoteIncrease', quoteIncrease)
-
-//   const quoteBeforeFees = trimDecimalsToFixed(
-//     quote.plus(quoteIncrease).toNumber(),
-//     quoteDecimals
-//   )
-//   console.log('quoteBeforeFees', quoteBeforeFees)
-
-//   const buyFee = trimDecimalsToFixed(
-//     quote.mul(tradeFee).toNumber(),
-//     quoteDecimals
-//   )
-//   console.log('buyFee', buyFee)
-
-//   const sellFee = trimDecimalsToFixed(
-//     Big(quoteBeforeFees).mul(tradeFee).toNumber(),
-//     quoteDecimals
-//   )
-//   console.log('sellFee', sellFee)
-
-//   const buySellFees = Big(buyFee).plus(sellFee)
-//   console.log('buySellFees', buySellFees.toNumber())
-
-//   const quoteAfterFees = Big(quoteBeforeFees).minus(buySellFees)
-//   console.log('quoteAfterFees', quoteAfterFees.toNumber())
-
-//   console.log('-----------------------------')
-
-//   prices.shift()
-
-//   return prices.length === 0
-//     ? quoteAfterFees.toNumber()
-//     : getQuoteAfterBuySellDifference(prices, tradeFee, quoteAfterFees)
-// }

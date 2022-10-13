@@ -14,7 +14,7 @@ export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean
   isHistoricalPrice?: boolean
   createsStoreAndExits?: boolean
-  botConfigFromGenerator?: BotConfigStatic | null
+  botConfigFromGenerator?: BotConfigStatic
 }
 
 export type AppEnvironment = {
@@ -70,28 +70,28 @@ export type BotConfigStatic = {
 }
 
 export type BotConfigDynamic = {
-  handCount: number | null
-  quoteStartAmountPerHand: number | null
-  baseStartAmountPerHand: number | null
-  tradeFee: number | null
-  baseMinimumTradeSize: number | null
-  quoteMinimumTradeSize: number | null
-  baseIncrement: string | null
-  quoteIncrement: string | null
-  baseDecimals: number | null
-  quoteDecimals: number | null
-  id: number | null
-  itsAccountId: number | null
+  handCount: number
+  quoteStartAmountPerHand: string
+  baseStartAmountPerHand: string
+  tradeFee: number
+  baseMinimumTradeSize: number
+  quoteMinimumTradeSize: number
+  baseIncrement: string
+  quoteIncrement: string
+  baseDecimals: number
+  quoteDecimals: number
+  id: number
+  itsAccountId: number
 }
 
 export type BotConfigFull = BotConfigStatic & BotConfigDynamic
 
 export type BotResults = {
-  quoteTotal: number
-  baseTotal: number
-  baseAtLastPriceToQuoteTotal: number
-  pairTotal: number
-  quoteTotalIncludingBaseSoldAsPlanned: number
+  quoteTotal: string
+  baseTotal: string
+  baseAtLastPriceToQuoteTotal: string
+  pairTotal: string
+  quoteTotalIncludingBaseSoldAsPlanned: string
   buyCountTotal: number
   sellCountTotal: number
   lastPrice: number
@@ -103,8 +103,8 @@ export type BotHand = {
   id: number
   buyBelow: number
   sellAbove: number
-  quote: number
-  base: number
+  quote: string
+  base: string
   buyCount: number
   sellCount: number
   tradeIsPending: boolean

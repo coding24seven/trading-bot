@@ -6,15 +6,15 @@ import { BotConfigStatic } from '../types'
 const botConfigs: BotConfigStatic[] = [
   {
     symbol: 'BTC-USDT',
-    from: 18500,
-    to: 20500,
+    from: 20000,
+    to: 30000,
     baseFrom: 0,
     baseTo: 0,
-    quoteFrom: 18500,
-    quoteTo: 20500,
-    quoteStartAmount: 10,
+    quoteFrom: 20000,
+    quoteTo: 30000,
+    quoteStartAmount: 70,
     baseStartAmount: 0,
-    handSpanPercent: 3,
+    handSpanPercent: 15,
   },
 ]
 

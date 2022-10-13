@@ -1,3 +1,4 @@
+import Big from 'big.js'
 import eventBus from '../events/event-bus.js'
 import { BotConfigStatic, BotData } from '../types'
 
@@ -53,8 +54,9 @@ export default class Comparator {
   static sortConfigsByProfit(): BotData[] {
     return Comparator.botConfigsWithResults.sort(
       (previousItem: BotData, currentItem: BotData) =>
-        previousItem.results!.quoteTotalIncludingBaseSoldAsPlanned -
-        currentItem.results!.quoteTotalIncludingBaseSoldAsPlanned
+        Big(previousItem.results!.quoteTotalIncludingBaseSoldAsPlanned)
+          .minus(currentItem.results!.quoteTotalIncludingBaseSoldAsPlanned)
+          .toNumber()
       // previousItem.results.sellCountTotal - currentItem.results.sellCountTotal
       // previousItem.config.handCount - currentItem.config.handCount
     )

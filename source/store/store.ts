@@ -19,7 +19,11 @@ import {
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import Messages from '../types/messages.js'
-import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
+import {
+  countDecimals,
+  isNumeric,
+  trimDecimalsToFixed,
+} from '../utils/index.js'
 
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
@@ -30,7 +34,7 @@ class Store {
   botConfigsStaticPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
   botsPerAccount: BotData[][] = []
   isHistoricalPrice: boolean = false
-  botConfigFromGenerator: BotConfigStatic | null = null
+  botConfigFromGenerator: BotConfigStatic | undefined
 
   get accountsAsString(): string {
     return JSON.stringify(this.accounts, null, 2)
@@ -47,7 +51,7 @@ class Store {
     continueWithExistingDatabase = true,
     isHistoricalPrice = false,
     createsStoreAndExits = false,
-    botConfigFromGenerator = null,
+    botConfigFromGenerator,
   }: StoreSetupParameters): Promise<void> {
     this.isHistoricalPrice = isHistoricalPrice
     this.botConfigFromGenerator = botConfigFromGenerator
@@ -277,17 +281,35 @@ class Store {
 
           let hands: BotHand[] = this.buildHands(configStatic)
 
-          const quoteDecimals = countDecimals(symbolData.quoteIncrement)
+          const quoteDecimals: number = countDecimals(symbolData.quoteIncrement)
           const quoteStartAmountPerHand = trimDecimalsToFixed(
             this.calculateQuoteStartAmountPerHand(hands, configStatic),
             quoteDecimals
           )
 
-          const baseDecimals = countDecimals(symbolData.baseIncrement)
+          if (
+            typeof quoteStartAmountPerHand !== 'string' ||
+            !isNumeric(quoteStartAmountPerHand)
+          ) {
+            throw new Error(
+              `${Messages.QUOTE_START_AMOUNT_PER_HAND_INVALID}: ${quoteStartAmountPerHand}`
+            )
+          }
+
+          const baseDecimals: number = countDecimals(symbolData.baseIncrement)
           const baseStartAmountPerHand = trimDecimalsToFixed(
             this.calculateBaseStartAmountPerHand(hands, configStatic),
             baseDecimals
           )
+
+          if (
+            typeof baseStartAmountPerHand !== 'string' ||
+            !isNumeric(baseStartAmountPerHand)
+          ) {
+            throw new Error(
+              `${Messages.BASE_START_AMOUNT_PER_HAND_INVALID}: ${baseStartAmountPerHand}`
+            )
+          }
 
           const configDynamic: BotConfigDynamic = {
             id: botIndex,
@@ -330,7 +352,7 @@ class Store {
   calculateQuoteStartAmountPerHand(
     hands: BotHand[],
     configStatic: BotConfigStatic
-  ): number {
+  ): string {
     const handsToTopUpWithQuoteCount: number = hands.filter((hand: BotHand) =>
       this.quoteHandQualifiesForTopUp(hand, configStatic)
     ).length
@@ -338,8 +360,8 @@ class Store {
     return handsToTopUpWithQuoteCount > 0
       ? Big(configStatic.quoteStartAmount)
           .div(handsToTopUpWithQuoteCount)
-          .toNumber()
-      : 0
+          .toFixed()
+      : '0'
   }
 
   topUpHandsWithQuote(
@@ -373,7 +395,7 @@ class Store {
   calculateBaseStartAmountPerHand(
     hands: BotHand[],
     configStatic: BotConfigStatic
-  ): number {
+  ): string {
     const handsToTopUpWithBaseCount: number = hands.filter((hand: BotHand) =>
       this.baseHandQualifiesForTopUp(hand, configStatic)
     ).length
@@ -381,8 +403,8 @@ class Store {
     return handsToTopUpWithBaseCount > 0
       ? Big(configStatic.baseStartAmount)
           .div(handsToTopUpWithBaseCount)
-          .toNumber()
-      : 0
+          .toFixed()
+      : '0'
   }
 
   topUpHandsWithBase(
@@ -434,10 +456,10 @@ class Store {
       throw new Error(Messages.EXCHANGE_FEE_MUST_NOT_BE_NULL)
     }
 
-    const handSpanDecimal: number = Big(handSpanPercent).div(100).toNumber()
-    const buyAndSellFee: number = Big(tradeFee).mul(2).toNumber()
+    const handSpanDecimal: Big = Big(handSpanPercent).div(100)
+    const buyAndSellFee: Big = Big(tradeFee).mul(2)
 
-    return buyAndSellFee < handSpanDecimal
+    return Big(buyAndSellFee).lt(handSpanDecimal)
   }
 
   buildHands(configStatic: BotConfigStatic): BotHand[] {
@@ -445,13 +467,8 @@ class Store {
     const hands: BotHand[] = []
     let buyBelow: number = from
     let id: number = 0
-    const handSpanPercentDecimal: number = Big(handSpanPercent)
-      .div(100)
-      .toNumber()
-    const increment: number = Big(to)
-      .minus(from)
-      .mul(handSpanPercentDecimal)
-      .toNumber()
+    const handSpanPercentDecimal: Big = Big(handSpanPercent).div(100)
+    const increment: Big = Big(to).minus(from).mul(handSpanPercentDecimal)
 
     while (buyBelow < to) {
       const sellAbove: number = Big(buyBelow).plus(increment).toNumber()
@@ -460,8 +477,8 @@ class Store {
         id,
         buyBelow,
         sellAbove,
-        quote: 0,
-        base: 0,
+        quote: '0',
+        base: '0',
         buyCount: 0,
         sellCount: 0,
         tradeIsPending: false,

@@ -27,6 +27,10 @@ const {
   results,
 }: BotData = data
 
+if (!configStatic || !configDynamic || !handsActual || !results) {
+  throw new Error(Messages.BOT_DATA_INVALID)
+}
+
 /* hard-coded for the time being*/
 const botIndex: number = 0
 const botAccountIndex: number = 0
@@ -49,11 +53,11 @@ const handsExpected: BotHand[] = [
     id: 0,
     buyBelow: 20000,
     sellAbove: 21500,
-    base: 0,
+    base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference([[19800, 21780]], tradeFee, quotePerHand),
       quoteDecimals
-    ),
+    ) as string,
     buyCount: 1,
     sellCount: 1,
     tradeIsPending: false,
@@ -62,11 +66,11 @@ const handsExpected: BotHand[] = [
     id: 1,
     buyBelow: 21500,
     sellAbove: 23000,
-    base: 0,
+    base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference([[21000, 23100]], tradeFee, quotePerHand),
       quoteDecimals
-    ),
+    ) as string,
     buyCount: 1,
     sellCount: 1,
     tradeIsPending: false,
@@ -75,11 +79,11 @@ const handsExpected: BotHand[] = [
     id: 2,
     buyBelow: 23000,
     sellAbove: 24500,
-    base: 0,
+    base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference([[21000, 24600]], tradeFee, quotePerHand),
       quoteDecimals
-    ),
+    ) as string,
     buyCount: 1,
     sellCount: 1,
     tradeIsPending: false,
@@ -88,7 +92,7 @@ const handsExpected: BotHand[] = [
     id: 3,
     buyBelow: 24500,
     sellAbove: 26000,
-    base: 0,
+    base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference(
         [
@@ -99,7 +103,7 @@ const handsExpected: BotHand[] = [
         quotePerHand
       ),
       quoteDecimals
-    ),
+    ) as string,
     buyCount: 2,
     sellCount: 2,
     tradeIsPending: false,
@@ -108,7 +112,7 @@ const handsExpected: BotHand[] = [
     id: 4,
     buyBelow: 26000,
     sellAbove: 27500,
-    base: 0,
+    base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference(
         [
@@ -119,7 +123,7 @@ const handsExpected: BotHand[] = [
         quotePerHand
       ),
       quoteDecimals
-    ),
+    ) as string,
     buyCount: 2,
     sellCount: 2,
     tradeIsPending: false,
@@ -128,7 +132,7 @@ const handsExpected: BotHand[] = [
     id: 5,
     buyBelow: 27500,
     sellAbove: 29000,
-    base: 0,
+    base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference(
         [
@@ -140,7 +144,7 @@ const handsExpected: BotHand[] = [
         quotePerHand
       ),
       quoteDecimals
-    ),
+    ) as string,
     buyCount: 3,
     sellCount: 3,
     tradeIsPending: false,
@@ -149,7 +153,7 @@ const handsExpected: BotHand[] = [
     id: 6,
     buyBelow: 29000,
     sellAbove: 30500,
-    base: 0,
+    base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference(
         [
@@ -160,35 +164,39 @@ const handsExpected: BotHand[] = [
         quotePerHand
       ),
       quoteDecimals
-    ),
+    ) as string,
     buyCount: 2,
     sellCount: 2,
     tradeIsPending: false,
   },
 ]
 
-const expectedBaseTotal = handsExpected.reduce(
-  (acc: number, { base }: BotHand) => acc + base,
-  0
-)
-const expectedQuoteTotal = handsExpected.reduce(
-  (acc: number, { quote }: BotHand) => acc + quote,
-  0
-)
-const expectedQuoteTotalIncludingBaseSoldAsPlanned =
+const expectedBaseTotal: string = handsExpected
+  .reduce((acc: Big, { base }: BotHand) => acc.plus(base), Big(0))
+  .toFixed()
+
+const expectedQuoteTotal: string = handsExpected
+  .reduce((acc: Big, { quote }: BotHand) => acc.plus(quote), Big(0))
+  .toFixed()
+
+const expectedQuoteTotalIncludingBaseSoldAsPlanned: string =
   expectedQuoteTotal /* while all already sold as planned (base === 0) */
-const expectedBaseAtLastPriceToQuoteTotal: number =
-  expectedBaseTotal * lastPriceRecorded
-const expectedPairTotal: number =
-  expectedQuoteTotal + expectedBaseAtLastPriceToQuoteTotal
-const expectedBuyCountTotal = handsExpected.reduce(
-  (acc: number, { buyCount }) => acc + buyCount,
-  0
-)
-const expectedSellCountTotal = handsExpected.reduce(
-  (acc: number, { sellCount }) => acc + sellCount,
-  0
-)
+
+const expectedBaseAtLastPriceToQuoteTotal: string = Big(expectedBaseTotal)
+  .mul(lastPriceRecorded)
+  .toFixed()
+
+const expectedPairTotal: string = Big(expectedQuoteTotal)
+  .plus(expectedBaseAtLastPriceToQuoteTotal)
+  .toFixed()
+
+const expectedBuyCountTotal: number = handsExpected
+  .reduce((acc: Big, { buyCount }: BotHand) => acc.plus(buyCount), Big(0))
+  .toNumber()
+
+const expectedSellCountTotal: number = handsExpected
+  .reduce((acc: Big, { sellCount }: BotHand) => acc.plus(sellCount), Big(0))
+  .toNumber()
 
 describe('config: static values', () => {
   test(`symbol: ${botConfigs[botIndex].symbol}`, () => {
@@ -247,20 +255,28 @@ describe('config: dynamic values', () => {
   })
 
   test(`base start amount per hand: ${configDynamic.baseStartAmountPerHand}`, () => {
+    if (typeof configDynamic.handCount !== 'number') {
+      throw new Error(Messages.HAND_COUNT_INVALID)
+    }
+
     const { baseStartAmount } = configStatic
     const { handCount } = configDynamic
     const expected = trimDecimalsToFixed(
-      Big(baseStartAmount).div(handCount!).toNumber(),
+      Big(baseStartAmount).div(handCount).toFixed(),
       baseDecimals
     )
     expect(configDynamic.baseStartAmountPerHand).toBe(expected)
   })
 
   test(`quote start amount per hand: ${configDynamic.quoteStartAmountPerHand}`, () => {
+    if (typeof configDynamic.handCount !== 'number') {
+      throw new Error(Messages.HAND_COUNT_INVALID)
+    }
+
     const { quoteStartAmount } = configStatic
     const { handCount } = configDynamic
     const expected = trimDecimalsToFixed(
-      Big(quoteStartAmount).div(handCount!).toNumber(),
+      Big(quoteStartAmount).div(handCount).toFixed(),
       quoteDecimals
     )
     expect(configDynamic.quoteStartAmountPerHand).toBe(expected)
@@ -341,7 +357,7 @@ describe('hands', () => {
       .map((handPartial: Partial<BotHand>) => Object.values(handPartial))
   )(
     `hand %d  base: ~ %d quote: ~ %d`,
-    (id: number, base: number, quote: number) => {
+    (id: number, base: string, quote: string) => {
       expect(handsActual[id].base).toBe(base)
       const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
         [handsActual[id].quote, quote],
@@ -382,7 +398,7 @@ describe('hands', () => {
 describe('results', () => {
   test(`base total ~ ${expectedBaseTotal}`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [results!.baseTotal, expectedBaseTotal],
+      [results.baseTotal, expectedBaseTotal],
       tolerancePercent
     )
     expect(valueAreCloseEnough).toBeTruthy()
@@ -390,7 +406,7 @@ describe('results', () => {
 
   test(`quote total ~ ${expectedQuoteTotal}`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [results!.quoteTotal, expectedQuoteTotal],
+      [results.quoteTotal, expectedQuoteTotal],
       tolerancePercent
     )
     expect(valueAreCloseEnough).toBeTruthy()
@@ -399,7 +415,7 @@ describe('results', () => {
   test(`baseAtLastPriceToQuoteTotal ~ ${expectedBaseAtLastPriceToQuoteTotal}`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [
-        results!.baseAtLastPriceToQuoteTotal,
+        results.baseAtLastPriceToQuoteTotal,
         expectedBaseAtLastPriceToQuoteTotal,
       ],
       tolerancePercent
@@ -409,7 +425,7 @@ describe('results', () => {
 
   test(`pair total ~ ${expectedPairTotal}`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [results!.pairTotal, expectedPairTotal],
+      [results.pairTotal, expectedPairTotal],
       tolerancePercent
     )
     expect(valueAreCloseEnough).toBeTruthy()
@@ -418,7 +434,7 @@ describe('results', () => {
   test(`quoteTotalIncludingBaseSoldAsPlanned ~ ${expectedQuoteTotalIncludingBaseSoldAsPlanned}`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [
-        results!.quoteTotalIncludingBaseSoldAsPlanned,
+        results.quoteTotalIncludingBaseSoldAsPlanned,
         expectedQuoteTotalIncludingBaseSoldAsPlanned,
       ],
       tolerancePercent
