@@ -99,15 +99,15 @@ class Store {
         /* continueWithExistingDatabase */
         const response: AxiosResponse | undefined = await this.readDatabase()
 
-        if (response?.status === 200) {
+        if (!response) {
+          throw new Error(Messages.DATABASE_READ_SERVER_CONNECTION_FAIL)
+        } else if (response.status === 200) {
           console.log(Messages.CONTINUING_WITH_EXISTING_DATABASE)
           this.setUpFromExistingDatabase(response.data)
-        } else if (response?.status === 404) {
+        } else if (response.status === 404) {
           console.log(Messages.DATABASE_DOES_NOT_EXIST)
           await this.setUpAnew()
           console.log(Messages.DATABASE_CREATED)
-        } else if (!response) {
-          throw new Error(Messages.DATABASE_READ_SERVER_CONNECTION_FAIL)
         }
 
         resolve()
@@ -130,20 +130,20 @@ class Store {
 
   private setUpFromExistingDatabase(data: AccountDataStripped[]) {
     data.forEach((account: AccountDataStripped, accountIndex: number) => {
-      const bots: BotData[] | undefined = data[accountIndex].bots
-
-      if (bots) {
-        this.botsPerAccount[accountIndex] = bots
+      if (account.bots) {
+        this.botsPerAccount[accountIndex] = account.bots
       }
     })
 
-    this.createAccountAndBotConfigs({ skipBotSetup: true })
+    this.createAccountAndBotConfigs({ skipBotConfigSetup: true })
   }
 
-  createAccountAndBotConfigs(options: { skipBotSetup: boolean } | null = null) {
+  createAccountAndBotConfigs(
+    options: { skipBotConfigSetup: boolean } | null = null
+  ) {
     this.accounts = this.setUpAccountConfigs()
 
-    if (!options?.skipBotSetup) {
+    if (!options?.skipBotConfigSetup) {
       this.botsPerAccount = this.setUpBotConfigs()
     }
 
