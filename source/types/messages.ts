@@ -34,6 +34,7 @@ enum Messages {
   MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET = 'minimum trade sizes allowed by the exchange have not been set',
   TRADE_SIZE_INCREMENT_NOT_SET = 'trade-size increment allowed by the exchange has not been set',
   IS_NOT_A_NUMBER = 'is not a number (as number and as string)',
+  IS_NOT_POSITIVE_INTEGER = 'is not a positive integer',
 }
 
 export default Messages

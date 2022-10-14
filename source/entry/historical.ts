@@ -7,7 +7,7 @@ import Runner from '../runner/runner.js'
 import store from '../store/store.js'
 import { BotData, CommandLineArguments } from '../types/index.js'
 import Messages from '../types/messages.js'
-import { zeroIndexInteger } from '../utils/index.js'
+import { zeroIndexPositiveInteger } from '../utils/index.js'
 
 const isHistoricalPrice: boolean = true
 const commandLineArguments = minimist(process.argv.slice(2))
@@ -68,5 +68,5 @@ void (async function () {
 
   Runner.runBots()
 
-  Runner.runPriceReader(filePaths, zeroIndexInteger(columnNumber))
+  Runner.runPriceReader(filePaths, zeroIndexPositiveInteger(columnNumber))
 })()

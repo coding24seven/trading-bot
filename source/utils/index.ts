@@ -1,7 +1,7 @@
 import Big from 'big.js'
 import Messages from '../types/messages.js'
 
-export function getTime() {
+export function getTime(): string {
   let date: Date = new Date()
 
   let hours: string =
@@ -57,7 +57,11 @@ export function trimDecimalsToFixed<T extends string | number>(
   }
 }
 
-export function zeroIndexInteger(value: number): number {
+export function zeroIndexPositiveInteger(value: number): number {
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`${value} ${Messages.IS_NOT_POSITIVE_INTEGER}`)
+  }
+
   return value - 1
 }
 
@@ -76,7 +80,7 @@ export function valuesAreWithinTolerance(
   return toleranceCeiling.gte(maxValue)
 }
 
-/* unit test only: simulate buy and sell operations by adding difference between buy and sell prices to quote */
+/* unit test only: simulate buy and sell operations by adding difference between buy and sell prices to quote. return value has trade fee x2 deducted and is approximate */
 export function getQuoteAfterBuySellDifference(
   prices: number[][],
   tradeFee: number | Big,
