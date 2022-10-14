@@ -453,6 +453,7 @@ class Store {
     return handCount >= 2
   }
 
+  // todo: fix calculation based on hand span
   isProfitGreaterThanTradeFee({
     handSpanPercent,
     tradeFee,

@@ -23,8 +23,6 @@ export default class Bot {
   lastPrice: number | null = null
   lowestPriceRecorded: number = Infinity
   highestPriceRecorded: number = -Infinity
-  buyCountTotal: number = 0
-  sellCountTotal: number = 0
   count: number = 0
   tradeHistory: TradeHistoryItem[] = [] // not added to store atm
   dateMs: number = Date.now()
@@ -113,7 +111,6 @@ export default class Bot {
       hand.base = Big(hand.base).plus(baseReceived).toFixed()
       hand.buyCount++
       hand.tradeIsPending = false
-      this.buyCountTotal++
       this.updateAfterTrade(hand, lastPrice, 'buy')
     })
 
@@ -150,7 +147,6 @@ export default class Bot {
       hand.quote = Big(hand.quote).plus(quoteReceived).toFixed()
       hand.sellCount++
       hand.tradeIsPending = false
-      this.sellCountTotal++
       this.updateAfterTrade(hand, lastPrice, 'sell')
     })
   }
@@ -196,14 +192,14 @@ export default class Bot {
 
     const baseTotal: string = this.hands
       .reduce(
-        (accumulator: Big, item: BotHand) => Big(accumulator).plus(item.base),
+        (accumulator: Big, { base }: BotHand) => Big(accumulator).plus(base),
         Big('0')
       )
       .toFixed()
 
     const quoteTotal: string = this.hands
       .reduce(
-        (accumulator: Big, item: BotHand) => Big(accumulator).plus(item.quote),
+        (accumulator: Big, { quote }: BotHand) => Big(accumulator).plus(quote),
         Big('0')
       )
       .toFixed()
@@ -211,11 +207,29 @@ export default class Bot {
     const baseAtLastPriceToQuoteTotal: string = Big(baseTotal)
       .mul(this.lastPrice)
       .toFixed()
+
     const pairTotal: string = Big(quoteTotal)
       .plus(baseAtLastPriceToQuoteTotal)
       .toFixed()
+
     const quoteTotalIncludingBaseSoldAsPlanned: string =
       this.getQuoteTotalIncludingBaseSoldAsPlanned()
+
+    const buyCountTotal: number = this.hands
+      .reduce(
+        (accumulator: Big, { buyCount }: BotHand) =>
+          Big(accumulator).plus(buyCount),
+        Big(0)
+      )
+      .toNumber()
+
+    const sellCountTotal: number = this.hands
+      .reduce(
+        (accumulator: Big, { sellCount }: BotHand) =>
+          Big(accumulator).plus(sellCount),
+        Big(0)
+      )
+      .toNumber()
 
     return {
       quoteTotal,
@@ -223,8 +237,8 @@ export default class Bot {
       baseAtLastPriceToQuoteTotal,
       pairTotal,
       quoteTotalIncludingBaseSoldAsPlanned,
-      buyCountTotal: this.buyCountTotal,
-      sellCountTotal: this.sellCountTotal,
+      buyCountTotal,
+      sellCountTotal,
       lastPrice: this.lastPrice,
       lowestPriceRecorded: this.lowestPriceRecorded,
       highestPriceRecorded: this.highestPriceRecorded,
