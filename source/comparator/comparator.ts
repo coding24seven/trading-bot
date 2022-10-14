@@ -5,8 +5,8 @@ import { BotConfigStatic, BotData } from '../types'
 export default class Comparator {
   static botConfigsWithResults: BotData[] = []
   static botConfigs: BotConfigStatic[] = []
-  static from: number = 20000
-  static to: number = 100000
+  static from: number = 37000
+  static to: number = 57000
 
   static run(symbol: string) {
     Comparator.botConfigs = Comparator.generateBotConfigs(symbol)
@@ -38,10 +38,10 @@ export default class Comparator {
         symbol,
         from: Comparator.from,
         to: Comparator.to,
-        baseFrom: 30000,
-        baseTo: 40000,
-        quoteFrom: 30000,
-        quoteTo: 40000,
+        baseFrom: 37000,
+        baseTo: 57000,
+        quoteFrom: 37000,
+        quoteTo: 57000,
         handSpanPercent,
         quoteStartAmount: '100',
         baseStartAmount: '0',

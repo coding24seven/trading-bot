@@ -4,7 +4,7 @@ import Comparator from '../comparator/comparator.js'
 import eventBus from '../events/event-bus.js'
 import Runner from '../runner/runner.js'
 import store from '../store/store.js'
-import { BotConfigStatic, BotData } from '../types'
+import { BotData } from '../types'
 
 setDotEnv()
 
@@ -23,18 +23,22 @@ async function begin() {
 
   console.log('bot count:', Comparator.botConfigs.length)
 
-  Comparator.botConfigs.forEach((botConfig: BotConfigStatic, i: number) => {
+  for (const [i, botConfigStatic] of Comparator.botConfigs.entries()) {
     Comparator.addEventListeners()
 
-    store.setUp({ isHistoricalPrice, botConfigFromGenerator: botConfig })
+    await store.setUp({
+      isHistoricalPrice,
+      botConfigFromGenerator: botConfigStatic,
+    })
 
     Runner.runBots()
+
     Runner.runPriceReader([filePath], priceColumnIndex)
 
     eventBus.removeAllListeners()
 
     console.log('count', i + 1)
-  })
+  }
 
   const sortedResults: BotData[] = Comparator.sortConfigsByProfit()
 
