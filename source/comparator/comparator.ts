@@ -24,15 +24,17 @@ export default class Comparator {
   }
 
   static generateBotConfigs(symbol: string): BotConfigStatic[] {
-    const handSpanPercentMin: number = 1
-    const handSpanPercentStep: number = 1
+    const handSpanPercentMin: number = 0.3
+    const handSpanPercentStep: number = 0.3
     const handSpanPercentMax: number = 17
     const arr: BotConfigStatic[] = []
 
     for (
       let handSpanPercent: number = handSpanPercentMin;
       handSpanPercent <= handSpanPercentMax;
-      handSpanPercent += handSpanPercentStep
+      handSpanPercent = Big(handSpanPercent)
+        .plus(handSpanPercentStep)
+        .toNumber()
     ) {
       arr.push({
         symbol,

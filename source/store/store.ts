@@ -453,7 +453,10 @@ class Store {
     return handCount >= 2
   }
 
-  isProfitGreaterThanTradeFee({ handSpanPercent, tradeFee }): boolean {
+  isProfitGreaterThanTradeFee({
+    handSpanPercent,
+    tradeFee,
+  }: BotConfigFull): boolean {
     if (tradeFee === null) {
       throw new Error(Messages.EXCHANGE_FEE_MUST_NOT_BE_NULL)
     }
