@@ -74,8 +74,8 @@ export type BotConfigDynamic = {
   quoteStartAmountPerHand: string
   baseStartAmountPerHand: string
   tradeFee: number
-  baseMinimumTradeSize: number
-  quoteMinimumTradeSize: number
+  baseMinimumTradeSize: string
+  quoteMinimumTradeSize: string
   baseIncrement: string
   quoteIncrement: string
   baseDecimals: number

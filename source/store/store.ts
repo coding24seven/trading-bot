@@ -314,8 +314,8 @@ class Store {
           const configDynamic: BotConfigDynamic = {
             id: botIndex,
             itsAccountId: accountIndex,
-            baseMinimumTradeSize: parseFloat(symbolData.baseMinSize),
-            quoteMinimumTradeSize: parseFloat(symbolData.quoteMinSize),
+            baseMinimumTradeSize: symbolData.baseMinSize,
+            quoteMinimumTradeSize: symbolData.quoteMinSize,
             baseIncrement: symbolData.baseIncrement,
             quoteIncrement: symbolData.quoteIncrement,
             baseDecimals,

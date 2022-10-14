@@ -37,8 +37,8 @@ const botAccountIndex: number = 0
 const baseDecimals: number = 8
 const quoteDecimals: number = 6
 const tradeFee: number = 0.001
-const baseMinimumTradeSize: number = 0.00001
-const quoteMinimumTradeSize: number = 0.01
+const baseMinimumTradeSize: string = '0.00001'
+const quoteMinimumTradeSize: string = '0.01'
 const baseIncrement: string = '0.00000001'
 const quoteIncrement: string = '0.000001'
 const quotePerHand: number = 10
@@ -286,11 +286,11 @@ describe('config: dynamic values', () => {
     expect(configDynamic.tradeFee).toBe(tradeFee)
   })
 
-  test(`base minimum trade size: ${configDynamic.baseMinimumTradeSize}`, () => {
+  test(`base minimum trade size: '${configDynamic.baseMinimumTradeSize}'`, () => {
     expect(configDynamic.baseMinimumTradeSize).toBe(baseMinimumTradeSize)
   })
 
-  test(`quote minimum trade size: ${configDynamic.quoteMinimumTradeSize}`, () => {
+  test(`quote minimum trade size: '${configDynamic.quoteMinimumTradeSize}'`, () => {
     expect(configDynamic.quoteMinimumTradeSize).toBe(quoteMinimumTradeSize)
   })
 
