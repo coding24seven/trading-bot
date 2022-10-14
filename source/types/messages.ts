@@ -1,6 +1,8 @@
 enum Messages {
   COMMAND_LINE_ARGUMENTS_INVALID = 'command line arguments are invalid',
   COMMAND_LINE_FILE_PATHS_OR_DIRECTORY_PATH_ARGUMENT_MISSING = 'command line arguments: either <file paths> or <directory path> must be present',
+  COMMAND_LINE_CURRENCY_SYMBOL_ARGUMENT_MISSING = 'Please specify a currency symbol in the command line, for example: BTC-USDT',
+  COMMAND_LINE_OUTPUT_FILE_ARGUMENT_MISSING = 'Please specify an output file path in the command line, for example: my-output-file.csv',
   FILE_PATHS_MISSING = 'file paths are missing',
   FILE_PATHS_INVALID = 'file paths are invalid',
   COMMAND_LINE_COLUMN_NUMBER_ARGUMENT_MISSING = '--column <column number> argument missing',
@@ -35,6 +37,8 @@ enum Messages {
   TRADE_SIZE_INCREMENT_NOT_SET = 'trade-size increment allowed by the exchange has not been set',
   IS_NOT_A_NUMBER = 'is not a number (as number and as string)',
   IS_NOT_POSITIVE_INTEGER = 'is not a positive integer',
+  PRICE_FOR_SYMBOL_BEING_COLLECTED = 'Collecting prices for symbol',
+  WRITING_TO_FILE = 'Writing to file',
 }
 
 export default Messages

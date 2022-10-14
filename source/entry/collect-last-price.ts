@@ -2,34 +2,31 @@
  * gets last prices at real time and appends them to file
  */
 
-import fs from "fs";
-import PriceReader from "../price-reader/price-reader.js";
+import fs from 'fs'
+import PriceReader from '../price-reader/price-reader.js'
+import Messages from '../types/messages.js'
 
-const commandLineArguments: string[] = process.argv;
-const symbol: string = commandLineArguments[2];
-const outputFilePath: string = commandLineArguments[3];
+const commandLineArguments: string[] = process.argv
+const symbol: string = commandLineArguments[2]
+const outputFilePath: string = commandLineArguments[3]
 
-collect();
+collect()
 
 function collect() {
   if (!symbol) {
-    console.error(
-      "Please specify a currency symbol in the command line, for example: BTC-USDT"
-    );
+    console.error(Messages.COMMAND_LINE_CURRENCY_SYMBOL_ARGUMENT_MISSING)
 
-    return;
+    return
   }
 
   if (!outputFilePath) {
-    console.error(
-      "Please specify an output file path in the command line, for example: my-output-file.csv"
-    );
+    console.error(Messages.COMMAND_LINE_OUTPUT_FILE_ARGUMENT_MISSING)
 
-    return;
+    return
   }
 
-  console.log(`Collecting prices for symbol: ${symbol}`);
-  console.log(`Writing to file: ${outputFilePath}`);
+  console.log(`${Messages.PRICE_FOR_SYMBOL_BEING_COLLECTED}: ${symbol}`)
+  console.log(`${Messages.WRITING_TO_FILE}: ${outputFilePath}`)
 
   PriceReader.startOneSymbolLivePriceStream(
     symbol,
@@ -38,12 +35,12 @@ function collect() {
         await fs.promises.appendFile(
           outputFilePath,
           `${lastPrice.toString()}\n`
-        );
+        )
 
-        console.log(lastPrice);
+        console.log(lastPrice)
       } catch (e) {
-        console.log(e);
+        console.log(e)
       }
     }
-  );
+  )
 }
