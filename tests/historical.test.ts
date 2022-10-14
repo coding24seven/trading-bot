@@ -227,13 +227,13 @@ describe('config: static values', () => {
     expect(configStatic.baseTo).toBe(botConfigs[botIndex].baseTo)
   })
 
-  test(`base start amount: ${botConfigs[botIndex].baseStartAmount}`, () => {
+  test(`base start amount: '${botConfigs[botIndex].baseStartAmount}'`, () => {
     expect(configStatic.baseStartAmount).toBe(
       botConfigs[botIndex].baseStartAmount
     )
   })
 
-  test(`quote start amount: ${botConfigs[botIndex].quoteStartAmount}`, () => {
+  test(`quote start amount: '${botConfigs[botIndex].quoteStartAmount}'`, () => {
     expect(configStatic.quoteStartAmount).toBe(
       botConfigs[botIndex].quoteStartAmount
     )

@@ -65,8 +65,8 @@ export type BotConfigStatic = {
   baseFrom: number
   baseTo: number
   handSpanPercent: number
-  quoteStartAmount: number
-  baseStartAmount: number
+  quoteStartAmount: string
+  baseStartAmount: string
 }
 
 export type BotConfigDynamic = {

@@ -43,8 +43,8 @@ export default class Comparator {
         quoteFrom: 30000,
         quoteTo: 40000,
         handSpanPercent,
-        quoteStartAmount: 100,
-        baseStartAmount: 0,
+        quoteStartAmount: '100',
+        baseStartAmount: '0',
       })
     }
 

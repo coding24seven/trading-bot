@@ -12,8 +12,8 @@ const botConfigs: BotConfigStatic[] = [
     baseTo: 0,
     quoteFrom: 20000,
     quoteTo: 30000,
-    quoteStartAmount: 70,
-    baseStartAmount: 0,
+    quoteStartAmount: '70',
+    baseStartAmount: '0',
     handSpanPercent: 15,
   },
 ]
