@@ -199,7 +199,7 @@ const expectedSellCountTotal: number = handsExpected
   .toNumber()
 
 describe('config: static values', () => {
-  test(`symbol: ${botConfigs[botIndex].symbol}`, () => {
+  test(`symbol: '${botConfigs[botIndex].symbol}'`, () => {
     expect(configStatic.symbol).toBe(botConfigs[botIndex].symbol)
   })
 
@@ -254,7 +254,7 @@ describe('config: dynamic values', () => {
     )
   })
 
-  test(`base start amount per hand: ${configDynamic.baseStartAmountPerHand}`, () => {
+  test(`base start amount per hand: '${configDynamic.baseStartAmountPerHand}'`, () => {
     if (typeof configDynamic.handCount !== 'number') {
       throw new Error(Messages.HAND_COUNT_INVALID)
     }
@@ -268,7 +268,7 @@ describe('config: dynamic values', () => {
     expect(configDynamic.baseStartAmountPerHand).toBe(expected)
   })
 
-  test(`quote start amount per hand: ${configDynamic.quoteStartAmountPerHand}`, () => {
+  test(`quote start amount per hand: '${configDynamic.quoteStartAmountPerHand}'`, () => {
     if (typeof configDynamic.handCount !== 'number') {
       throw new Error(Messages.HAND_COUNT_INVALID)
     }
@@ -294,11 +294,11 @@ describe('config: dynamic values', () => {
     expect(configDynamic.quoteMinimumTradeSize).toBe(quoteMinimumTradeSize)
   })
 
-  test(`base increment: ${configDynamic.baseIncrement}`, () => {
+  test(`base increment: '${configDynamic.baseIncrement}'`, () => {
     expect(configDynamic.baseIncrement).toBe(baseIncrement)
   })
 
-  test(`quote increment: ${configDynamic.quoteIncrement}`, () => {
+  test(`quote increment: '${configDynamic.quoteIncrement}'`, () => {
     expect(configDynamic.quoteIncrement).toBe(quoteIncrement)
   })
 
@@ -356,7 +356,7 @@ describe('hands', () => {
       }))
       .map((handPartial: Partial<BotHand>) => Object.values(handPartial))
   )(
-    `hand %d  base: ~ %d quote: ~ %d`,
+    `hand %d  base: ~ %p quote: ~ %p`,
     (id: number, base: string, quote: string) => {
       expect(handsActual[id].base).toBe(base)
       const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
@@ -396,7 +396,7 @@ describe('hands', () => {
 })
 
 describe('results', () => {
-  test(`base total ~ ${expectedBaseTotal}`, () => {
+  test(`base total: ~ '${expectedBaseTotal}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [results.baseTotal, expectedBaseTotal],
       tolerancePercent
@@ -404,7 +404,7 @@ describe('results', () => {
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`quote total ~ ${expectedQuoteTotal}`, () => {
+  test(`quote total: ~ '${expectedQuoteTotal}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [results.quoteTotal, expectedQuoteTotal],
       tolerancePercent
@@ -412,7 +412,7 @@ describe('results', () => {
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`baseAtLastPriceToQuoteTotal ~ ${expectedBaseAtLastPriceToQuoteTotal}`, () => {
+  test(`baseAtLastPriceToQuoteTotal: ~ '${expectedBaseAtLastPriceToQuoteTotal}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [
         results.baseAtLastPriceToQuoteTotal,
@@ -423,7 +423,7 @@ describe('results', () => {
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`pair total ~ ${expectedPairTotal}`, () => {
+  test(`pair total: ~ '${expectedPairTotal}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [results.pairTotal, expectedPairTotal],
       tolerancePercent
@@ -431,7 +431,7 @@ describe('results', () => {
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`quoteTotalIncludingBaseSoldAsPlanned ~ ${expectedQuoteTotalIncludingBaseSoldAsPlanned}`, () => {
+  test(`quoteTotalIncludingBaseSoldAsPlanned: ~ '${expectedQuoteTotalIncludingBaseSoldAsPlanned}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [
         results.quoteTotalIncludingBaseSoldAsPlanned,
@@ -442,23 +442,23 @@ describe('results', () => {
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`buy count total  ${expectedBuyCountTotal}`, () => {
+  test(`buy count total: ${expectedBuyCountTotal}`, () => {
     expect(results?.buyCountTotal).toBe(expectedBuyCountTotal)
   })
 
-  test(`sell count total  ${expectedSellCountTotal}`, () => {
+  test(`sell count total: ${expectedSellCountTotal}`, () => {
     expect(results?.sellCountTotal).toBe(expectedSellCountTotal)
   })
 
-  test(`last price  ${lastPriceRecorded}`, () => {
+  test(`last price: ${lastPriceRecorded}`, () => {
     expect(results?.lastPrice).toBe(lastPriceRecorded)
   })
 
-  test(`lowest price recorded  ${lowestPriceRecorded}`, () => {
+  test(`lowest price recorded: ${lowestPriceRecorded}`, () => {
     expect(results?.lowestPriceRecorded).toBe(lowestPriceRecorded)
   })
 
-  test(`highest price recorded  ${highestPriceRecorded}`, () => {
+  test(`highest price recorded: ${highestPriceRecorded}`, () => {
     expect(results?.highestPriceRecorded).toBe(highestPriceRecorded)
   })
 })
