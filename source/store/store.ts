@@ -282,10 +282,11 @@ class Store {
           let hands: BotHand[] = this.buildHands(configStatic)
 
           const quoteDecimals: number = countDecimals(symbolData.quoteIncrement)
-          const quoteStartAmountPerHand = trimDecimalsToFixed(
-            this.calculateQuoteStartAmountPerHand(hands, configStatic),
-            quoteDecimals
-          )
+          const quoteStartAmountPerHand: string | number | void =
+            trimDecimalsToFixed(
+              this.calculateQuoteStartAmountPerHand(hands, configStatic),
+              quoteDecimals
+            )
 
           if (
             typeof quoteStartAmountPerHand !== 'string' ||
@@ -297,10 +298,11 @@ class Store {
           }
 
           const baseDecimals: number = countDecimals(symbolData.baseIncrement)
-          const baseStartAmountPerHand = trimDecimalsToFixed(
-            this.calculateBaseStartAmountPerHand(hands, configStatic),
-            baseDecimals
-          )
+          const baseStartAmountPerHand: string | number | void =
+            trimDecimalsToFixed(
+              this.calculateBaseStartAmountPerHand(hands, configStatic),
+              baseDecimals
+            )
 
           if (
             typeof baseStartAmountPerHand !== 'string' ||
