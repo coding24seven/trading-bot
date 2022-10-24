@@ -13,7 +13,7 @@ import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Trader {
   symbol: string
-  tradeFee: number /* used across the project in fake trades only */
+  tradeFee: string /* used in this file in fake trades only */
   accountConfig: AccountConfig
   baseIncrement: string /* used in this file in fake trades only */
   quoteIncrement: string /* used in this file in fake trades only */
@@ -21,7 +21,7 @@ export default class Trader {
   constructor(
     accountId: number,
     symbol: string,
-    tradeFee: number,
+    tradeFee: string,
     baseIncrement: string,
     quoteIncrement: string
   ) {
@@ -90,7 +90,7 @@ export default class Trader {
   tradeFake(
     isBuy: boolean,
     amountToSpend: string,
-    lastPrice: number
+    lastPrice: string
   ): string | undefined {
     if (isBuy) {
       const decimalsToRetain = countDecimals(this.baseIncrement)

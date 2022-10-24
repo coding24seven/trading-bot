@@ -30,7 +30,7 @@ function collect() {
 
   PriceReader.startOneSymbolLivePriceStream(
     symbol,
-    async (lastPrice: number) => {
+    async (lastPrice: string) => {
       try {
         await fs.promises.appendFile(
           outputFilePath,

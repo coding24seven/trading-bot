@@ -36,26 +36,26 @@ const botIndex: number = 0
 const botAccountIndex: number = 0
 const baseDecimals: number = 8
 const quoteDecimals: number = 6
-const tradeFee: number = 0.001
+const tradeFee: string = '0.001'
 const baseMinimumTradeSize: string = '0.00001'
 const quoteMinimumTradeSize: string = '0.01'
 const baseIncrement: string = '0.00000001'
 const quoteIncrement: string = '0.000001'
-const quotePerHand: number = 10
-const tolerancePercent: number = 0.05
-const lowestPriceRecorded: number = 19800
-const highestPriceRecorded: number = 30700
-const lastPriceRecorded: number = 30700
+const quotePerHand: number = 1
+const tolerancePercent: number = 0.07
+const lowestPriceRecorded: number = 19300
+const highestPriceRecorded: number = 33000
+const lastPriceRecorded: number = 31030
 /* end of hard-coded for the time being*/
 
 const handsExpected: BotHand[] = [
   {
     id: 0,
-    buyBelow: 20000,
-    sellAbove: 21500,
+    buyBelow: '20000',
+    sellAbove: '21000',
     base: '0',
     quote: trimDecimalsToFixed(
-      getQuoteAfterBuySellDifference([[19800, 21780]], tradeFee, quotePerHand),
+      getQuoteAfterBuySellDifference([[19999, 21001]], tradeFee, quotePerHand),
       quoteDecimals
     ) as string,
     buyCount: 1,
@@ -64,24 +64,31 @@ const handsExpected: BotHand[] = [
   },
   {
     id: 1,
-    buyBelow: 21500,
-    sellAbove: 23000,
+    buyBelow: '21000',
+    sellAbove: '22050',
     base: '0',
     quote: trimDecimalsToFixed(
-      getQuoteAfterBuySellDifference([[21000, 23100]], tradeFee, quotePerHand),
+      getQuoteAfterBuySellDifference(
+        [
+          [20999, 22051],
+          [20900, 22100],
+        ],
+        tradeFee,
+        quotePerHand
+      ),
       quoteDecimals
     ) as string,
-    buyCount: 1,
-    sellCount: 1,
+    buyCount: 2,
+    sellCount: 2,
     tradeIsPending: false,
   },
   {
     id: 2,
-    buyBelow: 23000,
-    sellAbove: 24500,
+    buyBelow: '22050',
+    sellAbove: '23152.5',
     base: '0',
     quote: trimDecimalsToFixed(
-      getQuoteAfterBuySellDifference([[21000, 24600]], tradeFee, quotePerHand),
+      getQuoteAfterBuySellDifference([[22002, 23200]], tradeFee, quotePerHand),
       quoteDecimals
     ) as string,
     buyCount: 1,
@@ -90,14 +97,14 @@ const handsExpected: BotHand[] = [
   },
   {
     id: 3,
-    buyBelow: 24500,
-    sellAbove: 26000,
+    buyBelow: '23152.5',
+    sellAbove: '24310.125',
     base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference(
         [
-          [21000, 26100],
-          [24300, 26100],
+          [23060, 24380],
+          [23122, 24320],
         ],
         tradeFee,
         quotePerHand
@@ -110,14 +117,27 @@ const handsExpected: BotHand[] = [
   },
   {
     id: 4,
-    buyBelow: 26000,
-    sellAbove: 27500,
+    buyBelow: '24310.125',
+    sellAbove: '25525.63125',
+    base: '0',
+    quote: trimDecimalsToFixed(
+      getQuoteAfterBuySellDifference([[24100, 25526]], tradeFee, quotePerHand),
+      quoteDecimals
+    ) as string,
+    buyCount: 1,
+    sellCount: 1,
+    tradeIsPending: false,
+  },
+  {
+    id: 5,
+    buyBelow: '25525.63125',
+    sellAbove: '26801.912812',
     base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference(
         [
-          [21000, 27800],
-          [25900, 27600],
+          [25000, 27000],
+          [25200, 26805],
         ],
         tradeFee,
         quotePerHand
@@ -129,16 +149,29 @@ const handsExpected: BotHand[] = [
     tradeIsPending: false,
   },
   {
-    id: 5,
-    buyBelow: 27500,
-    sellAbove: 29000,
+    id: 6,
+    buyBelow: '26801.912812',
+    sellAbove: '28142.008452',
+    base: '0',
+    quote: trimDecimalsToFixed(
+      getQuoteAfterBuySellDifference([[25000, 28150]], tradeFee, quotePerHand),
+      quoteDecimals
+    ) as string,
+    buyCount: 1,
+    sellCount: 1,
+    tradeIsPending: false,
+  },
+  {
+    id: 7,
+    buyBelow: '28142.008452',
+    sellAbove: '29549.108874',
     base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference(
         [
-          [21000, 29200],
-          [27400, 29100],
-          [27400, 29200],
+          [25000, 29600],
+          [28100, 29799],
+          [28140, 29588],
         ],
         tradeFee,
         quotePerHand
@@ -150,15 +183,15 @@ const handsExpected: BotHand[] = [
     tradeIsPending: false,
   },
   {
-    id: 6,
-    buyBelow: 29000,
-    sellAbove: 30500,
+    id: 8,
+    buyBelow: '29549.108874',
+    sellAbove: '31026.564317',
     base: '0',
     quote: trimDecimalsToFixed(
       getQuoteAfterBuySellDifference(
         [
-          [21000, 30600],
-          [28600, 30700],
+          [25000, 31040],
+          [29520, 31030],
         ],
         tradeFee,
         quotePerHand
@@ -203,27 +236,27 @@ describe('config: static values', () => {
     expect(configStatic.symbol).toBe(botConfigs[botIndex].symbol)
   })
 
-  test(`from: ${botConfigs[botIndex].from}`, () => {
+  test(`from: '${botConfigs[botIndex].from}'`, () => {
     expect(configStatic.from).toBe(botConfigs[botIndex].from)
   })
 
-  test(`to: ${botConfigs[botIndex].to}`, () => {
+  test(`to: '${botConfigs[botIndex].to}'`, () => {
     expect(configStatic.to).toBe(botConfigs[botIndex].to)
   })
 
-  test(`quote from: ${botConfigs[botIndex].quoteFrom}`, () => {
+  test(`quote from: '${botConfigs[botIndex].quoteFrom}'`, () => {
     expect(configStatic.quoteFrom).toBe(botConfigs[botIndex].quoteFrom)
   })
 
-  test(`quote to: ${botConfigs[botIndex].quoteTo}`, () => {
+  test(`quote to: '${botConfigs[botIndex].quoteTo}'`, () => {
     expect(configStatic.quoteTo).toBe(botConfigs[botIndex].quoteTo)
   })
 
-  test(`base from: ${botConfigs[botIndex].baseFrom}`, () => {
+  test(`base from: '${botConfigs[botIndex].baseFrom}'`, () => {
     expect(configStatic.baseFrom).toBe(botConfigs[botIndex].baseFrom)
   })
 
-  test(`base to: ${botConfigs[botIndex].baseTo}`, () => {
+  test(`base to: '${botConfigs[botIndex].baseTo}'`, () => {
     expect(configStatic.baseTo).toBe(botConfigs[botIndex].baseTo)
   })
 
@@ -248,10 +281,7 @@ describe('config: static values', () => {
 
 describe('config: dynamic values', () => {
   test(`hand count: ${configDynamic.handCount}`, () => {
-    const { handSpanPercent } = botConfigs[botIndex]
-    expect(configDynamic.handCount).toBe(
-      Math.ceil(Big(100).div(handSpanPercent).toNumber())
-    )
+    expect(configDynamic.handCount).toBe(handsExpected.length)
   })
 
   test(`base start amount per hand: '${configDynamic.baseStartAmountPerHand}'`, () => {
@@ -282,7 +312,7 @@ describe('config: dynamic values', () => {
     expect(configDynamic.quoteStartAmountPerHand).toBe(expected)
   })
 
-  test(`trade fee: ${configDynamic.tradeFee}`, () => {
+  test(`trade fee: '${configDynamic.tradeFee}'`, () => {
     expect(configDynamic.tradeFee).toBe(tradeFee)
   })
 

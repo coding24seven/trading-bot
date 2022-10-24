@@ -20,9 +20,9 @@ export default class Bot {
   hands: BotHand[] = []
   trader: Trader
   symbol: string // i.e. 'BTC-USDT'
-  lastPrice: number | null = null
-  lowestPriceRecorded: number = Infinity
-  highestPriceRecorded: number = -Infinity
+  lastPrice: string | null = null
+  lowestPriceRecorded: string = '99999999999999999999'
+  highestPriceRecorded: string = '0'
   count: number = 0
   tradeHistory: TradeHistoryItem[] = [] // not added to store atm
   dateMs: number = Date.now()
@@ -77,12 +77,12 @@ export default class Bot {
     this.processLastPrice(lastPrice)
   }
 
-  processLastPrice(lastPrice: number) {
+  processLastPrice(lastPrice: string) {
     const buyingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
         !hand.tradeIsPending &&
         this.isQuoteCurrencyEnoughToTrade(hand.quote) &&
-        lastPrice < hand.buyBelow
+        Big(lastPrice).lt(hand.buyBelow)
     )
 
     buyingHands.forEach(async (hand: BotHand) => {
@@ -118,7 +118,7 @@ export default class Bot {
       (hand: BotHand) =>
         !hand.tradeIsPending &&
         this.isBaseCurrencyEnoughToTrade(hand.base) &&
-        lastPrice > hand.sellAbove
+        Big(lastPrice).gt(hand.sellAbove)
     )
 
     sellingHands.forEach(async (hand: BotHand) => {
@@ -280,7 +280,7 @@ export default class Bot {
 
   getTradeHistoryItem(
     hand: BotHand,
-    lastPrice: number,
+    lastPrice: string,
     type: string
   ): TradeHistoryItem {
     return {
@@ -336,7 +336,7 @@ export default class Bot {
     return quoteValidForTrade
   }
 
-  updateAfterTrade(hand: BotHand, lastPrice: number, type: string) {
+  updateAfterTrade(hand: BotHand, lastPrice: string, type: string) {
     const tradeHistoryItem: TradeHistoryItem = this.getTradeHistoryItem(
       hand,
       lastPrice,
@@ -354,15 +354,13 @@ export default class Bot {
     store.setResults(this.itsAccountId, this.id, this.getResults())
   }
 
-  recordLowestAndHighestPrice(lastPrice: number) {
-    this.lowestPriceRecorded =
-      lastPrice < this.lowestPriceRecorded
-        ? lastPrice
-        : this.lowestPriceRecorded
+  recordLowestAndHighestPrice(lastPrice: string) {
+    this.lowestPriceRecorded = Big(lastPrice).lt(this.lowestPriceRecorded)
+      ? lastPrice
+      : this.lowestPriceRecorded
 
-    this.highestPriceRecorded =
-      lastPrice > this.highestPriceRecorded
-        ? lastPrice
-        : this.highestPriceRecorded
+    this.highestPriceRecorded = Big(lastPrice).gt(this.highestPriceRecorded)
+      ? lastPrice
+      : this.highestPriceRecorded
   }
 }

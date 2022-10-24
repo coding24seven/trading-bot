@@ -58,12 +58,12 @@ export type BotData = {
 
 export type BotConfigStatic = {
   symbol: string
-  from: number
-  to: number
-  quoteFrom: number
-  quoteTo: number
-  baseFrom: number
-  baseTo: number
+  from: string
+  to: string
+  quoteFrom: string
+  quoteTo: string
+  baseFrom: string
+  baseTo: string
   handSpanPercent: number
   quoteStartAmount: string
   baseStartAmount: string
@@ -73,7 +73,7 @@ export type BotConfigDynamic = {
   handCount: number
   quoteStartAmountPerHand: string
   baseStartAmountPerHand: string
-  tradeFee: number
+  tradeFee: string
   baseMinimumTradeSize: string
   quoteMinimumTradeSize: string
   baseIncrement: string
@@ -94,15 +94,15 @@ export type BotResults = {
   quoteTotalIncludingBaseSoldAsPlanned: string
   buyCountTotal: number
   sellCountTotal: number
-  lastPrice: number
-  lowestPriceRecorded: number
-  highestPriceRecorded: number
+  lastPrice: string
+  lowestPriceRecorded: string
+  highestPriceRecorded: string
 }
 
 export type BotHand = {
   id: number
-  buyBelow: number
-  sellAbove: number
+  buyBelow: string
+  sellAbove: string
   quote: string
   base: string
   buyCount: number
@@ -112,11 +112,11 @@ export type BotHand = {
 
 export type TradeHistoryItem = {
   id: number
-  buyBelow: number
-  sellAbove: number
+  buyBelow: string
+  sellAbove: string
   buyCount: number
   sellCount: number
-  lastPrice: number
+  lastPrice: string
   type: string
 }
 
@@ -127,7 +127,7 @@ export type PairTradeSizes = {
 
 export type PriceStreamCallbackParameters = {
   symbol: string
-  lastPrice: number
+  lastPrice: string
 }
 
 export type KucoinNodeApiTickerMessage = {

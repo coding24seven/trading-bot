@@ -279,7 +279,10 @@ class Store {
             throw new Error(Messages.TICKER_NOT_FOUND)
           }
 
-          let hands: BotHand[] = this.buildHands(configStatic)
+          let hands: BotHand[] = this.buildHands(
+            configStatic,
+            symbolData.quoteIncrement
+          )
 
           const quoteDecimals: number = countDecimals(symbolData.quoteIncrement)
           const quoteStartAmountPerHand: string | number | void =
@@ -325,7 +328,7 @@ class Store {
             handCount: hands.length,
             quoteStartAmountPerHand,
             baseStartAmountPerHand,
-            tradeFee: parseFloat(ticker.takerFeeRate),
+            tradeFee: ticker.takerFeeRate,
           }
 
           hands = this.topUpHandsWithBase(hands, configStatic, configDynamic)
@@ -390,7 +393,8 @@ class Store {
     botConfig: BotConfigStatic
   ): boolean {
     return (
-      hand.buyBelow >= botConfig.quoteFrom && hand.buyBelow <= botConfig.quoteTo
+      Big(hand.buyBelow).gte(botConfig.quoteFrom) &&
+      Big(hand.buyBelow).lte(botConfig.quoteTo)
     )
   }
 
@@ -433,7 +437,8 @@ class Store {
     botConfig: BotConfigStatic
   ): boolean {
     return (
-      hand.buyBelow >= botConfig.baseFrom && hand.buyBelow <= botConfig.baseTo
+      Big(hand.buyBelow).gte(botConfig.baseFrom) &&
+      Big(hand.buyBelow).lte(botConfig.baseTo)
     )
   }
 
@@ -453,31 +458,45 @@ class Store {
     return handCount >= 2
   }
 
-  // todo: fix calculation based on hand span
   isProfitGreaterThanTradeFee({
     handSpanPercent,
     tradeFee,
   }: BotConfigFull): boolean {
-    if (tradeFee === null) {
-      throw new Error(Messages.EXCHANGE_FEE_MUST_NOT_BE_NULL)
+    if (!tradeFee || typeof tradeFee !== 'string' || !isNumeric(tradeFee)) {
+      throw new Error(`${Messages.EXCHANGE_FEE_INVALID}: ${tradeFee}`)
     }
 
     const handSpanDecimal: Big = Big(handSpanPercent).div(100)
-    const buyAndSellFee: Big = Big(tradeFee).mul(2)
+    const tradeCount: number = 2
+    const buyAndSellFee: Big = Big(tradeFee).mul(tradeCount)
 
     return Big(buyAndSellFee).lt(handSpanDecimal)
   }
 
-  buildHands(configStatic: BotConfigStatic): BotHand[] {
+  buildHands(configStatic: BotConfigStatic, quoteIncrement: string): BotHand[] {
     const { from, to, handSpanPercent }: BotConfigStatic = configStatic
     const hands: BotHand[] = []
-    let buyBelow: number = from
+    let buyBelow: string = from
     let id: number = 0
     const handSpanPercentDecimal: Big = Big(handSpanPercent).div(100)
-    const increment: Big = Big(to).minus(from).mul(handSpanPercentDecimal)
 
     while (buyBelow < to) {
-      const sellAbove: number = Big(buyBelow).plus(increment).toNumber()
+      const increment: Big = Big(buyBelow).mul(handSpanPercentDecimal)
+      const trimmedIncrement: string | number | void = trimDecimalsToFixed(
+        increment.toFixed(),
+        countDecimals(quoteIncrement)
+      )
+
+      if (
+        typeof trimmedIncrement !== 'string' ||
+        !isNumeric(trimmedIncrement)
+      ) {
+        throw new Error(
+          `${Messages.HAND_INCREMENT_INVALID}: ${trimmedIncrement}`
+        )
+      }
+
+      const sellAbove: string = Big(buyBelow).plus(trimmedIncrement).toFixed()
 
       hands.push({
         id,

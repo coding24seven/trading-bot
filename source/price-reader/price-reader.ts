@@ -3,6 +3,7 @@
  * (kucoin ticker fires at 100ms interval)
  */
 
+import Big from 'big.js'
 import eventBus from '../events/event-bus.js'
 import { Exchange } from '../exchange/exchange.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'
@@ -24,7 +25,7 @@ export default class PriceReader {
 
   static startOneSymbolLivePriceStream(
     symbol: string,
-    callback: (lastPrice: number) => void
+    callback: (lastPrice: string) => void
   ) {
     Exchange.startWSTicker(symbol, (tickerMessageAsString: string) => {
       const intervalNotCompleted: boolean =
@@ -40,7 +41,7 @@ export default class PriceReader {
 
       if (!message.data?.price) return
 
-      const lastPrice: number = parseFloat(message.data.price)
+      const lastPrice: string = message.data.price
 
       if (PriceReader.priceIsValid(lastPrice)) {
         callback(lastPrice)
@@ -53,14 +54,12 @@ export default class PriceReader {
   ) {
     Exchange.startWSAllSymbolsTicker((tickerMessage: string) => {
       /* this callback runs once per each symbol message received */
-      const message: KucoinNodeApiTickerMessage = JSON.parse(
-        tickerMessage
-      )
+      const message: KucoinNodeApiTickerMessage = JSON.parse(tickerMessage)
 
       if (!message.data?.price) return
 
       const symbol: string = message.subject
-      const lastPrice: number = parseFloat(message.data.price)
+      const lastPrice: string = message.data.price
 
       if (PriceReader.priceIsValid(lastPrice)) {
         callback({ symbol, lastPrice })
@@ -79,7 +78,7 @@ export default class PriceReader {
       rowsPopulatedWithNumbers.forEach((row: number[], i: number) => {
         const price: number = row[column]
 
-        if (PriceReader.priceIsValid(price)) {
+        if (PriceReader.priceIsValid(String(price))) {
           eventBus.emit(eventBus.events!.LAST_PRICE, {
             lastPrice: price,
           })
@@ -90,14 +89,14 @@ export default class PriceReader {
     eventBus.emit(eventBus.events!.HISTORICAL_PRICE_READER_FINISHED)
   }
 
-  private static priceIsValid(price: number): boolean {
-    if (isNaN(price)) {
+  private static priceIsValid(price: string): boolean {
+    if (isNaN(parseFloat(price))) {
       console.log(`${price} ${Messages.IS_NOT_A_NUMBER}`)
       return false
     }
 
     const priceOutsideBounds: boolean =
-      price <= 0 || price > PriceReader.maxPossiblePrice
+      Big(price).lte(0) || Big(price).gt(PriceReader.maxPossiblePrice)
 
     return !priceOutsideBounds
   }

@@ -83,10 +83,9 @@ export function valuesAreWithinTolerance(
 /* unit test only: simulate buy and sell operations by adding difference between buy and sell prices to quote. return value has trade fee x2 deducted and is approximate */
 export function getQuoteAfterBuySellDifference(
   prices: number[][],
-  tradeFee: number | Big,
+  tradeFee: string,
   quote: number | Big
 ): string {
-  tradeFee = Big(tradeFee)
   quote = Big(quote)
   prices = Array.from(prices)
   const [[buyPrice, sellPrice]] = prices
