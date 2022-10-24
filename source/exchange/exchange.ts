@@ -15,6 +15,7 @@ import {
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import ExchangeCodes from '../types/exchangeCodes.js'
+import Messages from '../types/messages.js'
 
 export class Exchange {
   static publicConfig: KucoinAccountConfig = {
@@ -92,7 +93,7 @@ export class Exchange {
   static async tradeMarket(
     config: KucoinAccountConfig,
     { symbol, amount, isBuy }
-  ): Promise<KucoinOrderPlacedResponse | KucoinErrorResponse> {
+  ): Promise<KucoinOrderPlacedResponse | KucoinErrorResponse | null> {
     const side: string = isBuy ? 'buy' : 'sell'
     const baseOrQuote: string = isBuy ? 'funds' : 'size'
 
@@ -106,7 +107,16 @@ export class Exchange {
 
     kucoin.init(config)
 
-    return await kucoin.placeOrder(parameters)
+    let orderResponse: KucoinOrderPlacedResponse | KucoinErrorResponse | null =
+      null
+
+    try {
+      orderResponse = await kucoin.placeOrder(parameters)
+    } catch (error) {
+      console.error(`\n${Messages.EXCHANGE_COULD_NOT_PLACE_ORDER}:\n${error}\n`)
+    }
+
+    return orderResponse
   }
 
   static async getOrderById(
@@ -130,9 +140,15 @@ export class Exchange {
     return new Promise((resolve, reject) => {
       let timeout: NodeJS.Timeout
       const interval: NodeJS.Timer = setInterval(async () => {
-        response = await kucoin.listFills({
-          orderId,
-        })
+        try {
+          response = await kucoin.listFills({
+            orderId,
+          })
+        } catch (error) {
+          console.log(
+            `\n${Messages.ATTEMPTING_TO_GET_ORDER_DETAILS_BY_ID}:\n${error}\n`
+          )
+        }
 
         const expectedItemQuantity: number = 1
 

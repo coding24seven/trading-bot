@@ -36,7 +36,7 @@ export default class Trader {
     isBuy: boolean,
     amountToSpend: string
   ): Promise<string | undefined> {
-    const response: KucoinOrderPlacedResponse | KucoinErrorResponse =
+    const response: KucoinOrderPlacedResponse | KucoinErrorResponse | null =
       await Exchange.tradeMarket(this.accountConfig, {
         symbol: this.symbol,
         amount: amountToSpend,
@@ -44,19 +44,25 @@ export default class Trader {
       })
 
     if (
+      !response ||
       response.code !== ExchangeCodes.responseSuccess ||
       !(response as KucoinOrderPlacedResponse).data.orderId
     ) {
       return
     }
 
-    const filledOrderItem: KucoinGetFilledOrderByIdItem | null =
-      await Exchange.getFilledOrderById(
+    let filledOrderItem: KucoinGetFilledOrderByIdItem | null = null
+
+    try {
+      filledOrderItem = await Exchange.getFilledOrderById(
         this.accountConfig,
         (response as KucoinOrderPlacedResponse).data.orderId,
         5000,
         60000
       )
+    } catch (error) {
+      console.error(Messages.COULD_NOT_GET_ORDER_DETAILS_BY_ID)
+    }
 
     if (!filledOrderItem) {
       return
