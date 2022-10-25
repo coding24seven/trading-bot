@@ -18,6 +18,7 @@ enum Messages {
   HAND_SPAN_TOO_NARROW = 'too narrow to offset exchange fee. increase hand span.',
   BASE_START_AMOUNT_PER_HAND_INVALID = 'base start amount per hand is invalid',
   QUOTE_START_AMOUNT_PER_HAND_INVALID = 'quote start amount per hand is invalid',
+  IS_NOT_STRING = 'is not string',
   BASE_MUST_BE_STRING = 'base must be a string',
   QUOTE_MUST_BE_STRING = 'quote must be a string',
   OVERWRITE_EXISTING_DATABASE = 'Overwrite (possibly existing) database? (y/n): ',

@@ -212,13 +212,28 @@ export default class Bot {
       )
       .toFixed()
 
-    const baseConvertedToQuoteAtLastPrice: string = Big(baseTotal)
-      .mul(this.lastPrice)
-      .toFixed()
+    const baseConvertedToQuoteAtLastPrice: string | number | void =
+      trimDecimalsToFixed(
+        Big(baseTotal).mul(this.lastPrice).toFixed(),
+        countDecimals(this.data.configDynamic.quoteIncrement)
+      )
 
-    const pairTotalAsQuote: string = Big(quoteTotal)
-      .plus(baseConvertedToQuoteAtLastPrice)
-      .toFixed()
+    if (typeof baseConvertedToQuoteAtLastPrice !== 'string') {
+      console.error(
+        `${baseConvertedToQuoteAtLastPrice} ${Messages.IS_NOT_STRING}`
+      )
+      return
+    }
+
+    const pairTotalAsQuote: string | number | void = trimDecimalsToFixed(
+      Big(quoteTotal).plus(baseConvertedToQuoteAtLastPrice).toFixed(),
+      countDecimals(this.data.configDynamic.quoteIncrement)
+    )
+
+    if (typeof pairTotalAsQuote !== 'string') {
+      console.error(`${pairTotalAsQuote} ${Messages.IS_NOT_STRING}`)
+      return
+    }
 
     const pairTotalAsQuoteWhenAllSold: string =
       this.getPairTotalAsQuoteWhenAllSold()
