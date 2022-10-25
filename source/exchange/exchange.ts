@@ -113,7 +113,7 @@ export class Exchange {
     try {
       orderResponse = await kucoin.placeOrder(parameters)
     } catch (error) {
-      console.error(`\n${Messages.EXCHANGE_COULD_NOT_PLACE_ORDER}:\n${error}\n`)
+      console.error(`\n${Messages.COULD_NOT_PLACE_ORDER_ON_EXCHANGE}:\n${error}\n`)
     }
 
     return orderResponse

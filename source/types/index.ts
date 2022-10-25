@@ -40,6 +40,8 @@ export type AccountConfig = {
   environment: AccountEnvironmentType.sandbox | AccountEnvironmentType.live
   botConfigPath: string
   botConfigIndexes: number[]
+  stableCoinMinTradeSizeInQuote: string
+  stableCoins: string[]
 }
 
 export type KucoinAccountConfig = {

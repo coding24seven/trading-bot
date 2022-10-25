@@ -186,6 +186,10 @@ class Store {
       const botConfigIndexesString: string | undefined =
         env[`ACCOUNT_${i}_BOT_CONFIG_INDEXES`] // e.g. '1,3'
       let botConfigIndexes: number[] | undefined // e.g. [ 1, 3 ]
+      const stableCoinMinTradeSizeInQuote: string | undefined =
+        env[`ACCOUNT_${i}_API_STABLE_COIN_MINIMUM_TRADE_SIZE_IN_QUOTE`]
+      const stableCoins: string | undefined =
+        env[`ACCOUNT_${i}_API_STABLE_COINS`]
 
       if (botConfigIndexesString) {
         botConfigIndexes = botConfigIndexesString
@@ -202,7 +206,9 @@ class Store {
         (environment === AccountEnvironmentType.sandbox ||
           environment === AccountEnvironmentType.live) &&
         botConfigPath &&
-        botConfigIndexes
+        botConfigIndexes &&
+        stableCoinMinTradeSizeInQuote &&
+        stableCoins
       ) {
         accounts.push({
           apiKey,
@@ -211,6 +217,8 @@ class Store {
           environment,
           botConfigPath,
           botConfigIndexes,
+          stableCoinMinTradeSizeInQuote,
+          stableCoins: stableCoins.split(/[,\s]+/),
         })
       } else {
         throw new Error(Messages.ACCOUNT_ENVIRONMENT_CONFIG_DATA_INVALID)
@@ -264,17 +272,19 @@ class Store {
 
       selectedBotConfigs.forEach(
         (configStatic: BotConfigStatic, botIndex: number) => {
-          const symbolData = this.allSymbolsData!.find(
-            (data: KucoinSymbolData) => data.symbol === configStatic.symbol
-          )
-
-          const ticker = this.allTickers!.find(
-            (ticker: KucoinTicker) => ticker.symbol === configStatic.symbol
-          )
+          const symbolData: KucoinSymbolData | undefined =
+            this.allSymbolsData!.find(
+              (data: KucoinSymbolData) => data.symbol === configStatic.symbol
+            )
 
           if (!symbolData) {
             throw new Error(Messages.SYMBOL_DATA_NOT_FOUND)
           }
+
+          const ticker: KucoinTicker | undefined = this.allTickers!.find(
+            (ticker: KucoinTicker) => ticker.symbol === configStatic.symbol
+          )
+
           if (!ticker) {
             throw new Error(Messages.TICKER_NOT_FOUND)
           }
@@ -316,11 +326,21 @@ class Store {
             )
           }
 
+          /* kucoin api value 'quoteMinSize' is incorrect and must be overriden for certain coins (listed in .env):
+          https://www.kucoin.com/news/en-adjustment-of-minimum-spot-and-margin-trading-amounts */
+          const quoteMinimumTradeSizeOverride: boolean =
+            this.accountsEnvironment[accountIndex].stableCoins.includes(
+              symbolData.quoteCurrency
+            )
+
           const configDynamic: BotConfigDynamic = {
             id: botIndex,
             itsAccountId: accountIndex,
             baseMinimumTradeSize: symbolData.baseMinSize,
-            quoteMinimumTradeSize: symbolData.quoteMinSize,
+            quoteMinimumTradeSize: quoteMinimumTradeSizeOverride
+              ? this.accountsEnvironment[accountIndex]
+                  .stableCoinMinTradeSizeInQuote
+              : symbolData.quoteMinSize,
             baseIncrement: symbolData.baseIncrement,
             quoteIncrement: symbolData.quoteIncrement,
             baseDecimals,

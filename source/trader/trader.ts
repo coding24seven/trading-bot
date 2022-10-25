@@ -43,11 +43,18 @@ export default class Trader {
         isBuy,
       })
 
-    if (
-      !response ||
-      response.code !== ExchangeCodes.responseSuccess ||
-      !(response as KucoinOrderPlacedResponse).data.orderId
-    ) {
+    if (!response) {
+      console.error(Messages.COULD_NOT_PLACE_ORDER_ON_EXCHANGE)
+      return
+    }
+
+    if (response.code !== ExchangeCodes.responseSuccess) {
+      console.log(response)
+      return
+    }
+
+    if (!(response as KucoinOrderPlacedResponse).data.orderId) {
+      console.log(Messages.ORDER_ID_MISSING_AFTER_ORDER_PLACED)
       return
     }
 
