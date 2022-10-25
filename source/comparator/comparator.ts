@@ -24,7 +24,7 @@ export default class Comparator {
   static generateBotConfigs(symbol: string): BotConfigStatic[] {
     const handSpanPercentMin: number = 0.3
     const handSpanPercentStep: number = 0.3
-    const handSpanPercentMax: number = 17
+    const handSpanPercentMax: number = 2
     const arr: BotConfigStatic[] = []
 
     for (
@@ -54,8 +54,8 @@ export default class Comparator {
   static sortConfigsByProfit(): BotData[] {
     return Comparator.botConfigsWithResults.sort(
       (previousItem: BotData, currentItem: BotData) =>
-        Big(previousItem.results!.quoteTotalIncludingBaseSoldAsPlanned)
-          .minus(currentItem.results!.quoteTotalIncludingBaseSoldAsPlanned)
+        Big(previousItem.results!.pairTotalAsQuoteWhenAllSold)
+          .minus(currentItem.results!.pairTotalAsQuoteWhenAllSold)
           .toNumber()
       // previousItem.results.sellCountTotal - currentItem.results.sellCountTotal
       // previousItem.config.handCount - currentItem.config.handCount

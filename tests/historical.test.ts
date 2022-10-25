@@ -212,14 +212,14 @@ const expectedQuoteTotal: string = handsExpected
   .reduce((acc: Big, { quote }: BotHand) => acc.plus(quote), Big(0))
   .toFixed()
 
-const expectedQuoteTotalIncludingBaseSoldAsPlanned: string =
+const expectedPairTotalAsQuoteWhenAllSold: string =
   expectedQuoteTotal /* while all already sold as planned (base === 0) */
 
 const expectedBaseAtLastPriceToQuoteTotal: string = Big(expectedBaseTotal)
   .mul(lastPriceRecorded)
   .toFixed()
 
-const expectedPairTotal: string = Big(expectedQuoteTotal)
+const expectedPairTotalAsQuote: string = Big(expectedQuoteTotal)
   .plus(expectedBaseAtLastPriceToQuoteTotal)
   .toFixed()
 
@@ -442,10 +442,10 @@ describe('results', () => {
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`baseAtLastPriceToQuoteTotal: ~ '${expectedBaseAtLastPriceToQuoteTotal}'`, () => {
+  test(`base converted to quote at last price: ~ '${expectedBaseAtLastPriceToQuoteTotal}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [
-        results.baseAtLastPriceToQuoteTotal,
+        results.baseConvertedToQuoteAtLastPrice,
         expectedBaseAtLastPriceToQuoteTotal,
       ],
       tolerancePercent
@@ -453,19 +453,19 @@ describe('results', () => {
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`pair total: ~ '${expectedPairTotal}'`, () => {
+  test(`pair total as quote: ~ '${expectedPairTotalAsQuote}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [results.pairTotal, expectedPairTotal],
+      [results.pairTotalAsQuote, expectedPairTotalAsQuote],
       tolerancePercent
     )
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`quoteTotalIncludingBaseSoldAsPlanned: ~ '${expectedQuoteTotalIncludingBaseSoldAsPlanned}'`, () => {
+  test(`pair total as quote when all sold: ~ '${expectedPairTotalAsQuoteWhenAllSold}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
       [
-        results.quoteTotalIncludingBaseSoldAsPlanned,
-        expectedQuoteTotalIncludingBaseSoldAsPlanned,
+        results.pairTotalAsQuoteWhenAllSold,
+        expectedPairTotalAsQuoteWhenAllSold,
       ],
       tolerancePercent
     )

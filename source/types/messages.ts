@@ -7,7 +7,7 @@ enum Messages {
   FILE_PATHS_INVALID = 'file paths are invalid',
   COMMAND_LINE_COLUMN_NUMBER_ARGUMENT_MISSING = '--column <column number> argument missing',
   COLUMN_NUMBER_INVALID = 'column number is invalid',
-  COLUMN_NUMBER_SET_TO_DEFAULT = '*** column containing prices in file set to defult (first) because --column argument is missing ***',
+  COLUMN_NUMBER_SET_TO_DEFAULT = '*** column containing prices in file set to default (first) because --column argument is missing ***',
   NO_BOT_DATA_AVAILABLE = 'no bot data available',
   BOT_DATA_INVALID = 'bot data invalid',
   APP_ENVIRONMENT_CONFIG_DATA_INVALID = 'invalid config data in app environment',

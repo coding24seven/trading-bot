@@ -89,11 +89,12 @@ export default class Bot {
       const quoteToSpend: string | undefined = this.makeQuoteValidForTrade(
         hand.quote
       )
-      let baseReceived: string | undefined
 
       if (!quoteToSpend) {
         return
       }
+
+      let baseReceived: string | undefined
 
       if (store.isHistoricalPrice) {
         baseReceived = this.trader.tradeFake(true, quoteToSpend, lastPrice)
@@ -125,11 +126,12 @@ export default class Bot {
       const baseToSpend: string | undefined = this.makeBaseValidForTrade(
         hand.base
       )
-      let quoteReceived: string | undefined
 
       if (!baseToSpend) {
         return
       }
+
+      let quoteReceived: string | undefined
 
       if (store.isHistoricalPrice) {
         quoteReceived = this.trader.tradeFake(false, baseToSpend, lastPrice)
@@ -204,16 +206,16 @@ export default class Bot {
       )
       .toFixed()
 
-    const baseAtLastPriceToQuoteTotal: string = Big(baseTotal)
+    const baseConvertedToQuoteAtLastPrice: string = Big(baseTotal)
       .mul(this.lastPrice)
       .toFixed()
 
-    const pairTotal: string = Big(quoteTotal)
-      .plus(baseAtLastPriceToQuoteTotal)
+    const pairTotalAsQuote: string = Big(quoteTotal)
+      .plus(baseConvertedToQuoteAtLastPrice)
       .toFixed()
 
-    const quoteTotalIncludingBaseSoldAsPlanned: string =
-      this.getQuoteTotalIncludingBaseSoldAsPlanned()
+    const pairTotalAsQuoteWhenAllSold: string =
+      this.getPairTotalAsQuoteWhenAllSold()
 
     const buyCountTotal: number = this.hands
       .reduce(
@@ -233,47 +235,47 @@ export default class Bot {
 
     return {
       quoteTotal,
+      baseConvertedToQuoteAtLastPrice,
+      pairTotalAsQuote,
       baseTotal,
-      baseAtLastPriceToQuoteTotal,
-      pairTotal,
-      quoteTotalIncludingBaseSoldAsPlanned,
+      pairTotalAsQuoteWhenAllSold,
       buyCountTotal,
       sellCountTotal,
-      lastPrice: this.lastPrice,
       lowestPriceRecorded: this.lowestPriceRecorded,
       highestPriceRecorded: this.highestPriceRecorded,
+      lastPrice: this.lastPrice,
     }
   }
 
-  getQuoteTotalIncludingBaseSoldAsPlanned(): string {
-    const arr: BotHand[] = JSON.parse(JSON.stringify(this.hands))
+  getPairTotalAsQuoteWhenAllSold(): string {
+    const botHands: BotHand[] = JSON.parse(JSON.stringify(this.hands))
 
-    arr.forEach((hand: BotHand) => {
+    botHands.forEach((hand: BotHand) => {
       if (Big(hand.base).gt(0)) {
         const valueToAdd = Big(hand.base).mul(hand.sellAbove)
 
-        const quoteTotalIncludingBaseSoldAsPlanned = trimDecimalsToFixed(
+        const pairTotalAsQuoteWhenAllSold = trimDecimalsToFixed(
           valueToAdd.plus(hand.quote).toFixed(),
           this.data.configDynamic.quoteDecimals!
         )
 
-        if (typeof quoteTotalIncludingBaseSoldAsPlanned !== 'string') {
+        if (typeof pairTotalAsQuoteWhenAllSold !== 'string') {
           console.log(
-            `${Messages.BASE_MUST_BE_STRING}: ${quoteTotalIncludingBaseSoldAsPlanned}`
+            `${Messages.BASE_MUST_BE_STRING}: ${pairTotalAsQuoteWhenAllSold}`
           )
 
           return
         }
 
-        hand.quote = quoteTotalIncludingBaseSoldAsPlanned
+        hand.quote = pairTotalAsQuoteWhenAllSold
         hand.base = '0'
       }
     })
 
-    return arr
+    return botHands
       .reduce(
         (accumulator: Big, item: BotHand) => Big(accumulator).plus(item.quote),
-        Big(0)
+        Big('0')
       )
       .toFixed()
   }

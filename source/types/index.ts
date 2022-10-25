@@ -89,9 +89,9 @@ export type BotConfigFull = BotConfigStatic & BotConfigDynamic
 export type BotResults = {
   quoteTotal: string
   baseTotal: string
-  baseAtLastPriceToQuoteTotal: string
-  pairTotal: string
-  quoteTotalIncludingBaseSoldAsPlanned: string
+  baseConvertedToQuoteAtLastPrice: string
+  pairTotalAsQuote: string
+  pairTotalAsQuoteWhenAllSold: string
   buyCountTotal: number
   sellCountTotal: number
   lastPrice: string
