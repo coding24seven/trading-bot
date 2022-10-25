@@ -328,16 +328,15 @@ class Store {
 
           /* kucoin api value 'quoteMinSize' is incorrect and must be overriden for certain coins (listed in .env):
           https://www.kucoin.com/news/en-adjustment-of-minimum-spot-and-margin-trading-amounts */
-          const quoteMinimumTradeSizeOverride: boolean =
-            this.accountsEnvironment[accountIndex].stableCoins.includes(
-              symbolData.quoteCurrency
-            )
+          const quoteIsStableCoin: boolean = this.accountsEnvironment[
+            accountIndex
+          ].stableCoins.includes(symbolData.quoteCurrency)
 
           const configDynamic: BotConfigDynamic = {
             id: botIndex,
             itsAccountId: accountIndex,
             baseMinimumTradeSize: symbolData.baseMinSize,
-            quoteMinimumTradeSize: quoteMinimumTradeSizeOverride
+            quoteMinimumTradeSize: quoteIsStableCoin
               ? this.accountsEnvironment[accountIndex]
                   .stableCoinMinTradeSizeInQuote
               : symbolData.quoteMinSize,
@@ -345,6 +344,7 @@ class Store {
             quoteIncrement: symbolData.quoteIncrement,
             baseDecimals,
             quoteDecimals,
+            quoteIsStableCoin,
             handCount: hands.length,
             quoteStartAmountPerHand,
             baseStartAmountPerHand,

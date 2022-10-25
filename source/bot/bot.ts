@@ -118,7 +118,7 @@ export default class Bot {
     const sellingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
         !hand.tradeIsPending &&
-        this.isBaseCurrencyEnoughToTrade(hand.base) &&
+        this.isBaseCurrencyEnoughToTrade(hand.base, lastPrice) &&
         Big(lastPrice).gt(hand.sellAbove)
     )
 
@@ -153,9 +153,15 @@ export default class Bot {
     })
   }
 
-  isBaseCurrencyEnoughToTrade(base: string): boolean {
+  isBaseCurrencyEnoughToTrade(base: string, lastPrice: string): boolean {
     if (!this.data.configDynamic.baseMinimumTradeSize) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
+    }
+
+    if (this.data.configDynamic.quoteIsStableCoin) {
+      const baseInQuote: Big = Big(base).mul(lastPrice)
+
+      return Big(baseInQuote).gte(this.data.configDynamic.quoteMinimumTradeSize)
     }
 
     return Big(base).gte(this.data.configDynamic.baseMinimumTradeSize)

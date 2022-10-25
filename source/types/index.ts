@@ -82,6 +82,7 @@ export type BotConfigDynamic = {
   quoteIncrement: string
   baseDecimals: number
   quoteDecimals: number
+  quoteIsStableCoin: boolean
   id: number
   itsAccountId: number
 }
