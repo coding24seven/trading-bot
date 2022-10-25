@@ -21,6 +21,8 @@ enum Messages {
   BASE_MUST_BE_STRING = 'base must be a string',
   QUOTE_MUST_BE_STRING = 'quote must be a string',
   OVERWRITE_EXISTING_DATABASE = 'Overwrite (possibly existing) database? (y/n): ',
+  DELETE_EXISTING_DATABASE = 'Delete (possibly existing) database? (y/n): ',
+  DATABASE_DELETION_CANCELLED = 'Database deletion has been cancelled',
   DATABASE_SERVER_HAS_NOT_RESPONDED = 'database server has not responded',
   DATABASE_REQUEST_GENERIC_PROBLEM = 'problem with request to database',
   DATABASE_READ_SERVER_CONNECTION_FAIL = 'database read: server-connection fail',

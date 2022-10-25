@@ -566,21 +566,43 @@ class Store {
     }
   }
 
-  async deleteDatabase(): Promise<AxiosResponse | undefined> {
-    this.appEnvironment = this.readAppEnvironment()
-
-    try {
-      return await axios.delete(this.appEnvironment.databasePath, {
-        headers: {
-          password: process.env.DATABASE_PASSWORD,
-        },
+  async deleteDatabase(): Promise<AxiosResponse | undefined | void> {
+    return new Promise((resolve, reject) => {
+      const readline: Interface = readlineImported.createInterface({
+        input: process.stdin,
+        output: process.stdout,
       })
-    } catch (error) {
-      return this.handleDatabaseError(error)
-    }
+      readline.question(
+        Messages.DELETE_EXISTING_DATABASE,
+        async (answer: string) => {
+          readline.close()
+
+          if (answer === 'y' || answer === 'yes') {
+            try {
+              this.appEnvironment = this.readAppEnvironment()
+              const response: AxiosResponse = await axios.delete(
+                this.appEnvironment.databasePath,
+                {
+                  headers: {
+                    password: process.env.DATABASE_PASSWORD,
+                  },
+                }
+              )
+
+              resolve(response)
+            } catch (error) {
+              reject(this.handleDatabaseError(error))
+            }
+          } else {
+            console.log(Messages.DATABASE_DELETION_CANCELLED)
+            resolve()
+          }
+        }
+      )
+    })
   }
 
-  handleDatabaseError(error): AxiosResponse | undefined {
+  handleDatabaseError(error: any): AxiosResponse | undefined {
     if (error.response) {
       return error.response
     } else if (error.request) {
