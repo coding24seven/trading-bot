@@ -52,7 +52,7 @@ class Store {
     isHistoricalPrice = false,
     createsStoreAndExits = false,
     botConfigFromGenerator,
-  }: StoreSetupParameters): Promise<void> {
+  }: StoreSetupParameters = {}): Promise<void> {
     this.isHistoricalPrice = isHistoricalPrice
     this.botConfigFromGenerator = botConfigFromGenerator
     this.appEnvironment = this.readAppEnvironment()
@@ -455,7 +455,9 @@ class Store {
   }
 
   isHandCountValid({ handCount }): boolean {
-    return handCount >= 2
+    const minHandCount: number = 2
+
+    return handCount >= minHandCount
   }
 
   isProfitGreaterThanTradeFee({
@@ -479,8 +481,7 @@ class Store {
     let buyBelow: string = from
     let id: number = 0
     const handSpanPercentDecimal: Big = Big(handSpanPercent).div(100)
-
-    while (buyBelow < to) {
+    while (Big(buyBelow).lt(to)) {
       const increment: Big = Big(buyBelow).mul(handSpanPercentDecimal)
       const trimmedIncrement: string | number | void = trimDecimalsToFixed(
         increment.toFixed(),
@@ -566,8 +567,10 @@ class Store {
   }
 
   async deleteDatabase(): Promise<AxiosResponse | undefined> {
+    this.appEnvironment = this.readAppEnvironment()
+
     try {
-      return await axios.delete(this.appEnvironment!.databasePath, {
+      return await axios.delete(this.appEnvironment.databasePath, {
         headers: {
           password: process.env.DATABASE_PASSWORD,
         },
