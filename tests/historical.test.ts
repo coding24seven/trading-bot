@@ -480,7 +480,7 @@ describe('results', () => {
     expect(results?.sellCountTotal).toBe(expectedSellCountTotal)
   })
 
-  test(`last price: ${lastPriceRecorded}`, () => {
+  test(`last price recorded: ${lastPriceRecorded}`, () => {
     expect(results?.lastPrice).toBe(lastPriceRecorded)
   })
 
