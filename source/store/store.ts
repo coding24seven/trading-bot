@@ -25,7 +25,7 @@ import { isNumeric } from '../utils/index.js'
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
   allTickers: KucoinTicker[] | undefined
-  appEnvironment: AppEnvironment | null = null
+  appEnvironment: AppEnvironment
   accountsEnvironment: AccountConfig[] = []
   accounts: AccountData[] = []
   botConfigsStaticPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
@@ -254,7 +254,7 @@ class Store {
 
       const selectedBotConfigs: BotConfigStatic[] = this.botConfigFromGenerator
         ? [this.botConfigFromGenerator]
-        : this.accounts[accountIndex].config!.botConfigIndexes.map(
+        : this.accounts[accountIndex].config.botConfigIndexes.map(
             (botIndex: number) =>
               this.botConfigsStaticPerAccount[accountIndex][botIndex]
           )
@@ -521,7 +521,7 @@ class Store {
       return
     }
 
-    this.accounts[accountId].bots![botId].results = results
+    this.accounts[accountId].bots[botId].results = results
 
     if (!this.isHistoricalPrice) {
       this.writeDatabase()
@@ -529,16 +529,16 @@ class Store {
   }
 
   getResults(accountId, botId): BotResults | undefined {
-    return this.accounts[accountId].bots![botId].results
+    return this.accounts[accountId].bots[botId].results
   }
 
   getAccountConfig(accountId): AccountConfig {
-    return this.accounts[accountId].config!
+    return this.accounts[accountId].config
   }
 
   async readDatabase(): Promise<AxiosResponse | undefined> {
     try {
-      return await axios.get(this.appEnvironment!.databasePath)
+      return await axios.get(this.appEnvironment.databasePath)
     } catch (error) {
       return this.handleDatabaseError(error)
     }
@@ -547,7 +547,7 @@ class Store {
   async writeDatabase(): Promise<AxiosResponse | undefined> {
     try {
       return await axios.post(
-        this.appEnvironment!.databasePath,
+        this.appEnvironment.databasePath,
         this.accountsWithoutConfig,
         {
           headers: {
