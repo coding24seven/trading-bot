@@ -1,3 +1,4 @@
+import Currency from '../currency/currency'
 import { AccountEnvironmentType } from './account-environment-type'
 
 export type EnvironmentTypes = 'development' | 'production' | 'test'
@@ -74,15 +75,11 @@ export type BotConfigDynamic = {
   quoteStartAmountPerHand: string
   baseStartAmountPerHand: string
   tradeFee: string
-  baseMinimumTradeSize: string
-  quoteMinimumTradeSize: string
   minFunds: string
-  baseIncrement: string
-  quoteIncrement: string
-  baseDecimals: number
-  quoteDecimals: number
   id: number
   itsAccountId: number
+  quoteCurrency: Currency
+  baseCurrency: Currency
 }
 
 export type BotConfigFull = BotConfigStatic & BotConfigDynamic

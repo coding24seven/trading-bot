@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import Big from 'big.js'
 import readlineImported, { Interface } from 'readline'
+import Currency from '../currency/currency.js'
 import { Exchange } from '../exchange/exchange.js'
 import {
   AccountConfig,
@@ -19,11 +20,7 @@ import {
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import Messages from '../types/messages.js'
-import {
-  countDecimals,
-  isNumeric,
-  trimDecimalsToFixed,
-} from '../utils/index.js'
+import { isNumeric } from '../utils/index.js'
 
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
@@ -281,16 +278,14 @@ class Store {
             throw new Error(Messages.TICKER_NOT_FOUND)
           }
 
-          let hands: BotHand[] = this.buildHands(
-            configStatic,
-            symbolData.quoteIncrement
-          )
+          const [baseCurrency, quoteCurrency]: Currency[] =
+            Currency.fromSymbolData(symbolData)
 
-          const quoteDecimals: number = countDecimals(symbolData.quoteIncrement)
-          const quoteStartAmountPerHand: string | number | void =
-            trimDecimalsToFixed(
-              this.calculateQuoteStartAmountPerHand(hands, configStatic),
-              quoteDecimals
+          let hands: BotHand[] = this.buildHands(configStatic, quoteCurrency)
+
+          const quoteStartAmountPerHand: string | undefined =
+            quoteCurrency.normalize(
+              this.calculateQuoteStartAmountPerHand(hands, configStatic)
             )
 
           if (
@@ -302,11 +297,9 @@ class Store {
             )
           }
 
-          const baseDecimals: number = countDecimals(symbolData.baseIncrement)
-          const baseStartAmountPerHand: string | number | void =
-            trimDecimalsToFixed(
-              this.calculateBaseStartAmountPerHand(hands, configStatic),
-              baseDecimals
+          const baseStartAmountPerHand: string | undefined =
+            baseCurrency.normalize(
+              this.calculateBaseStartAmountPerHand(hands, configStatic)
             )
 
           if (
@@ -321,17 +314,13 @@ class Store {
           const configDynamic: BotConfigDynamic = {
             id: botIndex,
             itsAccountId: accountIndex,
-            baseMinimumTradeSize: symbolData.baseMinSize,
-            quoteMinimumTradeSize: symbolData.quoteMinSize,
             minFunds: symbolData.minFunds,
-            baseIncrement: symbolData.baseIncrement,
-            quoteIncrement: symbolData.quoteIncrement,
-            baseDecimals,
-            quoteDecimals,
             handCount: hands.length,
             quoteStartAmountPerHand,
             baseStartAmountPerHand,
             tradeFee: ticker.takerFeeRate,
+            baseCurrency,
+            quoteCurrency,
           }
 
           hands = this.topUpHandsWithBase(hands, configStatic, configDynamic)
@@ -478,7 +467,10 @@ class Store {
     return Big(buyAndSellFee).lt(handSpanDecimal)
   }
 
-  buildHands(configStatic: BotConfigStatic, quoteIncrement: string): BotHand[] {
+  buildHands(
+    configStatic: BotConfigStatic,
+    quoteCurrency: Currency
+  ): BotHand[] {
     const { from, to, handSpanPercent }: BotConfigStatic = configStatic
     const hands: BotHand[] = []
     let buyBelow: string = from
@@ -486,21 +478,21 @@ class Store {
     const handSpanPercentDecimal: Big = Big(handSpanPercent).div(100)
     while (Big(buyBelow).lt(to)) {
       const increment: Big = Big(buyBelow).mul(handSpanPercentDecimal)
-      const trimmedIncrement: string | number | void = trimDecimalsToFixed(
-        increment.toFixed(),
-        countDecimals(quoteIncrement)
-      )
+      const normalizedIncrement: string | undefined =
+        quoteCurrency.normalize(increment)
 
       if (
-        typeof trimmedIncrement !== 'string' ||
-        !isNumeric(trimmedIncrement)
+        typeof normalizedIncrement !== 'string' ||
+        !isNumeric(normalizedIncrement)
       ) {
         throw new Error(
-          `${Messages.HAND_INCREMENT_INVALID}: ${trimmedIncrement}`
+          `${Messages.HAND_INCREMENT_INVALID}: ${normalizedIncrement}`
         )
       }
 
-      const sellAbove: string = Big(buyBelow).plus(trimmedIncrement).toFixed()
+      const sellAbove: string = Big(buyBelow)
+        .plus(normalizedIncrement)
+        .toFixed()
 
       hands.push({
         id,

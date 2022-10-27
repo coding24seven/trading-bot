@@ -1,0 +1,80 @@
+import Big from 'big.js'
+import { KucoinSymbolData } from '../types'
+import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
+
+export default class Currency {
+  symbol: string
+  minSize: string
+  maxSize: string
+  increment: string
+  decimals: number
+
+  constructor({ symbol, minSize, maxSize, increment, decimals }) {
+    this.symbol = symbol
+    this.minSize = minSize
+    this.maxSize = maxSize
+    this.increment = increment
+    this.decimals = decimals
+  }
+
+  public static fromSymbolData(symbolData: KucoinSymbolData) {
+    const baseCurrency = Currency.baseCurrencyFromSymbolData(symbolData)
+    const quoteCurrency = Currency.quoteCurrencyFromSymbolData(symbolData)
+
+    return [baseCurrency, quoteCurrency]
+  }
+
+  private static baseCurrencyFromSymbolData(symbolData: KucoinSymbolData) {
+    const {
+      baseCurrency,
+      baseMinSize,
+      baseMaxSize,
+      baseIncrement,
+    }: KucoinSymbolData = symbolData
+    return new Currency({
+      symbol: baseCurrency,
+      minSize: baseMinSize,
+      maxSize: baseMaxSize,
+      increment: baseIncrement,
+      decimals: countDecimals(baseIncrement),
+    })
+  }
+
+  private static quoteCurrencyFromSymbolData(symbolData: KucoinSymbolData) {
+    const {
+      quoteCurrency,
+      quoteMinSize,
+      quoteMaxSize,
+      quoteIncrement,
+    }: KucoinSymbolData = symbolData
+    return new Currency({
+      symbol: quoteCurrency,
+      minSize: quoteMinSize,
+      maxSize: quoteMaxSize,
+      increment: quoteIncrement,
+      decimals: countDecimals(quoteIncrement),
+    })
+  }
+
+  normalize(value: string | Big): string | undefined {
+    if (
+      (typeof value !== 'string' && !(value instanceof Big)) ||
+      typeof value === 'number'
+    ) {
+      return
+    }
+
+    let valueAsString: string = value instanceof Big ? value.toFixed() : value
+
+    const normalized: string | number | void = trimDecimalsToFixed(
+      valueAsString,
+      this.decimals
+    )
+
+    if (typeof normalized !== 'string') {
+      return
+    }
+
+    return normalized
+  }
+}

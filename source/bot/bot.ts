@@ -1,4 +1,5 @@
 import Big from 'big.js'
+import Currency from '../currency/currency.js'
 import eventBus from '../events/event-bus.js'
 import store from '../store/store.js'
 import Trader from '../trader/trader.js'
@@ -11,13 +12,15 @@ import {
   TradeHistoryItem,
 } from '../types'
 import Messages from '../types/messages.js'
-import { countDecimals, getTime, trimDecimalsToFixed } from '../utils/index.js'
+import { getTime } from '../utils/index.js'
 
 export default class Bot {
   data: BotData
   id: number | null = null
   itsAccountId: number | null = null
   hands: BotHand[] = []
+  quoteCurrency: Currency
+  baseCurrency: Currency
   trader: Trader
   symbol: string // i.e. 'BTC-USDT'
   lastPrice: string | null = null
@@ -38,13 +41,10 @@ export default class Bot {
     this.itsAccountId = data.configDynamic.itsAccountId
     this.hands = data.hands
     this.symbol = data.configStatic.symbol
-    this.trader = new Trader(
-      data.configDynamic.itsAccountId!,
-      data.configStatic.symbol,
-      data.configDynamic.tradeFee!,
-      data.configDynamic.baseIncrement!,
-      data.configDynamic.quoteIncrement!
-    )
+    this.baseCurrency = new Currency(data.configDynamic.baseCurrency)
+    this.quoteCurrency = new Currency(data.configDynamic.quoteCurrency)
+    this.trader = new Trader(data.configStatic, data.configDynamic)
+
     eventBus.on(eventBus.events!.LAST_PRICE, this.onLastPrice.bind(this))
     eventBus.on(
       eventBus.events!.HISTORICAL_PRICE_READER_FINISHED,
@@ -208,11 +208,8 @@ export default class Bot {
       )
       .toFixed()
 
-    const baseConvertedToQuoteAtLastPrice: string | number | void =
-      trimDecimalsToFixed(
-        Big(baseTotal).mul(this.lastPrice).toFixed(),
-        countDecimals(this.data.configDynamic.quoteIncrement)
-      )
+    const baseConvertedToQuoteAtLastPrice: string | undefined =
+      this.quoteCurrency.normalize(Big(baseTotal).mul(this.lastPrice))
 
     if (typeof baseConvertedToQuoteAtLastPrice !== 'string') {
       console.error(
@@ -221,9 +218,8 @@ export default class Bot {
       return
     }
 
-    const pairTotalAsQuote: string | number | void = trimDecimalsToFixed(
-      Big(quoteTotal).plus(baseConvertedToQuoteAtLastPrice).toFixed(),
-      countDecimals(this.data.configDynamic.quoteIncrement)
+    const pairTotalAsQuote: string | undefined = this.quoteCurrency.normalize(
+      Big(quoteTotal).plus(baseConvertedToQuoteAtLastPrice)
     )
 
     if (typeof pairTotalAsQuote !== 'string') {
@@ -271,10 +267,8 @@ export default class Bot {
       if (Big(hand.base).gt(0)) {
         const valueToAdd = Big(hand.base).mul(hand.sellAbove)
 
-        const pairTotalAsQuoteWhenAllSold = trimDecimalsToFixed(
-          valueToAdd.plus(hand.quote).toFixed(),
-          this.data.configDynamic.quoteDecimals!
-        )
+        const pairTotalAsQuoteWhenAllSold: string | undefined =
+          this.quoteCurrency.normalize(valueToAdd.plus(hand.quote))
 
         if (typeof pairTotalAsQuoteWhenAllSold !== 'string') {
           console.log(
@@ -314,16 +308,14 @@ export default class Bot {
   }
 
   makeBaseValidForTrade(base: string): string | undefined {
-    const { baseIncrement }: BotConfigDynamic = this.data.configDynamic
+    const { increment }: Currency = this.baseCurrency
 
-    if (!baseIncrement) {
+    if (!increment) {
       throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)
     }
 
-    const baseValidForTrade = trimDecimalsToFixed(
-      base,
-      countDecimals(baseIncrement)
-    )
+    const baseValidForTrade: string | undefined =
+      this.baseCurrency.normalize(base)
 
     if (typeof baseValidForTrade !== 'string') {
       console.log(`${Messages.BASE_MUST_BE_STRING}: ${baseValidForTrade}`)
@@ -335,16 +327,14 @@ export default class Bot {
   }
 
   makeQuoteValidForTrade(quote: string): string | undefined {
-    const { quoteIncrement }: BotConfigDynamic = this.data.configDynamic
+    const { increment }: Currency = this.quoteCurrency
 
-    if (!quoteIncrement) {
+    if (!increment) {
       throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)
     }
 
-    const quoteValidForTrade = trimDecimalsToFixed(
-      quote,
-      countDecimals(quoteIncrement)
-    )
+    const quoteValidForTrade: string | undefined =
+      this.quoteCurrency.normalize(quote)
 
     if (typeof quoteValidForTrade !== 'string') {
       console.log(`${Messages.QUOTE_MUST_BE_STRING}: ${quoteValidForTrade}`)

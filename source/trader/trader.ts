@@ -1,35 +1,31 @@
 import Big from 'big.js'
+import Currency from '../currency/currency'
 import { Exchange } from '../exchange/exchange.js'
 import store from '../store/store.js'
 import {
   AccountConfig,
+  BotConfigDynamic,
+  BotConfigStatic,
   KucoinErrorResponse,
   KucoinGetFilledOrderByIdItem,
   KucoinOrderPlacedResponse,
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
 import Messages from '../types/messages.js'
-import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Trader {
   symbol: string
   tradeFee: string /* used in this file in fake trades only */
   accountConfig: AccountConfig
-  baseIncrement: string /* used in this file in fake trades only */
-  quoteIncrement: string /* used in this file in fake trades only */
+  baseCurrency: Currency
+  quoteCurrency: Currency
 
-  constructor(
-    accountId: number,
-    symbol: string,
-    tradeFee: string,
-    baseIncrement: string,
-    quoteIncrement: string
-  ) {
-    this.symbol = symbol
-    this.accountConfig = store.getAccountConfig(accountId)
-    this.tradeFee = tradeFee
-    this.baseIncrement = baseIncrement
-    this.quoteIncrement = quoteIncrement
+  constructor(configStatic: BotConfigStatic, configDynamic: BotConfigDynamic) {
+    this.symbol = configStatic.symbol
+    this.tradeFee = configDynamic.tradeFee
+    this.accountConfig = store.getAccountConfig(configDynamic.itsAccountId)
+    this.baseCurrency = new Currency(configDynamic.baseCurrency)
+    this.quoteCurrency = new Currency(configDynamic.quoteCurrency)
   }
 
   async trade(
@@ -100,22 +96,18 @@ export default class Trader {
     lastPrice: string
   ): string | undefined {
     if (isBuy) {
-      const decimalsToRetain = countDecimals(this.baseIncrement)
-
       const baseReceived: string = this.deductTradeFeeFake(
         Big(amountToSpend).div(lastPrice)
       ).toFixed()
 
-      const baseReceivedTrimmed = trimDecimalsToFixed(
-        baseReceived,
-        decimalsToRetain
-      )
+      const baseReceivedNormalized: string | undefined =
+        this.baseCurrency.normalize(baseReceived)
 
-      if (typeof baseReceivedTrimmed !== 'string') {
+      if (typeof baseReceivedNormalized !== 'string') {
         console.log(
           `${
             Messages.BASE_MUST_BE_STRING
-          }: ${baseReceivedTrimmed} in ${__filename.slice(
+          }: ${baseReceivedNormalized} in ${__filename.slice(
             __dirname.length + 1
           )}`
         )
@@ -123,24 +115,20 @@ export default class Trader {
         return
       }
 
-      return baseReceivedTrimmed
+      return baseReceivedNormalized
     } else {
-      const decimalsToRetain = countDecimals(this.quoteIncrement)
-
       const quoteReceived: Big = this.deductTradeFeeFake(
         Big(amountToSpend).mul(lastPrice)
       )
 
-      const quoteReceivedTrimmed = trimDecimalsToFixed(
-        quoteReceived.toFixed(),
-        decimalsToRetain
-      )
+      const quoteReceivedNormalized =
+        this.quoteCurrency.normalize(quoteReceived)
 
-      if (typeof quoteReceivedTrimmed !== 'string') {
+      if (typeof quoteReceivedNormalized !== 'string') {
         console.log(
           `${
             Messages.QUOTE_MUST_BE_STRING
-          }: ${quoteReceivedTrimmed} in ${__filename.slice(
+          }: ${quoteReceivedNormalized} in ${__filename.slice(
             __dirname.length + 1
           )}`
         )
@@ -148,7 +136,7 @@ export default class Trader {
         return
       }
 
-      return quoteReceivedTrimmed
+      return quoteReceivedNormalized
     }
   }
 

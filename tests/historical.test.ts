@@ -1,9 +1,14 @@
 import Big from 'big.js'
-import { BotData, BotHand } from '../source/types'
+import Currency from '../source/currency/currency'
+import {
+  BotConfigDynamic,
+  BotConfigStatic,
+  BotData,
+  BotHand,
+} from '../source/types'
 import Messages from '../source/types/messages'
 import {
   getQuoteAfterBuySellDifference,
-  trimDecimalsToFixed,
   valuesAreWithinTolerance,
 } from '../source/utils'
 import botConfigs from './bot-config'
@@ -31,14 +36,11 @@ if (!configStatic || !configDynamic || !handsActual || !results) {
   throw new Error(Messages.BOT_DATA_INVALID)
 }
 
-/* hard-coded for the time being*/
 const botIndex: number = 0
 const botAccountIndex: number = 0
 const baseDecimals: number = 8
 const quoteDecimals: number = 6
 const tradeFee: string = '0.001'
-const baseMinimumTradeSize: string = '0.00001'
-const quoteMinimumTradeSize: string = '0.01'
 const minFunds: string = '0.1'
 const baseIncrement: string = '0.00000001'
 const quoteIncrement: string = '0.000001'
@@ -47,7 +49,8 @@ const tolerancePercent: number = 0.07
 const lowestPriceRecorded: number = 19300
 const highestPriceRecorded: number = 33000
 const lastPriceRecorded: number = 31030
-/* end of hard-coded for the time being*/
+const baseCurrency: Currency = new Currency(configDynamic.baseCurrency)
+const quoteCurrency: Currency = new Currency(configDynamic.quoteCurrency)
 
 const handsExpected: BotHand[] = [
   {
@@ -55,9 +58,8 @@ const handsExpected: BotHand[] = [
     buyBelow: '20000',
     sellAbove: '21000',
     base: '0',
-    quote: trimDecimalsToFixed(
-      getQuoteAfterBuySellDifference([[19999, 21001]], tradeFee, quotePerHand),
-      quoteDecimals
+    quote: quoteCurrency.normalize(
+      getQuoteAfterBuySellDifference([[19999, 21001]], tradeFee, quotePerHand)
     ) as string,
     buyCount: 1,
     sellCount: 1,
@@ -68,7 +70,7 @@ const handsExpected: BotHand[] = [
     buyBelow: '21000',
     sellAbove: '22050',
     base: '0',
-    quote: trimDecimalsToFixed(
+    quote: quoteCurrency.normalize(
       getQuoteAfterBuySellDifference(
         [
           [20999, 22051],
@@ -76,8 +78,7 @@ const handsExpected: BotHand[] = [
         ],
         tradeFee,
         quotePerHand
-      ),
-      quoteDecimals
+      )
     ) as string,
     buyCount: 2,
     sellCount: 2,
@@ -88,9 +89,8 @@ const handsExpected: BotHand[] = [
     buyBelow: '22050',
     sellAbove: '23152.5',
     base: '0',
-    quote: trimDecimalsToFixed(
-      getQuoteAfterBuySellDifference([[22002, 23200]], tradeFee, quotePerHand),
-      quoteDecimals
+    quote: quoteCurrency.normalize(
+      getQuoteAfterBuySellDifference([[22002, 23200]], tradeFee, quotePerHand)
     ) as string,
     buyCount: 1,
     sellCount: 1,
@@ -101,7 +101,7 @@ const handsExpected: BotHand[] = [
     buyBelow: '23152.5',
     sellAbove: '24310.125',
     base: '0',
-    quote: trimDecimalsToFixed(
+    quote: quoteCurrency.normalize(
       getQuoteAfterBuySellDifference(
         [
           [23060, 24380],
@@ -109,8 +109,7 @@ const handsExpected: BotHand[] = [
         ],
         tradeFee,
         quotePerHand
-      ),
-      quoteDecimals
+      )
     ) as string,
     buyCount: 2,
     sellCount: 2,
@@ -121,9 +120,8 @@ const handsExpected: BotHand[] = [
     buyBelow: '24310.125',
     sellAbove: '25525.63125',
     base: '0',
-    quote: trimDecimalsToFixed(
-      getQuoteAfterBuySellDifference([[24100, 25526]], tradeFee, quotePerHand),
-      quoteDecimals
+    quote: quoteCurrency.normalize(
+      getQuoteAfterBuySellDifference([[24100, 25526]], tradeFee, quotePerHand)
     ) as string,
     buyCount: 1,
     sellCount: 1,
@@ -134,7 +132,7 @@ const handsExpected: BotHand[] = [
     buyBelow: '25525.63125',
     sellAbove: '26801.912812',
     base: '0',
-    quote: trimDecimalsToFixed(
+    quote: quoteCurrency.normalize(
       getQuoteAfterBuySellDifference(
         [
           [25000, 27000],
@@ -142,8 +140,7 @@ const handsExpected: BotHand[] = [
         ],
         tradeFee,
         quotePerHand
-      ),
-      quoteDecimals
+      )
     ) as string,
     buyCount: 2,
     sellCount: 2,
@@ -154,9 +151,8 @@ const handsExpected: BotHand[] = [
     buyBelow: '26801.912812',
     sellAbove: '28142.008452',
     base: '0',
-    quote: trimDecimalsToFixed(
-      getQuoteAfterBuySellDifference([[25000, 28150]], tradeFee, quotePerHand),
-      quoteDecimals
+    quote: quoteCurrency.normalize(
+      getQuoteAfterBuySellDifference([[25000, 28150]], tradeFee, quotePerHand)
     ) as string,
     buyCount: 1,
     sellCount: 1,
@@ -167,7 +163,7 @@ const handsExpected: BotHand[] = [
     buyBelow: '28142.008452',
     sellAbove: '29549.108874',
     base: '0',
-    quote: trimDecimalsToFixed(
+    quote: quoteCurrency.normalize(
       getQuoteAfterBuySellDifference(
         [
           [25000, 29600],
@@ -176,8 +172,7 @@ const handsExpected: BotHand[] = [
         ],
         tradeFee,
         quotePerHand
-      ),
-      quoteDecimals
+      )
     ) as string,
     buyCount: 3,
     sellCount: 3,
@@ -188,7 +183,7 @@ const handsExpected: BotHand[] = [
     buyBelow: '29549.108874',
     sellAbove: '31026.564317',
     base: '0',
-    quote: trimDecimalsToFixed(
+    quote: quoteCurrency.normalize(
       getQuoteAfterBuySellDifference(
         [
           [25000, 31040],
@@ -196,8 +191,7 @@ const handsExpected: BotHand[] = [
         ],
         tradeFee,
         quotePerHand
-      ),
-      quoteDecimals
+      )
     ) as string,
     buyCount: 2,
     sellCount: 2,
@@ -290,11 +284,10 @@ describe('config: dynamic values', () => {
       throw new Error(Messages.HAND_COUNT_INVALID)
     }
 
-    const { baseStartAmount } = configStatic
-    const { handCount } = configDynamic
-    const expected = trimDecimalsToFixed(
-      Big(baseStartAmount).div(handCount).toFixed(),
-      baseDecimals
+    const { baseStartAmount }: BotConfigStatic = configStatic
+    const { handCount }: BotConfigDynamic = configDynamic
+    const expected: string | undefined = baseCurrency.normalize(
+      Big(baseStartAmount).div(handCount)
     )
     expect(configDynamic.baseStartAmountPerHand).toBe(expected)
   })
@@ -304,11 +297,10 @@ describe('config: dynamic values', () => {
       throw new Error(Messages.HAND_COUNT_INVALID)
     }
 
-    const { quoteStartAmount } = configStatic
-    const { handCount } = configDynamic
-    const expected = trimDecimalsToFixed(
-      Big(quoteStartAmount).div(handCount).toFixed(),
-      quoteDecimals
+    const { quoteStartAmount }: BotConfigStatic = configStatic
+    const { handCount }: BotConfigDynamic = configDynamic
+    const expected: string | undefined = quoteCurrency.normalize(
+      Big(quoteStartAmount).div(handCount)
     )
     expect(configDynamic.quoteStartAmountPerHand).toBe(expected)
   })
@@ -317,32 +309,24 @@ describe('config: dynamic values', () => {
     expect(configDynamic.tradeFee).toBe(tradeFee)
   })
 
-  test(`base minimum trade size: '${configDynamic.baseMinimumTradeSize}'`, () => {
-    expect(configDynamic.baseMinimumTradeSize).toBe(baseMinimumTradeSize)
-  })
-
-  test(`quote minimum trade size: '${configDynamic.quoteMinimumTradeSize}'`, () => {
-    expect(configDynamic.quoteMinimumTradeSize).toBe(quoteMinimumTradeSize)
-  })
-
   test(`minimum funds to trade: '${configDynamic.minFunds}'`, () => {
     expect(configDynamic.minFunds).toBe(minFunds)
   })
 
-  test(`base increment: '${configDynamic.baseIncrement}'`, () => {
-    expect(configDynamic.baseIncrement).toBe(baseIncrement)
+  test(`base increment: '${configDynamic.baseCurrency.increment}'`, () => {
+    expect(configDynamic.baseCurrency.increment).toBe(baseIncrement)
   })
 
-  test(`quote increment: '${configDynamic.quoteIncrement}'`, () => {
-    expect(configDynamic.quoteIncrement).toBe(quoteIncrement)
+  test(`quote increment: '${configDynamic.quoteCurrency.increment}'`, () => {
+    expect(configDynamic.quoteCurrency.increment).toBe(quoteIncrement)
   })
 
-  test(`base decimals: ${configDynamic.baseDecimals}`, () => {
-    expect(configDynamic.baseDecimals).toBe(baseDecimals)
+  test(`base decimals: ${configDynamic.baseCurrency.decimals}`, () => {
+    expect(configDynamic.baseCurrency.decimals).toBe(baseDecimals)
   })
 
-  test(`quote decimals: ${configDynamic.quoteDecimals}`, () => {
-    expect(configDynamic.quoteDecimals).toBe(quoteDecimals)
+  test(`quote decimals: ${configDynamic.quoteCurrency.decimals}`, () => {
+    expect(configDynamic.quoteCurrency.decimals).toBe(quoteDecimals)
   })
 
   test(`bot id: ${botIndex}`, () => {
