@@ -1,5 +1,5 @@
 import Big from 'big.js'
-import { CurrencyConstructorParameters, KucoinSymbolData } from '../types'
+import { CurrencyFields, KucoinSymbolData } from '../types'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Currency {
@@ -15,7 +15,7 @@ export default class Currency {
     maxSize,
     increment,
     decimals,
-  }: CurrencyConstructorParameters) {
+  }: CurrencyFields) {
     this.symbol = symbol
     this.minSize = minSize
     this.maxSize = maxSize
@@ -62,7 +62,7 @@ export default class Currency {
     })
   }
 
-  normalize(value: string | Big): string | undefined {
+  public normalize(value: string | Big): string | undefined {
     if (
       (typeof value !== 'string' && !(value instanceof Big)) ||
       typeof value === 'number'
@@ -82,5 +82,9 @@ export default class Currency {
     }
 
     return normalized
+  }
+
+  public serialize(): CurrencyFields {
+    return JSON.parse(JSON.stringify(this))
   }
 }

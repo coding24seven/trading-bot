@@ -11,7 +11,7 @@ export interface CommandLineArguments {
   t?: boolean
 }
 
-export interface CurrencyConstructorParameters {
+export interface CurrencyFields {
   symbol: string
   minSize: string
   maxSize: string
@@ -86,8 +86,8 @@ export type BotConfigDynamic = {
   minFunds: string
   id: number
   itsAccountId: number
-  quoteCurrency: Currency
-  baseCurrency: Currency
+  quoteCurrency: CurrencyFields
+  baseCurrency: CurrencyFields
 }
 
 export type BotConfigFull = BotConfigStatic & BotConfigDynamic

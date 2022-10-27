@@ -319,8 +319,8 @@ class Store {
             quoteStartAmountPerHand,
             baseStartAmountPerHand,
             tradeFee: ticker.takerFeeRate,
-            baseCurrency,
-            quoteCurrency,
+            baseCurrency: baseCurrency.serialize(),
+            quoteCurrency: quoteCurrency.serialize(),
           }
 
           hands = this.topUpHandsWithBase(hands, configStatic, configDynamic)

@@ -1,12 +1,12 @@
 import Big from 'big.js'
 import Currency from '../source/currency/currency'
 import {
-  CurrencyConstructorParameters,
+  CurrencyFields,
   KucoinSymbolData,
 } from '../source/types'
 import { countDecimals } from '../source/utils'
 
-const expectedCurrency: CurrencyConstructorParameters = {
+const expectedCurrency: CurrencyFields = {
   symbol: 'USDT',
   minSize: '0.1',
   maxSize: '99999999',
