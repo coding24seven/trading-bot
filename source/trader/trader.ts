@@ -1,5 +1,5 @@
 import Big from 'big.js'
-import Currency from '../currency/currency'
+import Currency from '../currency/currency.js'
 import { Exchange } from '../exchange/exchange.js'
 import store from '../store/store.js'
 import {

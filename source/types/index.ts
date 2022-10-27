@@ -1,4 +1,3 @@
-import Currency from '../currency/currency'
 import { AccountEnvironmentType } from './account-environment-type'
 
 export type EnvironmentTypes = 'development' | 'production' | 'test'
