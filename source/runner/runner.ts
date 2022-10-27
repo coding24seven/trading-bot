@@ -1,5 +1,5 @@
 import Account from '../account/account.js'
-import eventBus from '../events/event-bus.js'
+import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import PriceReader from '../price-reader/price-reader.js'
 import store from '../store/store.js'
 import { AccountData, PriceStreamCallbackParameters } from '../types'
@@ -17,7 +17,7 @@ export default class Runner {
     } else {
       PriceReader.startAllSymbolsLivePriceStream(
         ({ symbol, lastPrice }: PriceStreamCallbackParameters) => {
-          eventBus.emit(eventBus.events!.LAST_PRICE, { symbol, lastPrice })
+          eventBus.emit(EventBusEvents.LAST_PRICE, { symbol, lastPrice })
         }
       )
     }

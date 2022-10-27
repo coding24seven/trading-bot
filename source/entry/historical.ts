@@ -1,7 +1,7 @@
 import { spawn } from 'child_process'
 import minimist from 'minimist'
 import { setDotEnv } from '../../config/env.js'
-import eventBus from '../events/event-bus.js'
+import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'
 import Runner from '../runner/runner.js'
 import store from '../store/store.js'
@@ -62,7 +62,7 @@ void (async function () {
     })
   }
   eventBus.on(
-    eventBus.events!.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
+    EventBusEvents.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
     isUnitTest ? startUnitTests : console.log
   )
 

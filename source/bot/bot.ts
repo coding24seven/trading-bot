@@ -1,6 +1,6 @@
 import Big from 'big.js'
 import Currency from '../currency/currency.js'
-import eventBus from '../events/event-bus.js'
+import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import store from '../store/store.js'
 import Trader from '../trader/trader.js'
 import {
@@ -45,9 +45,9 @@ export default class Bot {
     this.quoteCurrency = new Currency(data.configDynamic.quoteCurrency)
     this.trader = new Trader(data.configStatic, data.configDynamic)
 
-    eventBus.on(eventBus.events!.LAST_PRICE, this.onLastPrice.bind(this))
+    eventBus.on(EventBusEvents.LAST_PRICE, this.onLastPrice.bind(this))
     eventBus.on(
-      eventBus.events!.HISTORICAL_PRICE_READER_FINISHED,
+      EventBusEvents.HISTORICAL_PRICE_READER_FINISHED,
       this.onHistoricalPriceReaderFinished.bind(this)
     )
   }
@@ -56,7 +56,7 @@ export default class Bot {
     store.setResults(this.itsAccountId, this.id, this.getResults())
 
     eventBus.emit(
-      eventBus.events!.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
+      EventBusEvents.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
       this.getBotDataWithResults()
     )
   }

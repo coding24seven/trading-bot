@@ -4,7 +4,7 @@
  */
 
 import Big from 'big.js'
-import eventBus from '../events/event-bus.js'
+import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import { Exchange } from '../exchange/exchange.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'
 import {
@@ -79,14 +79,14 @@ export default class PriceReader {
         const price: number = row[column]
 
         if (PriceReader.priceIsValid(String(price))) {
-          eventBus.emit(eventBus.events!.LAST_PRICE, {
+          eventBus.emit(EventBusEvents.LAST_PRICE, {
             lastPrice: price,
           })
         }
       })
     })
 
-    eventBus.emit(eventBus.events!.HISTORICAL_PRICE_READER_FINISHED)
+    eventBus.emit(EventBusEvents.HISTORICAL_PRICE_READER_FINISHED)
   }
 
   private static priceIsValid(price: string): boolean {

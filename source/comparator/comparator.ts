@@ -1,5 +1,5 @@
 import Big from 'big.js'
-import eventBus from '../events/event-bus.js'
+import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import { BotConfigStatic, BotData } from '../types'
 
 export default class Comparator {
@@ -12,7 +12,7 @@ export default class Comparator {
 
   static addEventListeners() {
     eventBus.on(
-      eventBus.events!.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
+      EventBusEvents.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
       Comparator.addBotDataWithResult
     )
   }
