@@ -4,7 +4,6 @@ import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import store from '../store/store.js'
 import Trader from '../trader/trader.js'
 import {
-  BotConfigDynamic,
   BotData,
   BotHand,
   BotResults,
@@ -24,8 +23,8 @@ export default class Bot {
   trader: Trader
   symbol: string // i.e. 'BTC-USDT'
   lastPrice: string | null = null
-  lowestPriceRecorded: string = '99999999999999999999'
-  highestPriceRecorded: string = '0'
+  lowestPriceRecorded: string
+  highestPriceRecorded: string
   count: number = 0
   tradeHistory: TradeHistoryItem[] = [] // not added to store atm
   dateMs: number = Date.now()
@@ -43,6 +42,9 @@ export default class Bot {
     this.symbol = data.configStatic.symbol
     this.baseCurrency = new Currency(data.configDynamic.baseCurrency)
     this.quoteCurrency = new Currency(data.configDynamic.quoteCurrency)
+    this.lowestPriceRecorded =
+      data.results?.lowestPriceRecorded || '99999999999999999999'
+    this.highestPriceRecorded = data.results?.highestPriceRecorded || '0'
     this.trader = new Trader(data.configStatic, data.configDynamic)
 
     eventBus.on(EventBusEvents.LAST_PRICE, this.onLastPrice.bind(this))
@@ -73,7 +75,14 @@ export default class Bot {
     }
 
     this.lastPrice = lastPrice
-    this.recordLowestAndHighestPrice(lastPrice)
+
+    if (
+      !store.isHistoricalPrice &&
+      this.recordLowestAndHighestPrice(lastPrice)
+    ) {
+      this.storeCurrentResults()
+    }
+
     this.processLastPrice(lastPrice)
   }
 
@@ -363,13 +372,17 @@ export default class Bot {
     store.setResults(this.itsAccountId, this.id, this.getResults())
   }
 
-  recordLowestAndHighestPrice(lastPrice: string) {
-    this.lowestPriceRecorded = Big(lastPrice).lt(this.lowestPriceRecorded)
-      ? lastPrice
-      : this.lowestPriceRecorded
+  recordLowestAndHighestPrice(lastPrice: string): boolean {
+    if (Big(lastPrice).lt(this.lowestPriceRecorded)) {
+      this.lowestPriceRecorded = lastPrice
+      return true
+    }
 
-    this.highestPriceRecorded = Big(lastPrice).gt(this.highestPriceRecorded)
-      ? lastPrice
-      : this.highestPriceRecorded
+    if (Big(lastPrice).gt(this.highestPriceRecorded)) {
+      this.highestPriceRecorded = lastPrice
+      return true
+    }
+
+    return false
   }
 }
