@@ -1,5 +1,5 @@
 import Big from 'big.js'
-import { KucoinSymbolData } from '../types'
+import { CurrencyConstructorParameters, KucoinSymbolData } from '../types'
 import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
 
 export default class Currency {
@@ -9,7 +9,13 @@ export default class Currency {
   increment: string
   decimals: number
 
-  constructor({ symbol, minSize, maxSize, increment, decimals }) {
+  constructor({
+    symbol,
+    minSize,
+    maxSize,
+    increment,
+    decimals,
+  }: CurrencyConstructorParameters) {
     this.symbol = symbol
     this.minSize = minSize
     this.maxSize = maxSize

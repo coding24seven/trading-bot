@@ -11,6 +11,14 @@ export interface CommandLineArguments {
   t?: boolean
 }
 
+export interface CurrencyConstructorParameters {
+  symbol: string
+  minSize: string
+  maxSize: string
+  increment: string
+  decimals: number
+}
+
 export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean
   isHistoricalPrice?: boolean
