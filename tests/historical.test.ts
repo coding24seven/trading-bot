@@ -38,7 +38,8 @@ const baseDecimals: number = 8
 const quoteDecimals: number = 6
 const tradeFee: string = '0.001'
 const baseMinimumTradeSize: string = '0.00001'
-const quoteMinimumTradeSize: string = '0.1'
+const quoteMinimumTradeSize: string = '0.01'
+const minFunds: string = '0.1'
 const baseIncrement: string = '0.00000001'
 const quoteIncrement: string = '0.000001'
 const quotePerHand: number = 1
@@ -322,6 +323,10 @@ describe('config: dynamic values', () => {
 
   test(`quote minimum trade size: '${configDynamic.quoteMinimumTradeSize}'`, () => {
     expect(configDynamic.quoteMinimumTradeSize).toBe(quoteMinimumTradeSize)
+  })
+
+  test(`minimum funds to trade: '${configDynamic.minFunds}'`, () => {
+    expect(configDynamic.minFunds).toBe(minFunds)
   })
 
   test(`base increment: '${configDynamic.baseIncrement}'`, () => {

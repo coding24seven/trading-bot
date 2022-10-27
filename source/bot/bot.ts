@@ -154,25 +154,21 @@ export default class Bot {
   }
 
   isBaseCurrencyEnoughToTrade(base: string, lastPrice: string): boolean {
-    if (!this.data.configDynamic.baseMinimumTradeSize) {
+    if (!this.data.configDynamic.minFunds) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
-    if (this.data.configDynamic.quoteIsStableCoin) {
-      const baseInQuote: Big = Big(base).mul(lastPrice)
+    const baseInQuote: Big = Big(base).mul(lastPrice)
 
-      return Big(baseInQuote).gte(this.data.configDynamic.quoteMinimumTradeSize)
-    }
-
-    return Big(base).gte(this.data.configDynamic.baseMinimumTradeSize)
+    return Big(baseInQuote).gte(this.data.configDynamic.minFunds)
   }
 
   isQuoteCurrencyEnoughToTrade(quote: string): boolean {
-    if (!this.data.configDynamic.quoteMinimumTradeSize) {
+    if (!this.data.configDynamic.minFunds) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
-    return Big(quote).gte(this.data.configDynamic.quoteMinimumTradeSize)
+    return Big(quote).gte(this.data.configDynamic.minFunds)
   }
 
   getBotDataWithResults(

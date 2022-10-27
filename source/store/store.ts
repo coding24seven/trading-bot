@@ -186,10 +186,6 @@ class Store {
       const botConfigIndexesString: string | undefined =
         env[`ACCOUNT_${i}_BOT_CONFIG_INDEXES`] // e.g. '1,3'
       let botConfigIndexes: number[] | undefined // e.g. [ 1, 3 ]
-      const stableCoinMinTradeSizeInQuote: string | undefined =
-        env[`ACCOUNT_${i}_API_STABLE_COIN_MINIMUM_TRADE_SIZE_IN_QUOTE`]
-      const stableCoins: string | undefined =
-        env[`ACCOUNT_${i}_API_STABLE_COINS`]
 
       if (botConfigIndexesString) {
         botConfigIndexes = botConfigIndexesString
@@ -206,9 +202,7 @@ class Store {
         (environment === AccountEnvironmentType.sandbox ||
           environment === AccountEnvironmentType.live) &&
         botConfigPath &&
-        botConfigIndexes &&
-        stableCoinMinTradeSizeInQuote &&
-        stableCoins
+        botConfigIndexes
       ) {
         accounts.push({
           apiKey,
@@ -217,8 +211,6 @@ class Store {
           environment,
           botConfigPath,
           botConfigIndexes,
-          stableCoinMinTradeSizeInQuote,
-          stableCoins: stableCoins.split(/[,\s]+/),
         })
       } else {
         throw new Error(Messages.ACCOUNT_ENVIRONMENT_CONFIG_DATA_INVALID)
@@ -326,25 +318,16 @@ class Store {
             )
           }
 
-          /* kucoin api value 'quoteMinSize' is incorrect and must be overriden for certain coins (listed in .env):
-          https://www.kucoin.com/news/en-adjustment-of-minimum-spot-and-margin-trading-amounts */
-          const quoteIsStableCoin: boolean = this.accountsEnvironment[
-            accountIndex
-          ].stableCoins.includes(symbolData.quoteCurrency)
-
           const configDynamic: BotConfigDynamic = {
             id: botIndex,
             itsAccountId: accountIndex,
             baseMinimumTradeSize: symbolData.baseMinSize,
-            quoteMinimumTradeSize: quoteIsStableCoin
-              ? this.accountsEnvironment[accountIndex]
-                  .stableCoinMinTradeSizeInQuote
-              : symbolData.quoteMinSize,
+            quoteMinimumTradeSize: symbolData.quoteMinSize,
+            minFunds: symbolData.minFunds,
             baseIncrement: symbolData.baseIncrement,
             quoteIncrement: symbolData.quoteIncrement,
             baseDecimals,
             quoteDecimals,
-            quoteIsStableCoin,
             handCount: hands.length,
             quoteStartAmountPerHand,
             baseStartAmountPerHand,

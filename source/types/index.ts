@@ -40,8 +40,6 @@ export type AccountConfig = {
   environment: AccountEnvironmentType.sandbox | AccountEnvironmentType.live
   botConfigPath: string
   botConfigIndexes: number[]
-  stableCoinMinTradeSizeInQuote: string
-  stableCoins: string[]
 }
 
 export type KucoinAccountConfig = {
@@ -78,11 +76,11 @@ export type BotConfigDynamic = {
   tradeFee: string
   baseMinimumTradeSize: string
   quoteMinimumTradeSize: string
+  minFunds: string
   baseIncrement: string
   quoteIncrement: string
   baseDecimals: number
   quoteDecimals: number
-  quoteIsStableCoin: boolean
   id: number
   itsAccountId: number
 }
@@ -200,6 +198,7 @@ export type KucoinSymbolData = {
   quoteIncrement: string
   priceIncrement: string
   priceLimitRate: string
+  minFunds: string
   isMarginEnabled: boolean
   enableTrading: boolean
 }
