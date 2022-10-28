@@ -63,7 +63,11 @@ export default class PriceReader {
     })
   }
 
-  static startHistoricalStream(filePaths: string[], column: number) {
+  static startHistoricalStream(
+    filePaths: string[],
+    column: number,
+    callback: (tickerMessage: DeepPartial<KucoinApiTickerMessage>) => void
+  ) {
     filePaths.forEach((filePath: string) => {
       const rowsPopulatedWithNumbers: number[][] =
         this.cachedFileContent[filePath] ||
@@ -79,7 +83,7 @@ export default class PriceReader {
             data: { price: lastPrice },
           }
 
-          eventBus.emit(EventBusEvents.LAST_PRICE, tickerMessage)
+          callback(tickerMessage)
         }
       })
     })
