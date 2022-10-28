@@ -135,14 +135,14 @@ export type PriceStreamCallbackParameters = {
   lastPrice: string
 }
 
-export type KucoinNodeApiTickerMessage = {
+export type KucoinApiTickerMessage = {
   type: string
   topic: string
   subject: string
-  data: KucoinNodeApiTickerMessageData
+  data: KucoinApiTickerMessageData
 }
 
-export type KucoinNodeApiTickerMessageData = {
+export type KucoinApiTickerMessageData = {
   bestAsk: string
   bestAskSize: string
   bestBid: string

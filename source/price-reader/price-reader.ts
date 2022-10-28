@@ -7,7 +7,7 @@ import Big from 'big.js'
 import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import { Exchange } from '../exchange/exchange.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'
-import { KucoinNodeApiTickerMessage } from '../types'
+import { KucoinApiTickerMessage } from '../types'
 import Messages from '../types/messages.js'
 
 export default class PriceReader {
@@ -32,7 +32,7 @@ export default class PriceReader {
 
       PriceReader.dateMs = Date.now()
 
-      const message: KucoinNodeApiTickerMessage = JSON.parse(
+      const message: KucoinApiTickerMessage = JSON.parse(
         tickerMessageAsString
       )
 
@@ -49,7 +49,7 @@ export default class PriceReader {
   static startAllSymbolsLivePriceStream() {
     Exchange.startWSAllSymbolsTicker((tickerMessage: string) => {
       /* this callback runs once per each symbol message received */
-      const message: KucoinNodeApiTickerMessage = JSON.parse(tickerMessage)
+      const message: KucoinApiTickerMessage = JSON.parse(tickerMessage)
 
       if (!message.data?.price) return
 
