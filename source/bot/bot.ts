@@ -76,10 +76,10 @@ export default class Bot {
 
     this.lastPrice = lastPrice
 
-    if (
-      !store.isHistoricalPrice &&
+    const newLowestOrHighestPriceRecorded: boolean =
       this.recordLowestAndHighestPrice(lastPrice)
-    ) {
+
+    if (!store.isHistoricalPrice && newLowestOrHighestPriceRecorded) {
       this.storeCurrentResults()
     }
 
