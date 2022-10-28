@@ -7,10 +7,7 @@ import Big from 'big.js'
 import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import { Exchange } from '../exchange/exchange.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'
-import {
-  KucoinNodeApiTickerMessage,
-  PriceStreamCallbackParameters,
-} from '../types'
+import { KucoinNodeApiTickerMessage } from '../types'
 import Messages from '../types/messages.js'
 
 export default class PriceReader {
@@ -49,9 +46,7 @@ export default class PriceReader {
     })
   }
 
-  static startAllSymbolsLivePriceStream(
-    callback: ({ symbol, lastPrice }: PriceStreamCallbackParameters) => void
-  ) {
+  static startAllSymbolsLivePriceStream() {
     Exchange.startWSAllSymbolsTicker((tickerMessage: string) => {
       /* this callback runs once per each symbol message received */
       const message: KucoinNodeApiTickerMessage = JSON.parse(tickerMessage)
@@ -62,7 +57,7 @@ export default class PriceReader {
       const lastPrice: string = message.data.price
 
       if (PriceReader.priceIsValid(lastPrice)) {
-        callback({ symbol, lastPrice })
+        eventBus.emit(EventBusEvents.LAST_PRICE, { symbol, lastPrice })
       }
     })
   }
@@ -76,11 +71,11 @@ export default class PriceReader {
       this.cachedFileContent[filePath] = rowsPopulatedWithNumbers
 
       rowsPopulatedWithNumbers.forEach((row: number[], i: number) => {
-        const price: number = row[column]
+        const lastPrice: number = row[column]
 
-        if (PriceReader.priceIsValid(String(price))) {
+        if (PriceReader.priceIsValid(String(lastPrice))) {
           eventBus.emit(EventBusEvents.LAST_PRICE, {
-            lastPrice: price,
+            lastPrice,
           })
         }
       })
