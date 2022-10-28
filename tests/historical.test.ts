@@ -46,9 +46,9 @@ const baseIncrement: string = '0.00000001'
 const quoteIncrement: string = '0.000001'
 const quotePerHand: number = 1
 const tolerancePercent: number = 0.07
-const lowestPriceRecorded: number = 19300
-const highestPriceRecorded: number = 33000
-const lastPriceRecorded: number = 31030
+const lowestPriceRecorded: string = '19300'
+const highestPriceRecorded: string = '33000'
+const lastPriceRecorded: string = '31030'
 const baseCurrency: Currency = new Currency(configDynamic.baseCurrency)
 const quoteCurrency: Currency = new Currency(configDynamic.quoteCurrency)
 

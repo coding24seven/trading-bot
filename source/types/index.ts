@@ -1,5 +1,9 @@
 import { AccountEnvironmentType } from './account-environment-type'
 
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
+}
+
 export type EnvironmentTypes = 'development' | 'production' | 'test'
 
 export interface CommandLineArguments {

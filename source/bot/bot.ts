@@ -7,7 +7,7 @@ import {
   BotData,
   BotHand,
   BotResults,
-  PriceStreamCallbackParameters,
+  KucoinApiTickerMessage,
   TradeHistoryItem,
 } from '../types'
 import Messages from '../types/messages.js'
@@ -63,7 +63,10 @@ export default class Bot {
     )
   }
 
-  async onLastPrice({ symbol, lastPrice }: PriceStreamCallbackParameters) {
+  async onLastPrice(tickerMessage: KucoinApiTickerMessage) {
+    const symbol: string = tickerMessage.subject
+    const lastPrice: string = tickerMessage.data.price
+
     if (!store.isHistoricalPrice) {
       const intervalNotCompleted: boolean =
         Date.now() < this.dateMs + this.processLastPriceIntervalMs

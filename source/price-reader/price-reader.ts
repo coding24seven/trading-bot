@@ -7,7 +7,7 @@ import Big from 'big.js'
 import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import { Exchange } from '../exchange/exchange.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'
-import { KucoinApiTickerMessage, PriceStreamCallbackParameters } from '../types'
+import { DeepPartial, KucoinApiTickerMessage } from '../types'
 import Messages from '../types/messages.js'
 
 export default class PriceReader {
@@ -45,19 +45,20 @@ export default class PriceReader {
   }
 
   static startAllSymbolsLivePriceStream(
-    callback: ({ symbol, lastPrice }: PriceStreamCallbackParameters) => void
+    callback: (tickerMessage: KucoinApiTickerMessage) => void
   ) {
-    Exchange.startWSAllSymbolsTicker((tickerMessage: string) => {
+    Exchange.startWSAllSymbolsTicker((tickerMessageAsString: string) => {
       /* this callback runs once per each symbol message received */
-      const message: KucoinApiTickerMessage = JSON.parse(tickerMessage)
+      const tickerMessage: KucoinApiTickerMessage = JSON.parse(
+        tickerMessageAsString
+      )
 
-      if (!message.data?.price) return
+      if (!tickerMessage.data?.price) return
 
-      const symbol: string = message.subject
-      const lastPrice: string = message.data.price
+      const lastPrice: string = tickerMessage.data.price
 
       if (PriceReader.priceIsValid(lastPrice)) {
-        callback({ symbol, lastPrice })
+        callback(tickerMessage)
       }
     })
   }
@@ -70,13 +71,15 @@ export default class PriceReader {
 
       this.cachedFileContent[filePath] = rowsPopulatedWithNumbers
 
-      rowsPopulatedWithNumbers.forEach((row: number[], i: number) => {
-        const lastPrice: number = row[column]
+      rowsPopulatedWithNumbers.forEach((row: number[]) => {
+        const lastPrice: string = String(row[column])
 
-        if (PriceReader.priceIsValid(String(lastPrice))) {
-          eventBus.emit(EventBusEvents.LAST_PRICE, {
-            lastPrice,
-          })
+        if (PriceReader.priceIsValid(lastPrice)) {
+          const tickerMessage: DeepPartial<KucoinApiTickerMessage> = {
+            data: { price: lastPrice },
+          }
+
+          eventBus.emit(EventBusEvents.LAST_PRICE, tickerMessage)
         }
       })
     })

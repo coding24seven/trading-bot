@@ -2,7 +2,7 @@ import Account from '../account/account.js'
 import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import PriceReader from '../price-reader/price-reader.js'
 import store from '../store/store.js'
-import { AccountData, PriceStreamCallbackParameters } from '../types'
+import { AccountData, KucoinApiTickerMessage } from '../types'
 
 export default class Runner {
   static runBots() {
@@ -16,8 +16,8 @@ export default class Runner {
       PriceReader.startHistoricalStream(filePaths, priceColumnIndex)
     } else {
       PriceReader.startAllSymbolsLivePriceStream(
-        ({ symbol, lastPrice }: PriceStreamCallbackParameters) => {
-          eventBus.emit(EventBusEvents.LAST_PRICE, { symbol, lastPrice })
+        (tickerMessage: KucoinApiTickerMessage) => {
+          eventBus.emit(EventBusEvents.LAST_PRICE, tickerMessage)
         }
       )
     }
