@@ -169,7 +169,10 @@ export default class Bot {
 
     const baseInQuote: Big = Big(base).mul(lastPrice)
 
-    return Big(baseInQuote).gte(this.data.configDynamic.minFunds)
+    return (
+      Big(base).gte(this.data.configDynamic.baseCurrency.minSize) &&
+      Big(baseInQuote).gte(this.data.configDynamic.minFunds)
+    )
   }
 
   isQuoteCurrencyEnoughToTrade(quote: string): boolean {
@@ -177,7 +180,10 @@ export default class Bot {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
-    return Big(quote).gte(this.data.configDynamic.minFunds)
+    return (
+      Big(quote).gte(this.data.configDynamic.quoteCurrency.minSize) &&
+      Big(quote).gte(this.data.configDynamic.minFunds)
+    )
   }
 
   getBotDataWithResults(
