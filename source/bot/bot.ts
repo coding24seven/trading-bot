@@ -226,26 +226,8 @@ export default class Bot {
       )
       .toFixed()
 
-    const baseConvertedToQuoteAtLastPriceBeforeFee: string | undefined =
-      this.quoteCurrency.normalize(Big(baseTotal).mul(this.lastPrice))
-
-    if (typeof baseConvertedToQuoteAtLastPriceBeforeFee !== 'string') {
-      console.error(
-        `${baseConvertedToQuoteAtLastPriceBeforeFee} ${Messages.IS_NOT_STRING}`
-      )
-      return
-    }
-
-    const baseConvertedToQuoteAtLastPriceFeeChunk: Big = Big(
-      baseConvertedToQuoteAtLastPriceBeforeFee
-    ).mul(this.data.configDynamic.tradeFee)
-
     const baseConvertedToQuoteAtLastPrice: string | undefined =
-      this.quoteCurrency.normalize(
-        Big(baseConvertedToQuoteAtLastPriceBeforeFee).minus(
-          baseConvertedToQuoteAtLastPriceFeeChunk
-        )
-      )
+      this.trader.tradeFake(false, baseTotal, this.lastPrice)
 
     if (typeof baseConvertedToQuoteAtLastPrice !== 'string') {
       console.error(
