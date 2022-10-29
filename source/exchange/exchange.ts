@@ -36,10 +36,14 @@ export class Exchange {
   static startWSAllSymbolsTicker(
     callback: (tickerMessageAsString: string) => void
   ) {
+    const topic: string = 'allTicker'
     kucoin.init(Exchange.publicConfig)
 
     /* the provided callback runs once per each symbol message received */
-    kucoin.initSocket({ topic: 'allTicker' }, callback)
+    kucoin.initSocket({ topic }, callback, () => {
+      console.log(`${topic} websocket about to reopen...`)
+      this.startWSAllSymbolsTicker(callback)
+    })
   }
 
   static async getAllTickers(): Promise<KucoinTicker[] | undefined> {
@@ -113,7 +117,9 @@ export class Exchange {
     try {
       orderResponse = await kucoin.placeOrder(parameters)
     } catch (error) {
-      console.error(`\n${Messages.COULD_NOT_PLACE_ORDER_ON_EXCHANGE}:\n${error}\n`)
+      console.error(
+        `\n${Messages.COULD_NOT_PLACE_ORDER_ON_EXCHANGE}:\n${error}\n`
+      )
     }
 
     return orderResponse
