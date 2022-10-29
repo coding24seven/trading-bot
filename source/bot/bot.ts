@@ -301,20 +301,21 @@ export default class Bot {
 
     botHands.forEach((hand: BotHand) => {
       if (Big(hand.base).gt(0)) {
-        const valueToAdd = Big(hand.base).mul(hand.sellAbove)
+        const quoteReceived: string | undefined = this.trader.tradeFake(
+          false,
+          hand.base,
+          hand.sellAbove
+        )
 
-        const pairTotalAsQuoteWhenAllSold: string | undefined =
-          this.quoteCurrency.normalize(valueToAdd.plus(hand.quote))
+        if (quoteReceived) {
+          const quoteTogether: string | undefined =
+            this.quoteCurrency.normalize(Big(hand.quote).plus(quoteReceived))
 
-        if (typeof pairTotalAsQuoteWhenAllSold !== 'string') {
-          console.log(
-            `${Messages.BASE_MUST_BE_STRING}: ${pairTotalAsQuoteWhenAllSold}`
-          )
-
-          return
+          if (quoteTogether) {
+            hand.quote = quoteTogether
+          }
         }
 
-        hand.quote = pairTotalAsQuoteWhenAllSold
         hand.base = '0'
       }
     })
