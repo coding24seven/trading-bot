@@ -29,8 +29,13 @@ export class Exchange {
     symbol: string,
     callback: (tickerMessageAsString: string) => void
   ) {
+    const topic: string = 'ticker'
     kucoin.init(Exchange.publicConfig)
-    kucoin.initSocket({ topic: 'ticker', symbols: [symbol] }, callback)
+
+    kucoin.initSocket({ topic, symbols: [symbol] }, callback, () => {
+      console.log(`${topic} websocket about to reopen...`)
+      Exchange.startWSTicker(symbol, callback)
+    })
   }
 
   static startWSAllSymbolsTicker(
@@ -42,7 +47,7 @@ export class Exchange {
     /* the provided callback runs once per each symbol message received */
     kucoin.initSocket({ topic }, callback, () => {
       console.log(`${topic} websocket about to reopen...`)
-      this.startWSAllSymbolsTicker(callback)
+      Exchange.startWSAllSymbolsTicker(callback)
     })
   }
 
