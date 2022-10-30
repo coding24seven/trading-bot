@@ -354,14 +354,14 @@ export default class Bot {
   }
 
   updateAfterTrade(hand: BotHand, lastPrice: string, type: string) {
-    if (store.isHistoricalPrice) return
-
     const tradeHistoryItem: TradeHistoryItem = this.getTradeHistoryItem(
       hand,
       lastPrice,
       type
     )
     this.tradeHistory.push(tradeHistoryItem)
+
+    if (store.isHistoricalPrice) return
 
     console.log(tradeHistoryItem)
     this.storeCurrentResults()
