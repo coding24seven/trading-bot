@@ -637,7 +637,7 @@ class Store {
     } else if (error.request) {
       console.log(Messages.DATABASE_SERVER_HAS_NOT_RESPONDED)
     } else {
-      throw new Error(Messages.DATABASE_REQUEST_GENERIC_PROBLEM)
+      console.error(Messages.DATABASE_REQUEST_GENERIC_PROBLEM)
     }
     // todo: NOTIFY (BY EMAIL?) ABOUT READ/WRITE TO DATABASE ERROR
   }
