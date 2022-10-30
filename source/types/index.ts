@@ -31,6 +31,7 @@ export type StoreSetupParameters = {
 
 export type AppEnvironment = {
   appId: string
+  firstAppStart?: string
   lastAppStart: string
   locale: string
   timeZone: string

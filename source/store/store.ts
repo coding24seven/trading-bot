@@ -126,6 +126,12 @@ class Store {
 
   private async setUpAnew(): Promise<AxiosResponse | never> {
     this.createAccountAndBotConfigs()
+
+    this.appEnvironment.firstAppStart = getDateTime(
+      this.appEnvironment.locale,
+      this.appEnvironment.timeZone
+    )
+
     const response: AxiosResponse | undefined = await this.writeDatabase()
 
     if (!response) {
@@ -570,6 +576,7 @@ class Store {
   async writeDatabase(): Promise<AxiosResponse | undefined> {
     const data: AppData = {
       appId: this.appEnvironment.appId,
+      firstAppStart: this.appEnvironment.firstAppStart,
       lastAppStart: this.appEnvironment.lastAppStart,
       locale: this.appEnvironment.locale,
       timeZone: this.appEnvironment.timeZone,
