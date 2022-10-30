@@ -46,12 +46,27 @@ export default class Bot {
       data.results?.lowestPriceRecorded || '99999999999999999999'
     this.highestPriceRecorded = data.results?.highestPriceRecorded || '0'
     this.trader = new Trader(data.configStatic, data.configDynamic)
+    this.checkData()
 
     eventBus.on(EventBusEvents.LAST_PRICE, this.onLastPrice.bind(this))
     eventBus.on(
       EventBusEvents.HISTORICAL_PRICE_READER_FINISHED,
       this.onHistoricalPriceReaderFinished.bind(this)
     )
+  }
+
+  checkData() {
+    if (
+      !this.data.configDynamic.baseCurrency.minSize ||
+      !this.data.configDynamic.quoteCurrency.minSize ||
+      !this.data.configDynamic.minFunds
+    ) {
+      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
+    }
+
+    if (!this.baseCurrency.increment || !this.quoteCurrency.increment) {
+      throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)
+    }
   }
 
   onHistoricalPriceReaderFinished() {
@@ -166,13 +181,6 @@ export default class Bot {
   }
 
   isBaseCurrencyEnoughToTrade(base: string, lastPrice: string): boolean {
-    if (
-      !this.data.configDynamic.baseCurrency.minSize ||
-      !this.data.configDynamic.minFunds
-    ) {
-      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
-    }
-
     const baseInQuote: Big = Big(base).mul(lastPrice)
 
     return (
@@ -182,13 +190,6 @@ export default class Bot {
   }
 
   isQuoteCurrencyEnoughToTrade(quote: string): boolean {
-    if (
-      !this.data.configDynamic.quoteCurrency.minSize ||
-      !this.data.configDynamic.minFunds
-    ) {
-      throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
-    }
-
     return (
       Big(quote).gte(this.data.configDynamic.quoteCurrency.minSize) &&
       Big(quote).gte(this.data.configDynamic.minFunds)
@@ -325,12 +326,6 @@ export default class Bot {
   }
 
   makeBaseValidForTrade(base: string): string | undefined {
-    const { increment }: Currency = this.baseCurrency
-
-    if (!increment) {
-      throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)
-    }
-
     const baseValidForTrade: string | undefined =
       this.baseCurrency.normalize(base)
 
@@ -344,12 +339,6 @@ export default class Bot {
   }
 
   makeQuoteValidForTrade(quote: string): string | undefined {
-    const { increment }: Currency = this.quoteCurrency
-
-    if (!increment) {
-      throw new Error(Messages.TRADE_SIZE_INCREMENT_NOT_SET)
-    }
-
     const quoteValidForTrade: string | undefined =
       this.quoteCurrency.normalize(quote)
 
