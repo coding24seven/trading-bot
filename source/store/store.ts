@@ -20,7 +20,7 @@ import {
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import Messages from '../types/messages.js'
-import { isNumeric } from '../utils/index.js'
+import { getDateTime, isNumeric } from '../utils/index.js'
 
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
@@ -149,11 +149,13 @@ class Store {
 
   readAppEnvironment(): AppEnvironment {
     const appId: string | undefined = process.env.APP_ID
+    const locale: string | undefined = process.env.LOCALE
+    const timeZone: string | undefined = process.env.TIMEZONE
     const databaseDomain: string | undefined = process.env.DATABASE_DOMAIN
     const databasePort: string | undefined = process.env.DATABASE_PORT
     let databasePath: string
 
-    if (appId && databaseDomain && databasePort) {
+    if (appId && locale && timeZone && databaseDomain && databasePort) {
       databasePath = `${databaseDomain}:${databasePort}/accounts/${appId}`
     } else {
       throw new Error(Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID)
@@ -161,6 +163,8 @@ class Store {
 
     return {
       appId,
+      locale,
+      timeZone,
       databaseDomain,
       databasePort,
       databasePath,
@@ -524,15 +528,19 @@ class Store {
     this.accounts[accountId].bots[botId].results = results
 
     if (!this.isHistoricalPrice) {
+      this.accounts[accountId].bots[botId].lastModified = getDateTime(
+        this.appEnvironment.locale,
+        this.appEnvironment.timeZone
+      )
       this.writeDatabase()
     }
   }
 
-  getResults(accountId, botId): BotResults | undefined {
+  getResults(accountId: number, botId: number): BotResults | undefined {
     return this.accounts[accountId].bots[botId].results
   }
 
-  getAccountConfig(accountId): AccountConfig {
+  getAccountConfig(accountId: number): AccountConfig {
     return this.accounts[accountId].config
   }
 

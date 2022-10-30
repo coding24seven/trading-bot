@@ -31,6 +31,8 @@ export type StoreSetupParameters = {
 
 export type AppEnvironment = {
   appId: string
+  locale: string
+  timeZone: string
   databaseDomain: string
   databasePort: string
   databasePath: string
@@ -66,6 +68,7 @@ export type BotData = {
   configDynamic: BotConfigDynamic
   hands: BotHand[]
   results?: BotResults
+  lastModified?: string
 }
 
 export type BotConfigStatic = {

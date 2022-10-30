@@ -18,6 +18,14 @@ export function getTime(): string {
   return hours + ':' + minutes + ':' + seconds
 }
 
+export function getDateTime(locale: string, timeZone: string): string {
+  if (locale && timeZone) {
+    return new Date().toLocaleString(locale, { timeZone })
+  }
+
+  return Date()
+}
+
 export function isNumeric<T>(value: T): boolean {
   return (
     (typeof value === 'number' ||
