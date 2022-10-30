@@ -15,8 +15,8 @@ import { getTime } from '../utils/index.js'
 
 export default class Bot {
   data: BotData
-  id: number | null = null
-  itsAccountId: number | null = null
+  id: number
+  itsAccountId: number
   hands: BotHand[] = []
   quoteCurrency: Currency
   baseCurrency: Currency
@@ -189,18 +189,10 @@ export default class Bot {
     )
   }
 
-  getBotDataWithResults(
-    options: { tradeHistoryIncluded: boolean } | null = null
-  ): BotData {
-    let tradeHistoryIncluded: boolean = false
-
-    if (options) {
-      tradeHistoryIncluded = options.tradeHistoryIncluded
-    }
-
+  getBotDataWithResults(options?: { tradeHistoryIncluded: boolean }): BotData {
     return {
       hands: this.hands,
-      ...(tradeHistoryIncluded && { tradeHistory: this.tradeHistory }),
+      ...(options?.tradeHistoryIncluded && { tradeHistory: this.tradeHistory }),
       configStatic: this.data.configStatic,
       configDynamic: this.data.configDynamic,
       results: store.getResults(this.itsAccountId, this.id),
