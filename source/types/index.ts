@@ -61,6 +61,8 @@ export type AccountConfig = {
   botConfigIndexes: number[]
 }
 
+export type BuyOrSell = 'buy' | 'sell'
+
 export type KucoinAccountConfig = {
   apiKey: string
   secretKey: string
@@ -129,7 +131,7 @@ export type BotHand = {
 
 export type TradeHistoryItem = BotHand & {
   lastPrice: string
-  type: string
+  type: BuyOrSell
   baseSpent?: string
   quoteReceived?: string
   quoteSpent?: string

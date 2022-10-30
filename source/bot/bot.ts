@@ -7,6 +7,7 @@ import {
   BotData,
   BotHand,
   BotResults,
+  BuyOrSell,
   KucoinApiTickerMessage,
   TradeHistoryItem,
 } from '../types'
@@ -316,7 +317,7 @@ export default class Bot {
     lastPrice: string,
     amountSpent: string,
     amountReceived: string,
-    type: string
+    type: BuyOrSell
   ): TradeHistoryItem {
     return {
       ...hand,
@@ -360,7 +361,7 @@ export default class Bot {
     lastPrice: string,
     amountSpent: string,
     amountReceived: string,
-    type: string
+    type: BuyOrSell
   ) {
     const tradeHistoryItem: TradeHistoryItem = this.getTradeHistoryItem(
       hand,

@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto'
 import kucoin from 'kucoin-node-api'
 import {
+  BuyOrSell,
   KucoinAccountConfig,
   KucoinErrorResponse,
   KucoinGetAllTickersResponse,
@@ -103,7 +104,7 @@ export class Exchange {
     config: KucoinAccountConfig,
     { symbol, amount, isBuy }
   ): Promise<KucoinOrderPlacedResponse | KucoinErrorResponse | null> {
-    const side: string = isBuy ? 'buy' : 'sell'
+    const side: BuyOrSell = isBuy ? 'buy' : 'sell'
     const baseOrQuote: string = isBuy ? 'funds' : 'size'
 
     const parameters: KucoinMarketOrderParameters = {
