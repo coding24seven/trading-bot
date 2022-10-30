@@ -7,6 +7,7 @@ import {
   AccountConfig,
   AccountData,
   AccountDataStripped,
+  AppData,
   AppEnvironment,
   BotConfigDynamic,
   BotConfigFull,
@@ -94,14 +95,24 @@ class Store {
         )
       } else {
         /* continueWithExistingDatabase */
-        const response: AxiosResponse | undefined = await this.readDatabase()
+        const readResponse: AxiosResponse | undefined =
+          await this.readDatabase()
 
-        if (!response) {
+        if (!readResponse) {
           throw new Error(Messages.DATABASE_READ_SERVER_CONNECTION_FAIL)
-        } else if (response.status === 200) {
+        } else if (readResponse.status === 200) {
           console.log(Messages.CONTINUING_WITH_EXISTING_DATABASE)
-          this.setUpFromExistingDatabase(response.data)
-        } else if (response.status === 404) {
+          this.setUpFromExistingDatabase(readResponse.data.accounts)
+
+          const writeResponse: AxiosResponse | undefined =
+            await this.writeDatabase()
+
+          if (!writeResponse) {
+            throw new Error(Messages.DATABASE_WRITE_SERVER_CONNECTION_FAIL)
+          } else if (writeResponse.status !== 200) {
+            throw new Error(writeResponse.data)
+          }
+        } else if (readResponse.status === 404) {
           console.log(Messages.DATABASE_DOES_NOT_EXIST)
           await this.setUpAnew()
           console.log(Messages.DATABASE_CREATED)
@@ -125,8 +136,8 @@ class Store {
     return response
   }
 
-  private setUpFromExistingDatabase(data: AccountDataStripped[]) {
-    data.forEach((account: AccountDataStripped, accountIndex: number) => {
+  private setUpFromExistingDatabase(accounts: AccountDataStripped[]) {
+    accounts.forEach((account: AccountDataStripped, accountIndex: number) => {
       if (account.bots) {
         this.botsPerAccount[accountIndex] = account.bots
       }
@@ -161,6 +172,8 @@ class Store {
       throw new Error(Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID)
     }
 
+    const lastAppStart: string = getDateTime(locale, timeZone)
+
     return {
       appId,
       locale,
@@ -168,6 +181,7 @@ class Store {
       databaseDomain,
       databasePort,
       databasePath,
+      lastAppStart,
     }
   }
 
@@ -553,17 +567,21 @@ class Store {
   }
 
   async writeDatabase(): Promise<AxiosResponse | undefined> {
+    const data: AppData = {
+      appId: this.appEnvironment.appId,
+      lastAppStart: this.appEnvironment.lastAppStart,
+      locale: this.appEnvironment.locale,
+      timeZone: this.appEnvironment.timeZone,
+      accounts: this.accountsWithoutConfig,
+    }
+
     try {
-      return await axios.post(
-        this.appEnvironment.databasePath,
-        this.accountsWithoutConfig,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            password: process.env.DATABASE_PASSWORD,
-          },
-        }
-      )
+      return await axios.post(this.appEnvironment.databasePath, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          password: process.env.DATABASE_PASSWORD,
+        },
+      })
     } catch (error) {
       return this.handleDatabaseError(error)
     }

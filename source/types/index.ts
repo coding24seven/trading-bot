@@ -31,11 +31,16 @@ export type StoreSetupParameters = {
 
 export type AppEnvironment = {
   appId: string
+  lastAppStart: string
   locale: string
   timeZone: string
   databaseDomain: string
   databasePort: string
   databasePath: string
+}
+
+export type AppData = Partial<AppEnvironment> & {
+  accounts: AccountDataStripped[]
 }
 
 export type AccountData = {
