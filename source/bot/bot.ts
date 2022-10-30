@@ -139,7 +139,7 @@ export default class Bot {
       hand.base = Big(hand.base).plus(baseReceived).toFixed()
       hand.buyCount++
       hand.tradeIsPending = false
-      this.updateAfterTrade(hand, lastPrice, 'buy')
+      this.updateAfterTrade(hand, lastPrice, quoteToSpend, baseReceived, 'buy')
     })
 
     const sellingHands: BotHand[] = this.hands.filter(
@@ -176,7 +176,7 @@ export default class Bot {
       hand.quote = Big(hand.quote).plus(quoteReceived).toFixed()
       hand.sellCount++
       hand.tradeIsPending = false
-      this.updateAfterTrade(hand, lastPrice, 'sell')
+      this.updateAfterTrade(hand, lastPrice, baseToSpend, quoteReceived, 'sell')
     })
   }
 
@@ -314,14 +314,16 @@ export default class Bot {
   getTradeHistoryItem(
     hand: BotHand,
     lastPrice: string,
+    amountSpent: string,
+    amountReceived: string,
     type: string
   ): TradeHistoryItem {
     return {
-      id: hand.id,
-      buyBelow: hand.buyBelow,
-      sellAbove: hand.sellAbove,
-      buyCount: hand.buyCount,
-      sellCount: hand.sellCount,
+      ...hand,
+      ...(type === 'buy' && { quoteSpent: amountSpent }),
+      ...(type === 'buy' && { baseReceived: amountReceived }),
+      ...(type === 'sell' && { baseSpent: amountSpent }),
+      ...(type === 'sell' && { quoteReceived: amountReceived }),
       lastPrice,
       type,
     }
@@ -353,10 +355,18 @@ export default class Bot {
     return quoteValidForTrade
   }
 
-  updateAfterTrade(hand: BotHand, lastPrice: string, type: string) {
+  updateAfterTrade(
+    hand: BotHand,
+    lastPrice: string,
+    amountSpent: string,
+    amountReceived: string,
+    type: string
+  ) {
     const tradeHistoryItem: TradeHistoryItem = this.getTradeHistoryItem(
       hand,
       lastPrice,
+      amountSpent,
+      amountReceived,
       type
     )
     this.tradeHistory.push(tradeHistoryItem)
@@ -364,6 +374,7 @@ export default class Bot {
     if (store.isHistoricalPrice) return
 
     console.log(tradeHistoryItem)
+
     this.storeCurrentResults()
   }
 

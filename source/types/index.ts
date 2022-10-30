@@ -127,14 +127,13 @@ export type BotHand = {
   tradeIsPending: boolean
 }
 
-export type TradeHistoryItem = {
-  id: number
-  buyBelow: string
-  sellAbove: string
-  buyCount: number
-  sellCount: number
+export type TradeHistoryItem = BotHand & {
   lastPrice: string
   type: string
+  baseSpent?: string
+  quoteReceived?: string
+  quoteSpent?: string
+  baseReceived?: string
 }
 
 export type PairTradeSizes = {
