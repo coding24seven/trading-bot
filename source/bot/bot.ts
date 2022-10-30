@@ -166,7 +166,10 @@ export default class Bot {
   }
 
   isBaseCurrencyEnoughToTrade(base: string, lastPrice: string): boolean {
-    if (!this.data.configDynamic.minFunds) {
+    if (
+      !this.data.configDynamic.baseCurrency.minSize ||
+      !this.data.configDynamic.minFunds
+    ) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
@@ -179,7 +182,10 @@ export default class Bot {
   }
 
   isQuoteCurrencyEnoughToTrade(quote: string): boolean {
-    if (!this.data.configDynamic.minFunds) {
+    if (
+      !this.data.configDynamic.quoteCurrency.minSize ||
+      !this.data.configDynamic.minFunds
+    ) {
       throw new Error(Messages.MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET)
     }
 
