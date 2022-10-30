@@ -595,7 +595,7 @@ class Store {
     }
   }
 
-  async deleteDatabase(): Promise<AxiosResponse | undefined | void> {
+  async deleteDatabase(): Promise<AxiosResponse | void> {
     return new Promise((resolve, reject) => {
       const readline: Interface = readlineImported.createInterface({
         input: process.stdin,
