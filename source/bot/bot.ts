@@ -74,7 +74,7 @@ export default class Bot {
 
     eventBus.emit(
       EventBusEvents.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
-      this.getBotDataWithResults()
+      this.getHistoricalBotDataWithResults()
     )
   }
 
@@ -196,7 +196,9 @@ export default class Bot {
     )
   }
 
-  getBotDataWithResults(options?: { tradeHistoryIncluded: boolean }): BotData {
+  getHistoricalBotDataWithResults(options?: {
+    tradeHistoryIncluded: boolean
+  }): BotData {
     return {
       hands: this.hands,
       ...(options?.tradeHistoryIncluded && { tradeHistory: this.tradeHistory }),
@@ -352,14 +354,14 @@ export default class Bot {
   }
 
   updateAfterTrade(hand: BotHand, lastPrice: string, type: string) {
+    if (store.isHistoricalPrice) return
+
     const tradeHistoryItem: TradeHistoryItem = this.getTradeHistoryItem(
       hand,
       lastPrice,
       type
     )
     this.tradeHistory.push(tradeHistoryItem)
-
-    if (store.isHistoricalPrice) return
 
     console.log(tradeHistoryItem)
     this.storeCurrentResults()
