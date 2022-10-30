@@ -33,6 +33,7 @@ This repository contains the source code and documentation powering the trading-
 
 1. `cp .env.default .env`, and configure .env
 1. to trade live or against historical data, configure the trading bots in bot-config.ts
+1. to run unit tests, configure the trading bots in bot-config-test.ts
 1. to generate winning bot-configs based on historical data, configure bot-config generator in comparator.ts
 
 ### Command line arguments
