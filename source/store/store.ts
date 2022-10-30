@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 import Big from 'big.js'
+import path from 'path'
 import readlineImported, { Interface } from 'readline'
 import Currency from '../currency/currency.js'
 import { Exchange } from '../exchange/exchange.js'
@@ -224,7 +225,7 @@ class Store {
           secretKey,
           passphrase,
           environment,
-          botConfigPath,
+          botConfigPath: path.resolve(botConfigPath),
           botConfigIndexes,
         })
       } else {

@@ -11,7 +11,7 @@ import {
   getQuoteAfterBuySellDifference,
   valuesAreWithinTolerance,
 } from '../source/utils'
-import botConfigs from './bot-config'
+import botConfigs from '../config/bot-config-test'
 
 if (!process.env.BOT_DATA) {
   throw new Error(Messages.NO_BOT_DATA_AVAILABLE)

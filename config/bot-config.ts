@@ -1,20 +1,20 @@
 /*
  * each bot is fed one configuration object chosen from the set below
  */
-import { BotConfigStatic } from '../types'
+import { BotConfigStatic } from '../source/types'
 
 const botConfigs: BotConfigStatic[] = [
   {
     symbol: 'BTC-USDT',
-    from: '20000',
-    to: '30000',
+    from: '19500',
+    to: '21500',
     baseFrom: '0',
     baseTo: '0',
-    quoteFrom: '20000',
-    quoteTo: '30000',
-    quoteStartAmount: '9',
+    quoteFrom: '19500',
+    quoteTo: '21500',
+    quoteStartAmount: '10',
     baseStartAmount: '0',
-    handSpanPercent: 5,
+    handSpanPercent: 0.4,
   },
 ]
 
