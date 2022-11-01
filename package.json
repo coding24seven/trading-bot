@@ -21,8 +21,9 @@
     "axios": "^0.21.1",
     "big.js": "^6.2.1",
     "dotenv": "^10.0.0",
+    "minimist": "^1.2.6",
     "kucoin-node-api": "github:coding24seven/kucoin-node-api",
-    "minimist": "^1.2.6"
+    "trading-bot-database": "github:coding24seven/trading-bot-database"
   },
   "devDependencies": {
     "@types/big.js": "^6.1.6",
