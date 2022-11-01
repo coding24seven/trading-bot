@@ -21,7 +21,7 @@
     "axios": "^0.21.1",
     "big.js": "^6.2.1",
     "dotenv": "^10.0.0",
-    "kucoin-node-api": "^2.1.4",
+    "kucoin-node-api": "github:coding24seven/kucoin-node-api",
     "minimist": "^1.2.6"
   },
   "devDependencies": {
