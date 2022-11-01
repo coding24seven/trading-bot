@@ -21,5 +21,6 @@ void (async function () {
     }
   } catch (error: any) {
     console.log(error.data)
+    process.exit()
   }
 })()

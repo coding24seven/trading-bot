@@ -75,27 +75,7 @@ class Store {
     }
 
     return new Promise(async (resolve, reject) => {
-      if (!continueWithExistingDatabase) {
-        const readline: Interface = readlineImported.createInterface({
-          input: process.stdin,
-          output: process.stdout,
-        })
-        readline.question(
-          Messages.OVERWRITE_EXISTING_DATABASE,
-          async (answer: string) => {
-            readline.close()
-
-            if (answer === 'y' || answer === 'yes') {
-              await this.setUpAnew()
-              console.log(Messages.DATABASE_CREATED)
-              resolve()
-            } else {
-              reject(Messages.DATABASE_OVERWRITE_PREVENTED_BY_CLIENT)
-            }
-          }
-        )
-      } else {
-        /* continueWithExistingDatabase */
+      if (continueWithExistingDatabase) {
         const readResponse: AxiosResponse | undefined =
           await this.readDatabase()
 
@@ -114,12 +94,30 @@ class Store {
             throw new Error(writeResponse.data)
           }
         } else if (readResponse.status === 404) {
-          console.log(Messages.DATABASE_DOES_NOT_EXIST)
-          await this.setUpAnew()
-          console.log(Messages.DATABASE_CREATED)
+          throw new Error(Messages.DATABASE_DOES_NOT_EXIST)
         }
 
         resolve()
+      } else {
+        /* do not continueWithExistingDatabase */
+        const readline: Interface = readlineImported.createInterface({
+          input: process.stdin,
+          output: process.stdout,
+        })
+        readline.question(
+          Messages.OVERWRITE_EXISTING_DATABASE,
+          async (answer: string) => {
+            readline.close()
+
+            if (answer === 'y' || answer === 'yes') {
+              await this.setUpAnew()
+              console.log(Messages.DATABASE_CREATED)
+              resolve()
+            } else {
+              reject(Messages.DATABASE_OVERWRITE_PREVENTED_BY_CLIENT)
+            }
+          }
+        )
       }
     })
   }

@@ -21,5 +21,6 @@ void (async function () {
     Runner.runPriceReader()
   } catch (e) {
     console.log(e)
+    process.exit()
   }
 })()

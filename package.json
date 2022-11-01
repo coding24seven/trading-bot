@@ -5,8 +5,8 @@
   "main": "source/entry/index.ts",
   "type": "module",
   "scripts": {
-    "start": "tsc && node dist/source/entry/index.js",
     "new": "tsc && node dist/source/entry/index.js starts:with:new:store",
+    "continue": "tsc && node dist/source/entry/index.js",
     "delete": "tsc && node dist/source/entry/delete.js",
     "historical": "tsc && node dist/source/entry/historical.js",
     "test": "tsc --project tsconfig-unit-tests.json && cd dist-unit-tests && npm init -y > /dev/null && cd .. && node dist-unit-tests/source/entry/historical.js tests/test.csv --test --column 1",
