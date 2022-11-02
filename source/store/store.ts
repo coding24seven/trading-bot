@@ -167,12 +167,12 @@ class Store {
     const appId: string | undefined = process.env.APP_ID
     const locale: string | undefined = process.env.LOCALE
     const timeZone: string | undefined = process.env.TIMEZONE
-    const databaseDomain: string | undefined = process.env.DATABASE_DOMAIN
+    const ip: string | undefined = process.env.IP
     const databasePort: string | undefined = process.env.DATABASE_PORT
     let databasePath: string
 
-    if (appId && locale && timeZone && databaseDomain && databasePort) {
-      databasePath = `${databaseDomain}:${databasePort}/accounts/${appId}`
+    if (appId && locale && timeZone && ip && databasePort) {
+      databasePath = `${ip}:${databasePort}/accounts/${appId}`
     } else {
       throw new Error(Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID)
     }
@@ -183,7 +183,7 @@ class Store {
       appId,
       locale,
       timeZone,
-      databaseDomain,
+      ip,
       databasePort,
       databasePath,
       lastAppStart,
