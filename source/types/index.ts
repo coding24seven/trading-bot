@@ -35,7 +35,7 @@ export type AppEnvironment = {
   lastAppStart: string
   locale: string
   timeZone: string
-  ip: string
+  hostName: string
   databasePort: string
   databasePath: string
 }
