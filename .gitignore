@@ -9,3 +9,5 @@
 todos.txt
 /test.*
 *.csv
+/database
+/database-backup
