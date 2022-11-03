@@ -1,4 +1,5 @@
 enum Messages {
+  MISSING = 'missing',
   APP_PORT_MISSING = 'app port is missing',
   HOST_NAME_MISSING = 'host name is missing',
   COMMAND_LINE_ARGUMENTS_INVALID = 'command line arguments are invalid',
