@@ -567,7 +567,7 @@ class Store {
     try {
       return await axios.get(this.appEnvironment.databasePath)
     } catch (error) {
-      return this.handleDatabaseError(error)
+      console.error(this.handleDatabaseError(error))
     }
   }
 
@@ -589,7 +589,7 @@ class Store {
         },
       })
     } catch (error) {
-      return this.handleDatabaseError(error)
+      console.error(this.handleDatabaseError(error))
     }
   }
 
@@ -629,13 +629,13 @@ class Store {
     })
   }
 
-  handleDatabaseError(error: any): AxiosResponse | undefined {
+  handleDatabaseError(error: any): AxiosResponse | string {
     if (error.response) {
       return error.response
     } else if (error.request) {
-      console.log(Messages.DATABASE_SERVER_HAS_NOT_RESPONDED)
+      return `${Messages.DATABASE_SERVER_HAS_NOT_RESPONDED}\n${error.request}`
     } else {
-      console.error(Messages.DATABASE_REQUEST_GENERIC_PROBLEM)
+      return `${Messages.DATABASE_REQUEST_GENERIC_PROBLEM}\n${error}`
     }
     // todo: NOTIFY (BY EMAIL?) ABOUT READ/WRITE TO DATABASE ERROR
   }
