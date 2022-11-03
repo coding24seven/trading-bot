@@ -76,20 +76,19 @@ class Store {
 
     return new Promise(async (resolve, reject) => {
       if (continueWithExistingDatabase) {
-        const readResponse: AxiosResponse | undefined =
-          await this.readDatabase()
+        const readResponse: AxiosResponse | string = await this.readDatabase()
 
-        if (!readResponse) {
-          throw new Error(Messages.DATABASE_READ_SERVER_CONNECTION_FAIL)
+        if (typeof readResponse === 'string') {
+          throw new Error(readResponse)
         } else if (readResponse.status === 200) {
           console.log(Messages.CONTINUING_WITH_EXISTING_DATABASE)
           this.setUpFromExistingDatabase(readResponse.data.accounts)
 
-          const writeResponse: AxiosResponse | undefined =
+          const writeResponse: AxiosResponse | string =
             await this.writeDatabase()
 
-          if (!writeResponse) {
-            throw new Error(Messages.DATABASE_WRITE_SERVER_CONNECTION_FAIL)
+          if (typeof writeResponse === 'string') {
+            throw new Error(writeResponse)
           } else if (writeResponse.status !== 200) {
             throw new Error(writeResponse.data)
           }
@@ -130,15 +129,15 @@ class Store {
       this.appEnvironment.timeZone
     )
 
-    const response: AxiosResponse | undefined = await this.writeDatabase()
+    const writeResponse: AxiosResponse | string = await this.writeDatabase()
 
-    if (!response) {
-      throw new Error(Messages.DATABASE_WRITE_SERVER_CONNECTION_FAIL)
-    } else if (response.status !== 200) {
-      throw new Error(response.data)
+    if (typeof writeResponse === 'string') {
+      throw new Error(writeResponse)
+    } else if (writeResponse.status !== 200) {
+      throw new Error(writeResponse.data)
     }
 
-    return response
+    return writeResponse
   }
 
   private setUpFromExistingDatabase(accounts: AccountDataStripped[]) {
@@ -535,7 +534,7 @@ class Store {
     return hands
   }
 
-  setResults(
+  async setResults(
     accountId: number | null,
     botId: number | null,
     results: BotResults | undefined
@@ -546,12 +545,21 @@ class Store {
 
     this.accounts[accountId].bots[botId].results = results
 
-    if (!this.isHistoricalPrice) {
-      this.accounts[accountId].bots[botId].lastModified = getDateTime(
-        this.appEnvironment.locale,
-        this.appEnvironment.timeZone
-      )
-      this.writeDatabase()
+    if (this.isHistoricalPrice) {
+      return
+    }
+
+    this.accounts[accountId].bots[botId].lastModified = getDateTime(
+      this.appEnvironment.locale,
+      this.appEnvironment.timeZone
+    )
+
+    const writeResponse: AxiosResponse | string = await this.writeDatabase()
+
+    if (typeof writeResponse === 'string') {
+      console.error(writeResponse)
+    } else if (writeResponse.status !== 200) {
+      console.error(writeResponse.data)
     }
   }
 
@@ -563,15 +571,15 @@ class Store {
     return this.accounts[accountId].config
   }
 
-  async readDatabase(): Promise<AxiosResponse | undefined> {
+  async readDatabase(): Promise<AxiosResponse | string> {
     try {
       return await axios.get(this.appEnvironment.databasePath)
     } catch (error) {
-      console.error(this.handleDatabaseError(error))
+      return this.getDatabaseErrorType(error)
     }
   }
 
-  async writeDatabase(): Promise<AxiosResponse | undefined> {
+  async writeDatabase(): Promise<AxiosResponse | string> {
     const data: AppData = {
       appId: this.appEnvironment.appId,
       firstAppStart: this.appEnvironment.firstAppStart,
@@ -589,7 +597,7 @@ class Store {
         },
       })
     } catch (error) {
-      console.error(this.handleDatabaseError(error))
+      return this.getDatabaseErrorType(error)
     }
   }
 
@@ -618,7 +626,7 @@ class Store {
 
               resolve(response)
             } catch (error) {
-              reject(this.handleDatabaseError(error))
+              reject(this.getDatabaseErrorType(error))
             }
           } else {
             console.log(Messages.DATABASE_DELETION_CANCELLED)
@@ -629,7 +637,7 @@ class Store {
     })
   }
 
-  handleDatabaseError(error: any): AxiosResponse | string {
+  getDatabaseErrorType(error: any): AxiosResponse | string {
     if (error.response) {
       return error.response
     } else if (error.request) {
