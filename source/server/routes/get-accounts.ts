@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios'
 import express, { Request, Response, Router } from 'express'
-import store from '../../store/store'
+import store from '../../store/store.js'
 
 const router: Router = express.Router()
 
