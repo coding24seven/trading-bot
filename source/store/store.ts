@@ -171,7 +171,7 @@ class Store {
     let databasePath: string
 
     if (appId && locale && timeZone && hostName && databasePort) {
-      databasePath = `${hostName}:${databasePort}/accounts/${appId}`
+      databasePath = `http://${hostName}:${databasePort}/accounts/${appId}`
     } else {
       throw new Error(Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID)
     }
