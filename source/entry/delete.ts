@@ -20,7 +20,7 @@ void (async function () {
       console.log(response.data)
     }
   } catch (error: any) {
-    console.log(error.data)
+    console.error(error.data)
     process.exit()
   }
 })()

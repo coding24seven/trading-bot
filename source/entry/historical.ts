@@ -20,7 +20,7 @@ const {
 }: CommandLineArguments = commandLineArguments
 
 const isUnitTest: boolean | undefined = test || t
-setDotEnv(isUnitTest ? 'test' : undefined)
+const env: NodeJS.ProcessEnv = setDotEnv(isUnitTest ? 'test' : undefined)
 
 if (
   filePathsOrDirectoryPath === undefined ||
@@ -55,7 +55,7 @@ void (async function () {
   await store.setUp({ isHistoricalPrice })
 
   const startUnitTests = (data: BotData) => {
-    process.env.BOT_DATA = JSON.stringify(data)
+    env.BOT_DATA = JSON.stringify(data)
     spawn('npm', ['run', 'jest'], {
       shell: true,
       stdio: 'inherit',
