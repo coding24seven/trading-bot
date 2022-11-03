@@ -1,5 +1,5 @@
 import express from 'express'
-import catchAll from './routes/catch-all'
+import catchAll from './routes/catch-all.js'
 import getAccounts from './routes/get-accounts.js'
 
 const app = express()
