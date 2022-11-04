@@ -35,21 +35,14 @@ if (column === undefined && c === undefined) {
   console.log(Messages.COLUMN_NUMBER_SET_TO_DEFAULT)
 }
 
+const filePaths: string[] =
+  CsvFileReader.getFilePathsFromFilePathsOrFromDirectoryPath(
+    filePathsOrDirectoryPath
+  )
+
 const defaultColumnNumber: number = 1
 const columnNumber: number = column || c || defaultColumnNumber
-const filePaths: string[] = filePathsOrDirectoryPath.every((path: string) =>
-  CsvFileReader.filePathIsValid(path)
-)
-  ? filePathsOrDirectoryPath
-  : CsvFileReader.getFilePathsFromDirectory(filePathsOrDirectoryPath[0])
-
-if (filePaths.length < 1) {
-  throw new Error(Messages.FILE_PATHS_MISSING)
-}
-
-if (!CsvFileReader.columnNumberIsValid(columnNumber)) {
-  throw new Error(`${Messages.COLUMN_NUMBER_INVALID}: ${columnNumber}`)
-}
+CsvFileReader.validateColumnNumber(columnNumber)
 
 void (async function () {
   await store.setUp({ isHistoricalPrice })

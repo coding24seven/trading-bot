@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import Messages from '../types/messages.js'
 
 export default class CsvFileReader {
   static filePathIsValid(filePath: string): boolean {
@@ -7,8 +8,10 @@ export default class CsvFileReader {
     return validFilePath.test(filePath)
   }
 
-  static columnNumberIsValid(columnNumber: number): boolean {
-    return Number.isInteger(columnNumber) && columnNumber > 0
+  static validateColumnNumber(columnNumber: number) {
+    if (!Number.isInteger(columnNumber) || columnNumber < 1) {
+      throw new Error(`${Messages.COLUMN_NUMBER_INVALID}: ${columnNumber}`)
+    }
   }
 
   static getFilePathsFromDirectory(directoryPath: string): string[] {
@@ -20,6 +23,22 @@ export default class CsvFileReader {
       path.join(directoryPath, fileName)
     )
     return csvFilePaths
+  }
+
+  static getFilePathsFromFilePathsOrFromDirectoryPath(
+    paths: string[]
+  ): string[] | never {
+    const filePaths: string[] = paths.every((path: string) =>
+      CsvFileReader.filePathIsValid(path)
+    )
+      ? paths
+      : CsvFileReader.getFilePathsFromDirectory(paths[0])
+
+    if (filePaths.length < 1) {
+      throw new Error(Messages.FILE_PATHS_MISSING)
+    }
+
+    return filePaths
   }
 
   static getAsString(filePath: string): string {
