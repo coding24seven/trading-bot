@@ -1,5 +1,6 @@
-/*
- * gets last prices at real time
+/* get prices from historical-price files
+ * OR
+ * get last prices in real time
  * (kucoin ticker fires at 100ms interval)
  */
 
@@ -95,7 +96,8 @@ export default class PriceReader {
 
   private static priceIsValid(price: string): boolean {
     if (isNaN(parseFloat(price))) {
-      console.log(`${price} ${Messages.IS_NOT_A_NUMBER}`)
+      console.error(`${price} ${Messages.IS_NOT_A_NUMBER}`)
+
       return false
     }
 
