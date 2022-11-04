@@ -1,6 +1,7 @@
 /*
  * bot configurations for unit testing
  * each bot is fed one configuration object chosen from the set below
+ * DO NOT MODIFY THIS FILE WITHOUT ADJUSTING THE CORRESPONDING UNIT TESTS
  */
 
 import { BotConfigStatic } from '../source/types'
