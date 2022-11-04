@@ -1,24 +1,52 @@
 import fs from 'fs'
+import minimist from 'minimist'
 import { setDotEnv } from '../../config/env.js'
 import Comparator from '../comparator/comparator.js'
 import eventBus from '../events/event-bus.js'
+import CsvFileReader from '../file-reader/csv-file-reader.js'
 import Runner from '../runner/runner.js'
 import store from '../store/store.js'
-import { BotData } from '../types'
+import { BotData, CommandLineArguments } from '../types'
+import Messages from '../types/messages.js'
+import { zeroIndexPositiveInteger } from '../utils/index.js'
 
 setDotEnv()
 
-const commandLineArguments: string[] = process.argv
-const filePath: string = commandLineArguments[2]
-const priceColumnIndexAsString: string = commandLineArguments[3]
-const priceColumnIndex: number = parseInt(priceColumnIndexAsString) || 0
 const isHistoricalPrice: boolean = true
 
-if (filePath) {
-  begin()
+const commandLineArguments = minimist(process.argv.slice(2))
+const {
+  _: filePathsOrDirectoryPath,
+  column,
+  c,
+}: CommandLineArguments = commandLineArguments
+
+if (
+  filePathsOrDirectoryPath === undefined ||
+  filePathsOrDirectoryPath.length < 1
+) {
+  throw new Error(
+    Messages.COMMAND_LINE_FILE_PATHS_OR_DIRECTORY_PATH_ARGUMENT_MISSING
+  )
 }
 
-async function begin() {
+if (column === undefined && c === undefined) {
+  throw new Error(Messages.COMMAND_LINE_COLUMN_NUMBER_ARGUMENT_MISSING)
+}
+
+const filePaths: string[] = filePathsOrDirectoryPath.every((path: string) =>
+  CsvFileReader.filePathIsValid(path)
+)
+  ? filePathsOrDirectoryPath
+  : CsvFileReader.getFilePathsFromDirectory(filePathsOrDirectoryPath[0])
+
+if (filePaths.length < 1) {
+  throw new Error(Messages.FILE_PATHS_MISSING)
+}
+
+const columnNumber: number = column || c
+
+void (async function () {
   Comparator.run('BTC-USDT')
 
   console.log('bot count:', Comparator.botConfigs.length)
@@ -33,7 +61,7 @@ async function begin() {
 
     Runner.runBots()
 
-    Runner.runPriceReader([filePath], priceColumnIndex)
+    Runner.runPriceReader(filePaths, zeroIndexPositiveInteger(columnNumber))
 
     eventBus.removeAllListeners()
 
@@ -56,4 +84,4 @@ async function begin() {
       2
     )
   )
-}
+})()
