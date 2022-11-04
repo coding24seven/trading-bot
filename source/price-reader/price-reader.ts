@@ -69,6 +69,8 @@ export default class PriceReader {
     callback: (tickerMessage: DeepPartial<KucoinApiTickerMessage>) => void
   ) {
     filePaths.forEach((filePath: string) => {
+      console.log(`${Messages.BOT_CONFIGURATION_BEING_TESTED}: ${filePath}`)
+
       const rowsPopulatedWithNumbers: number[][] =
         this.cachedFileContent[filePath] ||
         CsvFileReader.getRowsPopulatedWithNumbers(filePath)
