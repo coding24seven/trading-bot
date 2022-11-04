@@ -13,7 +13,6 @@ import { zeroIndexPositiveInteger } from '../utils/index.js'
 setDotEnv()
 
 const isHistoricalPrice: boolean = true
-
 const commandLineArguments = minimist(process.argv.slice(2))
 const {
   _: filePathsOrDirectoryPath,
@@ -34,17 +33,13 @@ if (column === undefined && c === undefined) {
   throw new Error(Messages.COMMAND_LINE_COLUMN_NUMBER_ARGUMENT_MISSING)
 }
 
-const filePaths: string[] = filePathsOrDirectoryPath.every((path: string) =>
-  CsvFileReader.filePathIsValid(path)
-)
-  ? filePathsOrDirectoryPath
-  : CsvFileReader.getFilePathsFromDirectory(filePathsOrDirectoryPath[0])
-
-if (filePaths.length < 1) {
-  throw new Error(Messages.FILE_PATHS_MISSING)
-}
+const filePaths: string[] =
+  CsvFileReader.getFilePathsFromFilePathsOrFromDirectoryPath(
+    filePathsOrDirectoryPath
+  )
 
 const columnNumber: number = column || c
+CsvFileReader.validateColumnNumber(columnNumber)
 
 void (async function () {
   Comparator.run('BTC-USDT')
