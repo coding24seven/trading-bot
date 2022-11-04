@@ -653,7 +653,6 @@ class Store {
     } else {
       return `${Messages.DATABASE_REQUEST_GENERIC_PROBLEM}\n${error}`
     }
-    // todo: NOTIFY (BY EMAIL?) ABOUT READ/WRITE TO DATABASE ERROR
   }
 }
 
