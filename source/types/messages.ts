@@ -3,7 +3,7 @@ enum Messages {
   APP_PORT_MISSING = 'app port is missing',
   HOST_NAME_MISSING = 'host name is missing',
   COMMAND_LINE_ARGUMENTS_INVALID = 'command line arguments are invalid',
-  COMMAND_LINE_FILE_PATHS_OR_DIRECTORY_PATH_ARGUMENT_MISSING = 'command line arguments: either <file paths> or <directory path> must be present',
+  COMMAND_LINE_FILE_PATHS_OR_DIRECTORY_PATH_ARGUMENT_MISSING = 'command line arguments: either <file path(s)> or <directory path> must be present',
   COMMAND_LINE_CURRENCY_SYMBOL_ARGUMENT_MISSING = 'Please specify a currency symbol in the command line, for example: BTC-USDT',
   COMMAND_LINE_OUTPUT_FILE_ARGUMENT_MISSING = 'Please specify an output file path in the command line, for example: my-output-file.csv',
   FILE_PATHS_MISSING = 'file paths are missing',
