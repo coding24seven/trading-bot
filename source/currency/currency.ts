@@ -1,6 +1,10 @@
 import Big from 'big.js'
 import { CurrencyFields, KucoinSymbolData } from '../types'
-import { countDecimals, trimDecimalsToFixed } from '../utils/index.js'
+import {
+  countDecimals,
+  safeJsonParse,
+  trimDecimalsToFixed,
+} from '../utils/index.js'
 
 export default class Currency {
   symbol: string
@@ -85,6 +89,6 @@ export default class Currency {
   }
 
   public serialize(): CurrencyFields {
-    return JSON.parse(JSON.stringify(this))
+    return safeJsonParse(JSON.stringify(this))
   }
 }

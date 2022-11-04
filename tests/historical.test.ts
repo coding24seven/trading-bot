@@ -1,4 +1,5 @@
 import Big from 'big.js'
+import botConfigs from '../config/bot-config-test'
 import Currency from '../source/currency/currency'
 import {
   BotConfigDynamic,
@@ -9,21 +10,15 @@ import {
 import Messages from '../source/types/messages'
 import {
   getQuoteAfterBuySellDifference,
+  safeJsonParse,
   valuesAreWithinTolerance,
 } from '../source/utils'
-import botConfigs from '../config/bot-config-test'
 
 if (!process.env.BOT_DATA) {
   throw new Error(Messages.NO_BOT_DATA_AVAILABLE)
 }
 
-let data: BotData
-
-try {
-  data = JSON.parse(process.env.BOT_DATA)
-} catch (error) {
-  throw new Error(Messages.BOT_DATA_INVALID)
-}
+const data: BotData = safeJsonParse(process.env.BOT_DATA)
 
 const {
   configStatic,

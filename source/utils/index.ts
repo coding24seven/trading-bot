@@ -1,6 +1,15 @@
 import Big from 'big.js'
 import Messages from '../types/messages.js'
 
+export function safeJsonParse(value: string): any {
+  try {
+    return JSON.parse(value)
+  } catch (error) {
+    console.error(error)
+    return {}
+  }
+}
+
 export function getTime(): string {
   let date: Date = new Date()
 

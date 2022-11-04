@@ -10,6 +10,7 @@ import { Exchange } from '../exchange/exchange.js'
 import CsvFileReader from '../file-reader/csv-file-reader.js'
 import { DeepPartial, KucoinApiTickerMessage } from '../types'
 import Messages from '../types/messages.js'
+import { safeJsonParse } from '../utils/index.js'
 
 export default class PriceReader {
   static cachedFileContent: { [key: string]: number[][] } = {}
@@ -33,7 +34,9 @@ export default class PriceReader {
 
       PriceReader.dateMs = Date.now()
 
-      const message: KucoinApiTickerMessage = JSON.parse(tickerMessageAsString)
+      const message: KucoinApiTickerMessage = safeJsonParse(
+        tickerMessageAsString
+      )
 
       if (!message.data?.price) return
 
@@ -50,7 +53,7 @@ export default class PriceReader {
   ) {
     Exchange.startWSAllSymbolsTicker((tickerMessageAsString: string) => {
       /* this callback runs once per each symbol message received */
-      const tickerMessage: KucoinApiTickerMessage = JSON.parse(
+      const tickerMessage: KucoinApiTickerMessage = safeJsonParse(
         tickerMessageAsString
       )
 

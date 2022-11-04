@@ -12,7 +12,7 @@ import {
   TradeHistoryItem,
 } from '../types'
 import Messages from '../types/messages.js'
-import { getTime } from '../utils/index.js'
+import { getTime, safeJsonParse } from '../utils/index.js'
 
 export default class Bot {
   data: BotData
@@ -281,7 +281,7 @@ export default class Bot {
   }
 
   getPairTotalAsQuoteWhenAllSold(): string {
-    const botHands: BotHand[] = JSON.parse(JSON.stringify(this.hands))
+    const botHands: BotHand[] = safeJsonParse(JSON.stringify(this.hands))
 
     botHands.forEach((hand: BotHand) => {
       if (Big(hand.base).gt(0)) {

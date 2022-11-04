@@ -22,7 +22,7 @@ import {
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import Messages from '../types/messages.js'
-import { getDateTime, isNumeric } from '../utils/index.js'
+import { getDateTime, isNumeric, safeJsonParse } from '../utils/index.js'
 
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
@@ -396,7 +396,7 @@ class Store {
     configStatic: BotConfigStatic,
     configDynamic: BotConfigDynamic
   ): BotHand[] {
-    const toppedUpHands = JSON.parse(JSON.stringify(hands))
+    const toppedUpHands = safeJsonParse(JSON.stringify(hands))
 
     toppedUpHands.forEach((hand: BotHand) => {
       if (
@@ -440,7 +440,7 @@ class Store {
     configStatic: BotConfigStatic,
     configDynamic: BotConfigDynamic
   ): BotHand[] {
-    const toppedUpHands = JSON.parse(JSON.stringify(hands))
+    const toppedUpHands = safeJsonParse(JSON.stringify(hands))
 
     toppedUpHands.forEach((hand: BotHand) => {
       if (
