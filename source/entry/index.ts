@@ -15,7 +15,7 @@ const {
   odwp: overwriteDatabaseWithoutPromptAcronym,
 }: CommandLineArguments = commandLineArguments
 
-const continueWithExistingDatabase: boolean = !newStore && !n
+const startNewDatabase: boolean = newStore || n
 const overwriteDatabaseWithoutPrompt: boolean =
   overwriteDatabaseWithoutPromptFullName ||
   overwriteDatabaseWithoutPromptAcronym
@@ -48,7 +48,7 @@ void (async function () {
     )
 
     await store.setUp({
-      continueWithExistingDatabase,
+      startNewDatabase,
       overwriteDatabaseWithoutPrompt,
     })
     Runner.runBots()

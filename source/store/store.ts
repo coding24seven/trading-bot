@@ -47,7 +47,7 @@ class Store {
   }
 
   async setUp({
-    continueWithExistingDatabase = true,
+    startNewDatabase = false,
     overwriteDatabaseWithoutPrompt = false,
     isHistoricalPrice = false,
     createsStoreAndExits = false,
@@ -76,30 +76,7 @@ class Store {
     }
 
     return new Promise(async (resolve, reject) => {
-      if (continueWithExistingDatabase) {
-        const readResponse: AxiosResponse | string = await this.readDatabase()
-
-        if (typeof readResponse === 'string') {
-          throw new Error(readResponse)
-        } else if (readResponse.status === 200) {
-          console.log(Messages.CONTINUING_WITH_EXISTING_DATABASE)
-          this.setUpFromExistingDatabase(readResponse.data.accounts)
-
-          const writeResponse: AxiosResponse | string =
-            await this.writeDatabase()
-
-          if (typeof writeResponse === 'string') {
-            throw new Error(writeResponse)
-          } else if (writeResponse.status !== 200) {
-            throw new Error(writeResponse.data)
-          }
-        } else if (readResponse.status === 404) {
-          throw new Error(Messages.DATABASE_DOES_NOT_EXIST)
-        }
-
-        resolve()
-      } else {
-        /* do not continueWithExistingDatabase */
+      if (startNewDatabase) {
         if (overwriteDatabaseWithoutPrompt) {
           await this.setUpAnew()
           console.log(Messages.DATABASE_CREATED)
@@ -126,6 +103,29 @@ class Store {
             }
           }
         )
+      } else {
+        /* continue with existing database */
+        const readResponse: AxiosResponse | string = await this.readDatabase()
+
+        if (typeof readResponse === 'string') {
+          throw new Error(readResponse)
+        } else if (readResponse.status === 200) {
+          console.log(Messages.CONTINUING_WITH_EXISTING_DATABASE)
+          this.setUpFromExistingDatabase(readResponse.data.accounts)
+
+          const writeResponse: AxiosResponse | string =
+            await this.writeDatabase()
+
+          if (typeof writeResponse === 'string') {
+            throw new Error(writeResponse)
+          } else if (writeResponse.status !== 200) {
+            throw new Error(writeResponse.data)
+          }
+        } else if (readResponse.status === 404) {
+          throw new Error(Messages.DATABASE_DOES_NOT_EXIST)
+        }
+
+        resolve()
       }
     })
   }
