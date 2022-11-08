@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "new": "tsc && node dist/source/entry/index.js --new-store",
+    "new:overwrite-database-without-prompt": "tsc && node dist/source/entry/index.js --new-store --overwrite-database-without-prompt",
     "continue": "tsc && node dist/source/entry/index.js",
     "delete": "tsc && node dist/source/entry/delete.js",
     "historical": "tsc && node dist/source/entry/historical.js",
