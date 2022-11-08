@@ -156,22 +156,22 @@ export class Exchange {
           response = await kucoin.listFills({
             orderId,
           })
+
+          const expectedItemQuantity: number = 1
+
+          if (
+            response.code === ExchangeCodes.responseSuccess &&
+            response.data.items.length === expectedItemQuantity
+          ) {
+            clearInterval(interval)
+            clearTimeout(timeout)
+            const indexOfQueriedOrder: number = 0
+            resolve(response.data.items[indexOfQueriedOrder])
+          }
         } catch (error) {
           console.log(
             `\n${Messages.ATTEMPTING_TO_GET_ORDER_DETAILS_BY_ID}:\n${error}\n`
           )
-        }
-
-        const expectedItemQuantity: number = 1
-
-        if (
-          response.code === ExchangeCodes.responseSuccess &&
-          response.data.items.length === expectedItemQuantity
-        ) {
-          clearInterval(interval)
-          clearTimeout(timeout)
-          const indexOfQueriedOrder: number = 0
-          resolve(response.data.items[indexOfQueriedOrder])
         }
       }, requestIntervalMs)
 
