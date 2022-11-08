@@ -63,22 +63,22 @@ export default class Trader {
         5000,
         60000
       )
+
+      if (!filledOrderItem) {
+        return
+      }
+
+      if (isBuy) {
+        const baseReceived: string = filledOrderItem.size
+
+        return baseReceived
+      } else {
+        const quoteReceived: string = filledOrderItem.funds
+
+        return quoteReceived
+      }
     } catch (error) {
       console.error(Messages.COULD_NOT_GET_ORDER_DETAILS_BY_ID)
-    }
-
-    if (!filledOrderItem) {
-      return
-    }
-
-    if (isBuy) {
-      const baseReceived: string = filledOrderItem.size
-
-      return baseReceived
-    } else {
-      const quoteReceived: string = filledOrderItem.funds
-
-      return quoteReceived
     }
   }
 
