@@ -4,11 +4,21 @@ import { setDotEnv, validateEnvVariables } from '../../config/env.js'
 import Runner from '../runner/runner.js'
 import startAppServer from '../server/server.js'
 import store from '../store/store.js'
+import minimist from 'minimist'
+import { CommandLineArguments } from '../types/index.js'
 
-const commandLineArguments: string[] = process.argv
-const continueWithExistingDatabase: boolean = !commandLineArguments.includes(
-  'starts:with:new:store'
-)
+const commandLineArguments = minimist(process.argv.slice(2))
+const {
+  'new-store': newStore,
+  n,
+  'overwrite-database-without-prompt': overwriteDatabaseWithoutPromptFullName,
+  odwp: overwriteDatabaseWithoutPromptAcronym,
+}: CommandLineArguments = commandLineArguments
+
+const continueWithExistingDatabase: boolean = !newStore && !n
+const overwriteDatabaseWithoutPrompt: boolean =
+  overwriteDatabaseWithoutPromptFullName ||
+  overwriteDatabaseWithoutPromptAcronym
 
 const {
   APP_PORT,
@@ -37,7 +47,10 @@ void (async function () {
       DATABASE_BACKUP_DIRECTORY!
     )
 
-    await store.setUp({ continueWithExistingDatabase })
+    await store.setUp({
+      continueWithExistingDatabase,
+      overwriteDatabaseWithoutPrompt,
+    })
     Runner.runBots()
     Runner.runPriceReader()
     await startAppServer(parseInt(APP_PORT!), HOST_NAME!)

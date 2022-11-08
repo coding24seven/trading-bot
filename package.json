@@ -5,7 +5,7 @@
   "main": "source/entry/index.ts",
   "type": "module",
   "scripts": {
-    "new": "tsc && node dist/source/entry/index.js starts:with:new:store",
+    "new": "tsc && node dist/source/entry/index.js --new-store",
     "continue": "tsc && node dist/source/entry/index.js",
     "delete": "tsc && node dist/source/entry/delete.js",
     "historical": "tsc && node dist/source/entry/historical.js",

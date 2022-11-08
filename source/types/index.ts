@@ -12,6 +12,10 @@ export interface CommandLineArguments {
   c: number
   test?: boolean
   t?: boolean
+  'new-store': boolean
+  n: boolean
+  'overwrite-database-without-prompt': boolean
+  odwp: boolean
 }
 
 export interface CurrencyFields {
@@ -24,6 +28,7 @@ export interface CurrencyFields {
 
 export type StoreSetupParameters = {
   continueWithExistingDatabase?: boolean
+  overwriteDatabaseWithoutPrompt?: boolean
   isHistoricalPrice?: boolean
   createsStoreAndExits?: boolean
   botConfigFromGenerator?: BotConfigStatic

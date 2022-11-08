@@ -48,6 +48,7 @@ class Store {
 
   async setUp({
     continueWithExistingDatabase = true,
+    overwriteDatabaseWithoutPrompt = false,
     isHistoricalPrice = false,
     createsStoreAndExits = false,
     botConfigFromGenerator,
@@ -99,6 +100,14 @@ class Store {
         resolve()
       } else {
         /* do not continueWithExistingDatabase */
+        if (overwriteDatabaseWithoutPrompt) {
+          await this.setUpAnew()
+          console.log(Messages.DATABASE_CREATED)
+          resolve()
+
+          return
+        }
+
         const readline: Interface = readlineImported.createInterface({
           input: process.stdin,
           output: process.stdout,
