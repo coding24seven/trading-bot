@@ -49,9 +49,7 @@ This repository contains the source code and documentation powering the trading-
 
 ### Running locally
 
-1. `npm run new` create new database and make bot trade on exchange
-1. `npm run new:overwrite-database-without-prompt` create new database (without existing-database overwrite prompt) and make bot trade on exchange
-1. `npm run continue` use existing database and make bot trade on exchange
+1. `new-or-continue` create new database and make bot trade on exchange
 1. `npm run delete` delete database
 1. `npm run historical -- <historical-file path(s) or directory path> -c price-column` analyse performance of specific bot configuations in botConfig.ts against historical data in provided files. Example: `npm run historical -- historical-price-files/BTCUSDT-1m-2021-05.csv -c 3`
 1. `npm run generate -- <historical-file path(s) or directory path> -c price-column` obtain winning bot configurations generated through Comparator.ts. Example: `npm run -- generate historical-price-files -c 2`

@@ -27,8 +27,6 @@ export interface CurrencyFields {
 }
 
 export type StoreSetupParameters = {
-  startNewDatabase?: boolean
-  overwriteDatabaseWithoutPrompt?: boolean
   isHistoricalPrice?: boolean
   createsStoreAndExits?: boolean
   botConfigFromGenerator?: BotConfigStatic

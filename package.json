@@ -5,9 +5,7 @@
   "main": "source/entry/index.ts",
   "type": "module",
   "scripts": {
-    "new": "tsc && node dist/source/entry/index.js --new-store",
-    "new:overwrite-database-without-prompt": "tsc && node dist/source/entry/index.js --new-store --overwrite-database-without-prompt",
-    "continue": "tsc && node dist/source/entry/index.js",
+    "new-or-continue": "tsc && node dist/source/entry/index.js",
     "delete": "tsc && node dist/source/entry/delete.js",
     "historical": "tsc && node dist/source/entry/historical.js",
     "test": "tsc --project tsconfig-unit-tests.json && cd dist-unit-tests && npm init -y > /dev/null && cd .. && node dist-unit-tests/source/entry/historical.js tests/test.csv --test --column 1",
