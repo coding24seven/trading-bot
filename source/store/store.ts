@@ -80,7 +80,7 @@ class Store {
         throw new Error(readResponse)
       } else if (readResponse.status === 200) {
         console.log(Messages.CONTINUING_WITH_EXISTING_DATABASE)
-        this.setUpFromExistingDatabase(readResponse.data.accounts)
+        this.setUpFromExistingDatabase(readResponse.data)
 
         const writeResponse: AxiosResponse | string = await this.writeDatabase()
 
@@ -118,12 +118,16 @@ class Store {
     return writeResponse
   }
 
-  private setUpFromExistingDatabase(accounts: AccountDataStripped[]) {
-    accounts.forEach((account: AccountDataStripped, accountIndex: number) => {
-      if (account.bots) {
-        this.botsPerAccount[accountIndex] = account.bots
+  private setUpFromExistingDatabase(data: AppData) {
+    this.appEnvironment.firstAppStart = data.firstAppStart
+
+    data.accounts.forEach(
+      (account: AccountDataStripped, accountIndex: number) => {
+        if (account.bots) {
+          this.botsPerAccount[accountIndex] = account.bots
+        }
       }
-    })
+    )
 
     this.createAccountAndBotConfigs({ skipBotConfigSetup: true })
   }
