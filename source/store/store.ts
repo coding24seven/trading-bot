@@ -22,7 +22,11 @@ import {
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import Messages from '../types/messages.js'
-import { getDateTime, isNumeric, safeJsonParse } from '../utils/index.js'
+import {
+  getDateTime,
+  safeJsonParse,
+  validateNumericString,
+} from '../utils/index.js'
 
 class Store {
   allSymbolsData: KucoinSymbolData[] | undefined
@@ -300,36 +304,28 @@ class Store {
               this.calculateQuoteStartAmountPerHand(hands, configStatic)
             )
 
-          if (
-            typeof quoteStartAmountPerHand !== 'string' ||
-            !isNumeric(quoteStartAmountPerHand)
-          ) {
-            throw new Error(
-              `${Messages.QUOTE_START_AMOUNT_PER_HAND_INVALID}: ${quoteStartAmountPerHand}`
-            )
-          }
+          validateNumericString(
+            quoteStartAmountPerHand,
+            `${Messages.QUOTE_START_AMOUNT_PER_HAND_INVALID}: ${quoteStartAmountPerHand}`
+          )
 
           const baseStartAmountPerHand: string | undefined =
             baseCurrency.normalize(
               this.calculateBaseStartAmountPerHand(hands, configStatic)
             )
 
-          if (
-            typeof baseStartAmountPerHand !== 'string' ||
-            !isNumeric(baseStartAmountPerHand)
-          ) {
-            throw new Error(
-              `${Messages.BASE_START_AMOUNT_PER_HAND_INVALID}: ${baseStartAmountPerHand}`
-            )
-          }
+          validateNumericString(
+            baseStartAmountPerHand,
+            `${Messages.BASE_START_AMOUNT_PER_HAND_INVALID}: ${baseStartAmountPerHand}`
+          )
 
           const configDynamic: BotConfigDynamic = {
             id: botIndex,
             itsAccountId: accountIndex,
             minFunds: symbolData.minFunds,
             handCount: hands.length,
-            quoteStartAmountPerHand,
-            baseStartAmountPerHand,
+            quoteStartAmountPerHand: quoteStartAmountPerHand as string,
+            baseStartAmountPerHand: baseStartAmountPerHand as string,
             tradeFee: ticker.takerFeeRate,
             baseCurrency: baseCurrency.serialize(),
             quoteCurrency: quoteCurrency.serialize(),
@@ -468,9 +464,10 @@ class Store {
     handSpanPercent,
     tradeFee,
   }: BotConfigFull): boolean {
-    if (!tradeFee || typeof tradeFee !== 'string' || !isNumeric(tradeFee)) {
-      throw new Error(`${Messages.EXCHANGE_FEE_INVALID}: ${tradeFee}`)
-    }
+    validateNumericString(
+      tradeFee,
+      `${Messages.EXCHANGE_FEE_INVALID}: ${tradeFee}`
+    )
 
     const handSpanDecimal: Big = Big(handSpanPercent).div(100)
     const tradeCount: number = 2
@@ -493,17 +490,13 @@ class Store {
       const normalizedIncrement: string | undefined =
         quoteCurrency.normalize(increment)
 
-      if (
-        typeof normalizedIncrement !== 'string' ||
-        !isNumeric(normalizedIncrement)
-      ) {
-        throw new Error(
-          `${Messages.HAND_INCREMENT_INVALID}: ${normalizedIncrement}`
-        )
-      }
+      validateNumericString(
+        normalizedIncrement,
+        `${Messages.HAND_INCREMENT_INVALID}: ${normalizedIncrement}`
+      )
 
       const sellAbove: string = Big(buyBelow)
-        .plus(normalizedIncrement)
+        .plus(normalizedIncrement as string)
         .toFixed()
 
       hands.push({

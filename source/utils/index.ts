@@ -43,6 +43,12 @@ export function isNumeric<T>(value: T): boolean {
   )
 }
 
+export function validateNumericString(value: any, errorMessage: string): void {
+  if (!value || typeof value !== 'string' || !isNumeric(value)) {
+    throw new Error(errorMessage)
+  }
+}
+
 export function countDecimals(numberAsString: string): number {
   return numberAsString.split('.')[1]?.length || 0
 }
