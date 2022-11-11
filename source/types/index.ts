@@ -113,7 +113,7 @@ export type BotResults = {
   quoteTotal: string
   baseTotal: string
   baseConvertedToQuoteAtLastPrice: string
-  pairTotalAsQuote: string
+  pairTotalAsQuoteAtLastPrice: string
   pairTotalAsQuoteWhenAllSold: string
   buyCountTotal: number
   sellCountTotal: number

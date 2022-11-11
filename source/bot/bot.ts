@@ -238,12 +238,13 @@ export default class Bot {
       return
     }
 
-    const pairTotalAsQuote: string | undefined = this.quoteCurrency.normalize(
-      Big(quoteTotal).plus(baseConvertedToQuoteAtLastPrice)
-    )
+    const pairTotalAsQuoteAtLastPrice: string | undefined =
+      this.quoteCurrency.normalize(
+        Big(quoteTotal).plus(baseConvertedToQuoteAtLastPrice)
+      )
 
-    if (typeof pairTotalAsQuote !== 'string') {
-      console.error(`${pairTotalAsQuote} ${Messages.IS_NOT_STRING}`)
+    if (typeof pairTotalAsQuoteAtLastPrice !== 'string') {
+      console.error(`${pairTotalAsQuoteAtLastPrice} ${Messages.IS_NOT_STRING}`)
       return
     }
 
@@ -269,9 +270,9 @@ export default class Bot {
     return {
       quoteTotal,
       baseConvertedToQuoteAtLastPrice,
-      pairTotalAsQuote,
-      baseTotal,
+      pairTotalAsQuoteAtLastPrice,
       pairTotalAsQuoteWhenAllSold,
+      baseTotal,
       buyCountTotal,
       sellCountTotal,
       lowestPriceRecorded: this.lowestPriceRecorded,

@@ -209,7 +209,7 @@ const expectedBaseAtLastPriceToQuoteTotal: string = Big(expectedBaseTotal)
   .mul(lastPriceRecorded)
   .toFixed()
 
-const expectedPairTotalAsQuote: string = Big(expectedQuoteTotal)
+const expectedPairTotalAsQuoteAtLastPrice: string = Big(expectedQuoteTotal)
   .plus(expectedBaseAtLastPriceToQuoteTotal)
   .toFixed()
 
@@ -437,9 +437,9 @@ describe('results', () => {
     expect(valueAreCloseEnough).toBeTruthy()
   })
 
-  test(`pair total as quote: ~ '${expectedPairTotalAsQuote}'`, () => {
+  test(`pair total as quote: ~ '${expectedPairTotalAsQuoteAtLastPrice}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [results.pairTotalAsQuote, expectedPairTotalAsQuote],
+      [results.pairTotalAsQuoteAtLastPrice, expectedPairTotalAsQuoteAtLastPrice],
       tolerancePercent
     )
     expect(valueAreCloseEnough).toBeTruthy()
