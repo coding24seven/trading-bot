@@ -120,3 +120,14 @@ export function getQuoteAfterBuySellDifference(
     ? quoteAfterFees.toFixed()
     : getQuoteAfterBuySellDifference(prices, tradeFee, quoteAfterFees)
 }
+
+export function calculatePercentIncreaseOrDecrease(
+  value1: string,
+  value2: string
+): string {
+  const difference: Big = Big(value2).minus(value1)
+  const differenceDecimal: Big = difference.div(value1)
+  const differencePercent: Big = differenceDecimal.mul(100)
+
+  return differencePercent.toFixed(2)
+}

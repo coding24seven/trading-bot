@@ -12,7 +12,11 @@ import {
   TradeHistoryItem,
 } from '../types'
 import Messages from '../types/messages.js'
-import { getTime, safeJsonParse } from '../utils/index.js'
+import {
+  calculatePercentIncreaseOrDecrease,
+  getTime,
+  safeJsonParse,
+} from '../utils/index.js'
 
 export default class Bot {
   data: BotData
@@ -248,8 +252,18 @@ export default class Bot {
       return
     }
 
+    const profitPercentAtLastPrice: string = calculatePercentIncreaseOrDecrease(
+      this.data.configStatic.quoteStartAmount,
+      pairTotalAsQuoteAtLastPrice
+    )
+
     const pairTotalAsQuoteWhenAllSold: string =
       this.getPairTotalAsQuoteWhenAllSold()
+
+    const profitPercentWhenAllSold: string = calculatePercentIncreaseOrDecrease(
+      this.data.configStatic.quoteStartAmount,
+      pairTotalAsQuoteWhenAllSold
+    )
 
     const buyCountTotal: number = this.hands
       .reduce(
@@ -271,7 +285,9 @@ export default class Bot {
       quoteTotal,
       baseConvertedToQuoteAtLastPrice,
       pairTotalAsQuoteAtLastPrice,
+      profitPercentAtLastPrice,
       pairTotalAsQuoteWhenAllSold,
+      profitPercentWhenAllSold,
       baseTotal,
       buyCountTotal,
       sellCountTotal,

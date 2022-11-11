@@ -114,7 +114,9 @@ export type BotResults = {
   baseTotal: string
   baseConvertedToQuoteAtLastPrice: string
   pairTotalAsQuoteAtLastPrice: string
+  profitPercentAtLastPrice: string
   pairTotalAsQuoteWhenAllSold: string
+  profitPercentWhenAllSold: string
   buyCountTotal: number
   sellCountTotal: number
   lastPrice: string
