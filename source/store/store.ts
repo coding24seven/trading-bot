@@ -602,7 +602,7 @@ class Store {
         async (answer: string) => {
           readline.close()
 
-          if (answer === 'y' || answer === 'yes') {
+          if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
             try {
               this.appEnvironment = this.readAppEnvironment()
               const response: AxiosResponse = await axios.delete(
