@@ -3,9 +3,12 @@ import {
   countDecimals,
   isNumeric,
   trimDecimalsToFixed,
+  validateNumericString,
   valuesAreWithinTolerance,
   zeroIndexPositiveInteger,
 } from '../source/utils'
+
+const errorMessage = 'some error message'
 
 const validNumbersToTrim: (string | number)[][] = [
   ['1.123456789', 6, '1.123456'],
@@ -36,6 +39,27 @@ const potentialNumerics: (string | number | boolean)[][] = [
   ['1e', false],
   ['1p', false],
   ['what', false],
+]
+
+const stringNumerics: string[][] = [
+  ['-0', errorMessage],
+  ['0', errorMessage],
+  ['98', errorMessage],
+  ['4872.239732332', errorMessage],
+  ['-4872.239732332', errorMessage],
+  ['-92472382374872.239732', errorMessage],
+]
+
+const invalidStringNumerics: (string | number | undefined)[][] = [
+  [undefined, errorMessage],
+  [0, errorMessage],
+  [-0, errorMessage],
+  [22, errorMessage],
+  [-22, errorMessage],
+  [45.35354, errorMessage],
+  ['1e', errorMessage],
+  ['1p', errorMessage],
+  ['what', errorMessage],
 ]
 
 const numbersWithDecimalsToCount: (string | number)[][] = [
@@ -91,6 +115,24 @@ describe('utils', () => {
     `%p is numeric: %s`,
     (value: string | number, expected: boolean) => {
       expect(isNumeric(value)).toBe(expected)
+    }
+  )
+
+  test.each(stringNumerics)(
+    `string numeric %p does not throw: '%s'`,
+    (value: string | number, errorMessage: string) => {
+      expect(() => {
+        validateNumericString(value, errorMessage)
+      }).not.toThrow(errorMessage)
+    }
+  )
+
+  test.each(invalidStringNumerics)(
+    `invalid string numeric %p throws: '%s'`,
+    (value: string | number | undefined, errorMessage: string) => {
+      expect(() => {
+        validateNumericString(value, errorMessage)
+      }).toThrow(errorMessage)
     }
   )
 
