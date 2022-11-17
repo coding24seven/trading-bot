@@ -1,17 +1,13 @@
 import 'dotenv/config'
 import startDBServer from 'trading-bot-database'
-import { setDotEnv, validateEnvVariables } from '../../config/env.js'
+import { setDotEnv, validateAndGetEnvVariables } from '../../config/env.js'
 import Runner from '../runner/runner.js'
 import startAppServer from '../server/server.js'
 import store from '../store/store.js'
 
-const {
-  APP_PORT,
-  HOST_NAME,
-  DATABASE_PORT,
-  DATABASE_DIRECTORY,
-  DATABASE_BACKUP_DIRECTORY,
-}: NodeJS.ProcessEnv = setDotEnv()
+type VariablesType = typeof variables[number]
+
+setDotEnv()
 
 const variables = [
   'APP_PORT',
@@ -21,21 +17,25 @@ const variables = [
   'DATABASE_BACKUP_DIRECTORY',
 ]
 
-validateEnvVariables(variables)
+const requiredEnvVariables: { [key: VariablesType]: string } =
+  validateAndGetEnvVariables(variables)
 
 void (async function () {
   try {
     await startDBServer(
-      parseInt(DATABASE_PORT!),
-      HOST_NAME!,
-      DATABASE_DIRECTORY!,
-      DATABASE_BACKUP_DIRECTORY!
+      parseInt(requiredEnvVariables.DATABASE_PORT),
+      requiredEnvVariables.HOST_NAME,
+      requiredEnvVariables.DATABASE_DIRECTORY,
+      requiredEnvVariables.DATABASE_BACKUP_DIRECTORY
     )
 
     await store.setUp()
     Runner.runBots()
     Runner.runPriceReader()
-    await startAppServer(parseInt(APP_PORT!), HOST_NAME!)
+    await startAppServer(
+      parseInt(requiredEnvVariables.APP_PORT),
+      requiredEnvVariables.HOST_NAME
+    )
   } catch (error) {
     console.error(error)
     process.exit()
