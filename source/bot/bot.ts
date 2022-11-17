@@ -1,9 +1,12 @@
+import { AxiosResponse } from 'axios'
 import Big from 'big.js'
 import Currency from '../currency/currency.js'
 import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import store from '../store/store.js'
 import Trader from '../trader/trader.js'
 import {
+  BotConfigDynamic,
+  BotConfigStatic,
   BotData,
   BotHand,
   BotResults,
@@ -14,6 +17,7 @@ import {
 import Messages from '../types/messages.js'
 import {
   calculatePercentIncreaseOrDecrease,
+  getDateTime,
   getTime,
   safeJsonParse,
 } from '../utils/index.js'
@@ -75,7 +79,7 @@ export default class Bot {
   }
 
   onHistoricalPriceReaderFinished() {
-    store.setResults(this.itsAccountId, this.id, this.getResults())
+    this.setResults()
 
     eventBus.emit(
       EventBusEvents.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
@@ -83,7 +87,7 @@ export default class Bot {
     )
   }
 
-  async onLastPrice(tickerMessage: KucoinApiTickerMessage) {
+  private async onLastPrice(tickerMessage: KucoinApiTickerMessage) {
     const symbol: string = tickerMessage.subject
     const lastPrice: string = tickerMessage.data.price
 
@@ -91,7 +95,13 @@ export default class Bot {
       const intervalNotCompleted: boolean =
         Date.now() < this.dateMs + this.processLastPriceIntervalMs
 
-      if (intervalNotCompleted || this.symbol !== symbol) return
+      if (
+        !this.isTriggered(lastPrice) ||
+        intervalNotCompleted ||
+        this.symbol !== symbol
+      ) {
+        return
+      }
 
       console.log(getTime(), symbol, lastPrice)
       this.dateMs = Date.now()
@@ -103,7 +113,7 @@ export default class Bot {
       this.recordLowestAndHighestPrice(lastPrice)
 
     if (!store.isHistoricalPrice && newLowestOrHighestPriceRecorded) {
-      this.storeCurrentResults()
+      this.setResults()
     }
 
     this.processLastPrice(lastPrice)
@@ -199,6 +209,34 @@ export default class Bot {
       Big(quote).gte(this.data.configDynamic.quoteCurrency.minSize) &&
       Big(quote).gte(this.data.configDynamic.minFunds)
     )
+  }
+
+  private isTriggered(lastPrice: string): boolean {
+    const { triggered }: BotConfigDynamic = this.data.configDynamic
+
+    if (triggered) {
+      return true
+    }
+
+    const { triggerBelowPrice }: BotConfigStatic = this.data.configStatic
+
+    if (!triggerBelowPrice) {
+      return this.setTriggered()
+    }
+
+    if (!triggered) {
+      if (Big(lastPrice).lt(triggerBelowPrice)) {
+        return this.setTriggered()
+      }
+    }
+
+    return false
+  }
+
+  private setTriggered(): boolean {
+    this.data.configDynamic.triggered = true
+
+    return true
   }
 
   getHistoricalBotDataWithResults(options?: {
@@ -389,15 +427,34 @@ export default class Bot {
     )
     this.tradeHistory.push(tradeHistoryItem)
 
-    if (store.isHistoricalPrice) return
+    if (store.isHistoricalPrice) {
+      return
+    }
 
     console.log(tradeHistoryItem)
 
-    this.storeCurrentResults()
+    this.setResults()
   }
 
-  storeCurrentResults() {
-    store.setResults(this.itsAccountId, this.id, this.getResults())
+  async setResults() {
+    this.data.results = this.getResults()
+
+    if (!this.data.results || store.isHistoricalPrice) {
+      return
+    }
+
+    this.data.lastModified = getDateTime(
+      store.appEnvironment.locale,
+      store.appEnvironment.timeZone
+    )
+
+    const writeResponse: AxiosResponse | string = await store.writeDatabase()
+
+    if (typeof writeResponse === 'string') {
+      console.error(writeResponse)
+    } else if (writeResponse.status !== 200) {
+      console.error(writeResponse.data)
+    }
   }
 
   recordLowestAndHighestPrice(lastPrice: string): boolean {

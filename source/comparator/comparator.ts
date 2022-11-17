@@ -22,9 +22,9 @@ export default class Comparator {
   }
 
   static generateBotConfigs(symbol: string): BotConfigStatic[] {
-    const handSpanPercentMin: number = 0.3
-    const handSpanPercentStep: number = 0.3
-    const handSpanPercentMax: number = 2
+    const handSpanPercentMin: number = 1
+    const handSpanPercentStep: number = 1
+    const handSpanPercentMax: number = 5
     const arr: BotConfigStatic[] = []
 
     for (
@@ -36,15 +36,16 @@ export default class Comparator {
     ) {
       arr.push({
         symbol,
-        from: '37000',
-        to: '57000',
-        baseFrom: '37000',
-        baseTo: '57000',
-        quoteFrom: '37000',
-        quoteTo: '57000',
+        from: '18000',
+        to: '21000',
+        baseFrom: '0',
+        baseTo: '0',
+        quoteFrom: '18000',
+        quoteTo: '21000',
         handSpanPercent,
         quoteStartAmount: '100',
         baseStartAmount: '0',
+        triggerBelowPrice: '60000',
       })
     }
 
