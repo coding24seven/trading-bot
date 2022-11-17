@@ -28,6 +28,12 @@ const {
 }: BotData = data
 
 if (!configStatic || !configDynamic || !handsActual || !results) {
+  console.error({
+    configStatic,
+    configDynamic,
+    handCount: handsActual.length,
+    results,
+  })
   throw new Error(Messages.BOT_DATA_INVALID)
 }
 
@@ -439,7 +445,10 @@ describe('results', () => {
 
   test(`pair total as quote: ~ '${expectedPairTotalAsQuoteAtLastPrice}'`, () => {
     const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [results.pairTotalAsQuoteAtLastPrice, expectedPairTotalAsQuoteAtLastPrice],
+      [
+        results.pairTotalAsQuoteAtLastPrice,
+        expectedPairTotalAsQuoteAtLastPrice,
+      ],
       tolerancePercent
     )
     expect(valueAreCloseEnough).toBeTruthy()
