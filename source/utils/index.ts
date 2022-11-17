@@ -43,7 +43,10 @@ export function isNumeric<T>(value: T): boolean {
   )
 }
 
-export function validateNumericString(value: any, errorMessage: string): void {
+export function validateNumericString(
+  value: any,
+  errorMessage: string
+): asserts value is string {
   if (!value || typeof value !== 'string' || !isNumeric(value)) {
     throw new Error(errorMessage)
   }
