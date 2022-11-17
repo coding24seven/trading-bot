@@ -93,6 +93,7 @@ export type BotConfigStatic = {
   handSpanPercent: number
   quoteStartAmount: string
   baseStartAmount: string
+  triggerBelowPrice: string
 }
 
 export type BotConfigDynamic = {
@@ -103,6 +104,7 @@ export type BotConfigDynamic = {
   minFunds: string
   id: number
   itsAccountId: number
+  triggered: boolean
   quoteCurrency: CurrencyFields
   baseCurrency: CurrencyFields
 }

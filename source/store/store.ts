@@ -327,6 +327,7 @@ class Store {
             quoteStartAmountPerHand,
             baseStartAmountPerHand,
             tradeFee: ticker.takerFeeRate,
+            triggered: false,
             baseCurrency: baseCurrency.serialize(),
             quoteCurrency: quoteCurrency.serialize(),
           }
@@ -515,35 +516,6 @@ class Store {
     }
 
     return hands
-  }
-
-  async setResults(
-    accountId: number | null,
-    botId: number | null,
-    results: BotResults | undefined
-  ) {
-    if (accountId === null || botId === null || !results) {
-      return
-    }
-
-    this.accounts[accountId].bots[botId].results = results
-
-    if (this.isHistoricalPrice) {
-      return
-    }
-
-    this.accounts[accountId].bots[botId].lastModified = getDateTime(
-      this.appEnvironment.locale,
-      this.appEnvironment.timeZone
-    )
-
-    const writeResponse: AxiosResponse | string = await this.writeDatabase()
-
-    if (typeof writeResponse === 'string') {
-      console.error(writeResponse)
-    } else if (writeResponse.status !== 200) {
-      console.error(writeResponse.data)
-    }
   }
 
   getResults(accountId: number, botId: number): BotResults | undefined {

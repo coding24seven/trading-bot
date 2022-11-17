@@ -18,6 +18,7 @@ const botConfigsForUnitTests: BotConfigStatic[] = [
     quoteStartAmount: '9',
     baseStartAmount: '0',
     handSpanPercent: 5,
+    triggerBelowPrice: '25500',
   },
 ]
 
