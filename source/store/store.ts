@@ -496,7 +496,7 @@ class Store {
       )
 
       const sellAbove: string = Big(buyBelow)
-        .plus(normalizedIncrement as string)
+        .plus(normalizedIncrement)
         .toFixed()
 
       hands.push({
