@@ -92,19 +92,19 @@ export default class Bot {
     const lastPrice: string = tickerMessage.data.price
 
     if (!store.isHistoricalPrice) {
-      const intervalNotCompleted: boolean =
-        Date.now() < this.dateMs + this.processLastPriceIntervalMs
+      const intervalCompleted: boolean =
+        Date.now() > this.dateMs + this.processLastPriceIntervalMs
 
-      if (
-        !this.isTriggered(lastPrice) ||
-        intervalNotCompleted ||
-        this.symbol !== symbol
-      ) {
+      if (!intervalCompleted || this.symbol !== symbol) {
         return
       }
 
       console.log(getTime(), symbol, lastPrice)
       this.dateMs = Date.now()
+
+      if (!this.isTriggered(lastPrice)) {
+        return
+      }
     }
 
     this.lastPrice = lastPrice
@@ -227,6 +227,10 @@ export default class Bot {
     if (!triggered) {
       if (Big(lastPrice).lt(triggerBelowPrice)) {
         return this.setTriggered()
+      } else {
+        console.log(
+          `${Messages.BOT_WILL_BE_TRIGGERED_WHEN_PRICE} ${triggerBelowPrice}`
+        )
       }
     }
 

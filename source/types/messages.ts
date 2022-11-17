@@ -17,6 +17,7 @@ enum Messages {
   ACCOUNT_ENVIRONMENT_CONFIG_DATA_INVALID = 'invalid config data in account environment',
   BOT_CONFIG_INDEXES_MISSING = 'bot-config indexes are missing',
   BOT_CONFIGURATION_BEING_TESTED = 'bot configuration being tested on historical-price file',
+  BOT_WILL_BE_TRIGGERED_WHEN_PRICE = 'bot will be triggered when last price drops below',
   HAND_COUNT_INVALID = 'hand count is invalid',
   HAND_INCREMENT_INVALID = 'hand inrement is invalid',
   HAND_SPAN_TOO_NARROW = 'too narrow to offset exchange fee. increase hand span.',
