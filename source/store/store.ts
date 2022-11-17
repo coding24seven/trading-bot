@@ -1,8 +1,8 @@
-import axios, { AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import Big from 'big.js'
 import path from 'path'
-import readlineImported, { Interface } from 'readline'
 import Currency from '../currency/currency.js'
+import DatabaseDriver from '../database-driver/database-driver.js'
 import { Exchange } from '../exchange/exchange.js'
 import {
   AccountConfig,
@@ -38,6 +38,7 @@ class Store {
   botsPerAccount: BotData[][] = []
   isHistoricalPrice: boolean = false
   botConfigFromGenerator: BotConfigStatic | undefined
+  databaseDriver: DatabaseDriver
 
   get accountsAsString(): string {
     return JSON.stringify(this.accounts, null, 2)
@@ -59,6 +60,7 @@ class Store {
     this.botConfigFromGenerator = botConfigFromGenerator
     this.appEnvironment = this.readAppEnvironment()
     this.accountsEnvironment = this.readAccountsEnvironment()
+    this.databaseDriver = new DatabaseDriver(this.appEnvironment)
     this.allSymbolsData = await Exchange.getAllSymbolsData()
     this.allTickers = await Exchange.getAllTickers()
 
@@ -526,80 +528,12 @@ class Store {
     return this.accounts[accountId].config
   }
 
-  async readDatabase(): Promise<AxiosResponse | string> {
-    try {
-      return await axios.get(this.appEnvironment.databasePath)
-    } catch (error) {
-      return this.getDatabaseErrorType(error)
-    }
+  readDatabase(): Promise<AxiosResponse | string> {
+    return this.databaseDriver.read()
   }
 
-  async writeDatabase(): Promise<AxiosResponse | string> {
-    const data: AppData = {
-      appId: this.appEnvironment.appId,
-      firstAppStart: this.appEnvironment.firstAppStart,
-      lastAppStart: this.appEnvironment.lastAppStart,
-      locale: this.appEnvironment.locale,
-      timeZone: this.appEnvironment.timeZone,
-      accounts: this.accountsWithoutConfig,
-    }
-
-    try {
-      return await axios.post(this.appEnvironment.databasePath, data, {
-        headers: {
-          'Content-Type': 'application/json',
-          password: process.env.DATABASE_PASSWORD,
-        },
-      })
-    } catch (error) {
-      return this.getDatabaseErrorType(error)
-    }
-  }
-
-  async deleteDatabase(): Promise<AxiosResponse | void> {
-    return new Promise((resolve, reject) => {
-      const readline: Interface = readlineImported.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      })
-      readline.question(
-        Messages.DELETE_EXISTING_DATABASE,
-        async (answer: string) => {
-          readline.close()
-
-          if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
-            try {
-              this.appEnvironment = this.readAppEnvironment()
-              const response: AxiosResponse = await axios.delete(
-                this.appEnvironment.databasePath,
-                {
-                  headers: {
-                    password: process.env.DATABASE_PASSWORD,
-                  },
-                }
-              )
-
-              resolve(response)
-            } catch (error) {
-              reject(this.getDatabaseErrorType(error))
-            }
-          } else {
-            console.log(Messages.DATABASE_DELETION_CANCELLED)
-            resolve()
-          }
-        }
-      )
-    })
-  }
-
-  getDatabaseErrorType(error: any): AxiosResponse | string {
-    if (error.response) {
-      return error.response
-    } else if (error.request) {
-      return `${Messages.DATABASE_SERVER_HAS_NOT_RESPONDED}\n${error.request}`
-    } else {
-      return `${Messages.DATABASE_REQUEST_GENERIC_PROBLEM}\n${error}`
-    }
+  writeDatabase(): Promise<AxiosResponse | string> {
+    return this.databaseDriver.write(this.accountsWithoutConfig)
   }
 }
 

@@ -3,44 +3,67 @@
  */
 
 import { AxiosResponse } from 'axios'
+import readlineImported, { Interface } from 'readline'
 import startDBServer from 'trading-bot-database'
-import { setDotEnv, validateEnvVariables } from '../../config/env.js'
+import { setDotEnv, validateAndGetEnvVariables } from '../../config/env.js'
+import DatabaseDriver from '../database-driver/database-driver.js'
 import store from '../store/store.js'
+import Messages from '../types/messages.js'
 
-const {
-  HOST_NAME,
-  DATABASE_PORT,
-  DATABASE_DIRECTORY,
-  DATABASE_BACKUP_DIRECTORY,
-}: NodeJS.ProcessEnv = setDotEnv()
+type VariablesType = typeof variables[number]
 
-const variables = [
+setDotEnv()
+
+const variables: string[] = [
   'HOST_NAME',
   'DATABASE_PORT',
   'DATABASE_DIRECTORY',
   'DATABASE_BACKUP_DIRECTORY',
 ]
 
-validateEnvVariables(variables)
+const requiredEnvVariables: { [key: VariablesType]: string } =
+  validateAndGetEnvVariables(variables)
 
 void (async function () {
-  try {
-    await startDBServer(
-      parseInt(DATABASE_PORT!),
-      HOST_NAME!,
-      DATABASE_DIRECTORY!,
-      DATABASE_BACKUP_DIRECTORY!
-    )
+  const readline: Interface = readlineImported.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
 
-    const response: AxiosResponse | undefined | void =
-      await store.deleteDatabase()
+  readline.question(
+    Messages.DELETE_EXISTING_DATABASE,
+    async (answer: string) => {
+      readline.close()
 
-    if (response?.status === 200) {
-      console.log(response.data)
+      if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
+        console.log(Messages.DATABASE_DELETION_CANCELLED)
+        return
+      }
+
+      await startDBServer(
+        parseInt(requiredEnvVariables.DATABASE_PORT),
+        requiredEnvVariables.HOST_NAME,
+        requiredEnvVariables.DATABASE_DIRECTORY,
+        requiredEnvVariables.DATABASE_BACKUP_DIRECTORY
+      )
+
+      try {
+        const response: AxiosResponse | string = await new DatabaseDriver(
+          store.readAppEnvironment()
+        ).delete()
+
+        if (typeof response === 'string') {
+          console.error(response)
+        } else if (response?.status === 200) {
+          console.log(response.data)
+        } else {
+          console.error(response.data)
+        }
+      } catch (error: any) {
+        console.error(error.data)
+      }
+
+      process.exit()
     }
-  } catch (error: any) {
-    console.error(error.data)
-  }
-
-  process.exit()
+  )
 })()

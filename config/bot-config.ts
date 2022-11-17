@@ -12,7 +12,7 @@ const botConfigs: BotConfigStatic[] = [
     baseTo: '0',
     quoteFrom: '10000',
     quoteTo: '16500',
-    quoteStartAmount: '6000',
+    quoteStartAmount: '10',
     baseStartAmount: '0',
     handSpanPercent: 3,
     triggerBelowPrice: '3000'
