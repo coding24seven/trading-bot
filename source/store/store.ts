@@ -25,7 +25,7 @@ import Messages from '../types/messages.js'
 import {
   getDateTime,
   safeJsonParse,
-  validateNumericString,
+  assertNumericString,
 } from '../utils/index.js'
 
 class Store {
@@ -306,7 +306,7 @@ class Store {
               this.calculateQuoteStartAmountPerHand(hands, configStatic)
             )
 
-          validateNumericString(
+          assertNumericString(
             quoteStartAmountPerHand,
             `${Messages.QUOTE_START_AMOUNT_PER_HAND_INVALID}: ${quoteStartAmountPerHand}`
           )
@@ -316,7 +316,7 @@ class Store {
               this.calculateBaseStartAmountPerHand(hands, configStatic)
             )
 
-          validateNumericString(
+          assertNumericString(
             baseStartAmountPerHand,
             `${Messages.BASE_START_AMOUNT_PER_HAND_INVALID}: ${baseStartAmountPerHand}`
           )
@@ -467,7 +467,7 @@ class Store {
     handSpanPercent,
     tradeFee,
   }: BotConfigFull): boolean {
-    validateNumericString(
+    assertNumericString(
       tradeFee,
       `${Messages.EXCHANGE_FEE_INVALID}: ${tradeFee}`
     )
@@ -493,7 +493,7 @@ class Store {
       const normalizedIncrement: string | undefined =
         quoteCurrency.normalize(increment)
 
-      validateNumericString(
+      assertNumericString(
         normalizedIncrement,
         `${Messages.HAND_INCREMENT_INVALID}: ${normalizedIncrement}`
       )

@@ -3,7 +3,7 @@ import {
   countDecimals,
   isNumeric,
   trimDecimalsToFixed,
-  validateNumericString,
+  assertNumericString,
   valuesAreWithinTolerance,
   zeroIndexPositiveInteger,
 } from '../source/utils'
@@ -122,7 +122,7 @@ describe('utils', () => {
     `string numeric %p does not throw: '%s'`,
     (value: string | number, errorMessage: string) => {
       expect(() => {
-        validateNumericString(value, errorMessage)
+        assertNumericString(value, errorMessage)
       }).not.toThrow(errorMessage)
     }
   )
@@ -131,7 +131,7 @@ describe('utils', () => {
     `invalid string numeric %p throws: '%s'`,
     (value: string | number | undefined, errorMessage: string) => {
       expect(() => {
-        validateNumericString(value, errorMessage)
+        assertNumericString(value, errorMessage)
       }).toThrow(errorMessage)
     }
   )
