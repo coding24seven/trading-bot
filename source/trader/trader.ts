@@ -6,9 +6,7 @@ import {
   AccountConfig,
   BotConfigDynamic,
   BotConfigStatic,
-  KucoinErrorResponse,
-  KucoinGetFilledOrderByIdItem,
-  KucoinOrderPlacedResponse,
+  KucoinErrorResponse, KucoinGetOrderByIdData, KucoinOrderPlacedResponse
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
 import Messages from '../types/messages.js'
@@ -54,7 +52,7 @@ export default class Trader {
       return
     }
 
-    let filledOrderItem: KucoinGetFilledOrderByIdItem | null = null
+    let filledOrderItem: KucoinGetOrderByIdData | null = null
 
     try {
       filledOrderItem = await Exchange.getFilledOrderById(
@@ -69,11 +67,11 @@ export default class Trader {
       }
 
       if (isBuy) {
-        const baseReceived: string = filledOrderItem.size
+        const baseReceived: string = filledOrderItem.dealSize
 
         return baseReceived
       } else {
-        const quoteReceived: string = filledOrderItem.funds
+        const quoteReceived: string = filledOrderItem.dealFunds
 
         return quoteReceived
       }
@@ -97,8 +95,7 @@ export default class Trader {
 
       if (typeof baseReceivedNormalized !== 'string') {
         console.log(
-          `${
-            Messages.BASE_MUST_BE_STRING
+          `${Messages.BASE_MUST_BE_STRING
           }: ${baseReceivedNormalized} in ${__filename.slice(
             __dirname.length + 1
           )}`
@@ -118,8 +115,7 @@ export default class Trader {
 
       if (typeof quoteReceivedNormalized !== 'string') {
         console.log(
-          `${
-            Messages.QUOTE_MUST_BE_STRING
+          `${Messages.QUOTE_MUST_BE_STRING
           }: ${quoteReceivedNormalized} in ${__filename.slice(
             __dirname.length + 1
           )}`
