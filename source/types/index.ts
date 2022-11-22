@@ -237,38 +237,41 @@ export type KucoinOrderPlacedResponse = {
 
 export type KucoinGetOrderByIdResponse = {
   code: string
-  data: {
-    id: string // i.e. '42y1597669a7793041273690'
-    symbol: string // i.e. 'BTC-USDT'
-    opType: string // i.e. 'DEAL'
-    type: string // i.e. 'market'
-    side: string // i.e. 'buy'
-    price: string // i.e. '0'
-    size: string // i.e. '0'
-    funds: string // i.e. '0.01'
-    dealFunds: string // i.e. '0.43958624'
-    dealSize: string // i.e. '0.0000442'
-    fee: string // i.e. '0.00007739994'
-    feeCurrency: string // i.e. 'USDT'
-    stp: string // i.e. ''
-    stop: string // i.e. ''
-    stopTriggered: boolean // i.e. false
-    stopPrice: string // i.e. '0'
-    timeInForce: string // i.e. 'GTC'
-    postOnly: boolean // i.e. false
-    hidden: boolean // i.e. false
-    iceberg: boolean // i.e. false
-    visibleSize: string // i.e. '0'
-    cancelAfter: number // i.e. 0
-    channel: string // i.e. 'API'
-    clientOid: string // i.e. '88a71979-dk30-446e-a0f0-8b5191acafce'
-    remark: null
-    tags: null
-    isActive: boolean // i.e. false
-    cancelExist: boolean // i.e. false
-    createdAt: number // i.e. 1248530058955
-    tradeType: string // i.e. 'TRADE'
-  }
+  data: KucoinGetOrderByIdData
+}
+
+export type KucoinGetOrderByIdData = {
+  id: string // i.e. '42y1597669a7793041273690'
+  symbol: string // i.e. 'BTC-USDT'
+  opType: string // i.e. 'DEAL'
+  type: string // i.e. 'market'
+  side: string // i.e. 'buy'
+  price: string // i.e. '0'
+  size: string // i.e. '0'
+  funds: string // i.e. '0.01'
+  dealFunds: string // i.e. '0.43958624'
+  dealSize: string // i.e. '0.0000442'
+  fee: string // i.e. '0.00007739994'
+  feeCurrency: string // i.e. 'USDT'
+  stp: string // i.e. ''
+  stop: string // i.e. ''
+  stopTriggered: boolean // i.e. false
+  stopPrice: string // i.e. '0'
+  timeInForce: string // i.e. 'GTC'
+  postOnly: boolean // i.e. false
+  hidden: boolean // i.e. false
+  iceberg: boolean // i.e. false
+  visibleSize: string // i.e. '0'
+  cancelAfter: number // i.e. 0
+  channel: string // i.e. 'API'
+  clientOid: string // i.e. '88a71979-dk30-446e-a0f0-8b5191acafce'
+  remark: null
+  tags: null
+  isActive: boolean // i.e. false
+  cancelExist: boolean // i.e. false
+  createdAt: number // i.e. 1248530058955
+  tradeType: string // i.e. 'TRADE'
+
 }
 
 export type KucoinGetFilledOrderByIdResponse = {

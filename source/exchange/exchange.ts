@@ -4,15 +4,13 @@ import {
   BuyOrSell,
   KucoinAccountConfig,
   KucoinErrorResponse,
-  KucoinGetAllTickersResponse,
-  KucoinGetFilledOrderByIdItem,
-  KucoinGetFilledOrderByIdResponse,
+  KucoinGetAllTickersResponse, KucoinGetOrderByIdData,
   KucoinGetOrderByIdResponse,
   KucoinMarketOrderParameters,
   KucoinOrderPlacedResponse,
   KucoinSymbolData,
   KucoinSymbolsResponse,
-  KucoinTicker,
+  KucoinTicker
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import ExchangeCodes from '../types/exchangeCodes.js'
@@ -131,45 +129,35 @@ export class Exchange {
     return orderResponse
   }
 
-  static async getOrderById(
-    config: KucoinAccountConfig,
-    orderId: string
-  ): Promise<KucoinGetOrderByIdResponse> {
-    kucoin.init(config)
-
-    return await kucoin.getOrderById({ id: orderId })
-  }
-
-  static getFilledOrderById(
+  public static getFilledOrderById(
     config: KucoinAccountConfig,
     orderId: string,
     requestIntervalMs: number,
     timeoutMs: number
-  ): Promise<KucoinGetFilledOrderByIdItem | null> {
-    kucoin.init(config)
-    let response: KucoinGetFilledOrderByIdResponse
-
+  ): Promise<KucoinGetOrderByIdData | null> {
     return new Promise((resolve, reject) => {
+      kucoin.init(config)
+      let response: KucoinGetOrderByIdResponse
       let timeout: NodeJS.Timeout
       const interval: NodeJS.Timer = setInterval(async () => {
         try {
-          response = await kucoin.listFills({
-            orderId,
-          })
+          response = await kucoin.getOrderById({ id: orderId })
 
-          const expectedItemQuantity: number = 1
+          console.log('response', JSON.stringify(response, null, 2)); // todo: delete
 
           if (
-            response.code === ExchangeCodes.responseSuccess &&
-            response.data.items.length === expectedItemQuantity
+            response.code !== ExchangeCodes.responseSuccess
           ) {
+            throw new Error(JSON.stringify(response, null, 2))
+          } else if (response.data.isActive) {
+            console.log(`${Messages.ORDER_IS_ACTIVE}, id: ${response.data.id}`);
+          } else {
             clearInterval(interval)
             clearTimeout(timeout)
-            const indexOfQueriedOrder: number = 0
-            resolve(response.data.items[indexOfQueriedOrder])
+            resolve(response.data)
           }
         } catch (error) {
-          console.log(
+          console.error(
             `\n${Messages.ATTEMPTING_TO_GET_ORDER_DETAILS_BY_ID}:\n${error}\n`
           )
         }

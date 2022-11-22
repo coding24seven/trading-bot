@@ -43,6 +43,7 @@ enum Messages {
   COULD_NOT_PLACE_ORDER_ON_EXCHANGE = 'order could not be placed',
   ORDER_ID_MISSING_AFTER_ORDER_PLACED = 'order id is missing even though order was placed',
   ATTEMPTING_TO_GET_ORDER_DETAILS_BY_ID = 'attempting to get order details by order id...',
+  ORDER_IS_ACTIVE = 'order is active',
   COULD_NOT_GET_ORDER_DETAILS_BY_ID = 'could not get order details by order id',
   SYMBOL_DATA_NOT_FOUND = 'symbol data not found',
   TICKER_NOT_FOUND = 'ticker not found',
