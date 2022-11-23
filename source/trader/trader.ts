@@ -6,7 +6,8 @@ import {
   AccountConfig,
   BotConfigDynamic,
   BotConfigStatic,
-  KucoinErrorResponse, KucoinGetOrderByIdData, KucoinOrderPlacedResponse
+  BuyOrderTally,
+  KucoinErrorResponse, KucoinGetOrderByIdData, KucoinOrderPlacedResponse, SellOrderTally
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
 import Messages from '../types/messages.js'
@@ -29,7 +30,7 @@ export default class Trader {
   async trade(
     isBuy: boolean,
     amountToSpend: string
-  ): Promise<string | undefined> {
+  ): Promise<BuyOrderTally | SellOrderTally | undefined> {
     const response: KucoinOrderPlacedResponse | KucoinErrorResponse | null =
       await Exchange.tradeMarket(this.accountConfig, {
         symbol: this.symbol,
@@ -66,14 +67,22 @@ export default class Trader {
         return
       }
 
+      const { dealSize, dealFunds, fee } = filledOrderItem
+
       if (isBuy) {
-        const baseReceived: string = filledOrderItem.dealSize
+        const orderTally: BuyOrderTally = {
+          quoteSpent: Big(dealFunds).plus(fee),
+          baseReceived: Big(dealSize)
+        }
 
-        return baseReceived
+        return orderTally
       } else {
-        const quoteReceived: string = filledOrderItem.dealFunds
+        const buyOrderTally: SellOrderTally = {
+          baseSpent: Big(dealSize),
+          quoteReceived: Big(dealFunds).minus(fee),
+        }
 
-        return quoteReceived
+        return buyOrderTally
       }
     } catch (error) {
       console.error(Messages.COULD_NOT_GET_ORDER_DETAILS_BY_ID)
@@ -84,7 +93,7 @@ export default class Trader {
     isBuy: boolean,
     amountToSpend: string,
     lastPrice: string
-  ): string | undefined {
+  ): BuyOrderTally | SellOrderTally | undefined {
     if (isBuy) {
       const baseReceived: string = this.deductTradeFeeFake(
         Big(amountToSpend).div(lastPrice)
@@ -104,7 +113,12 @@ export default class Trader {
         return
       }
 
-      return baseReceivedNormalized
+      const buyOrderTally: BuyOrderTally = {
+        quoteSpent: Big(amountToSpend),
+        baseReceived: Big(baseReceivedNormalized)
+      }
+
+      return buyOrderTally
     } else {
       const quoteReceived: Big = this.deductTradeFeeFake(
         Big(amountToSpend).mul(lastPrice)
@@ -124,7 +138,12 @@ export default class Trader {
         return
       }
 
-      return quoteReceivedNormalized
+      const sellOrderTally: SellOrderTally = {
+        baseSpent: Big(amountToSpend),
+        quoteReceived: Big(quoteReceivedNormalized)
+      }
+
+      return sellOrderTally
     }
   }
 

@@ -10,16 +10,18 @@ import {
   BotData,
   BotHand,
   BotResults,
+  BuyOrderTally,
   BuyOrSell,
   KucoinApiTickerMessage,
-  TradeHistoryItem,
+  SellOrderTally,
+  TradeHistoryItem
 } from '../types'
 import Messages from '../types/messages.js'
 import {
   calculatePercentIncreaseOrDecrease,
   getDateTime,
   getTime,
-  safeJsonParse,
+  safeJsonParse
 } from '../utils/index.js'
 
 export default class Bot {
@@ -40,7 +42,7 @@ export default class Bot {
   processLastPriceIntervalDefaultMs: number = 1000
   processLastPriceIntervalMs: number = parseInt(
     process.env.LAST_PRICE_CALLBACK_INTERVAL_MS ||
-      String(this.processLastPriceIntervalDefaultMs)
+    String(this.processLastPriceIntervalDefaultMs)
   )
 
   constructor(data: BotData) {
@@ -136,25 +138,27 @@ export default class Bot {
         return
       }
 
-      let baseReceived: string | undefined
+      let buyOrderTally: BuyOrderTally | undefined
 
       if (store.isHistoricalPrice) {
-        baseReceived = this.trader.tradeFake(true, quoteToSpend, lastPrice)
+        buyOrderTally = this.trader.tradeFake(true, quoteToSpend, lastPrice) as BuyOrderTally | undefined
       } else {
         hand.tradeIsPending = true
-        baseReceived = await this.trader.trade(true, quoteToSpend)
+        buyOrderTally = await this.trader.trade(true, quoteToSpend) as BuyOrderTally | undefined
       }
 
-      if (!baseReceived) {
+      if (!buyOrderTally) {
         hand.tradeIsPending = false
         return
       }
 
-      hand.quote = Big(hand.quote).minus(quoteToSpend).toFixed()
+      const { quoteSpent, baseReceived }: BuyOrderTally = buyOrderTally
+
+      hand.quote = Big(hand.quote).minus(quoteSpent).toFixed()
       hand.base = Big(hand.base).plus(baseReceived).toFixed()
       hand.buyCount++
       hand.tradeIsPending = false
-      this.updateAfterTrade(hand, lastPrice, quoteToSpend, baseReceived, 'buy')
+      this.updateAfterTrade(hand, lastPrice, quoteSpent.toFixed(), baseReceived.toFixed(), 'buy')
     })
 
     const sellingHands: BotHand[] = this.hands.filter(
@@ -173,25 +177,27 @@ export default class Bot {
         return
       }
 
-      let quoteReceived: string | undefined
+      let sellOrderTally: SellOrderTally | undefined
 
       if (store.isHistoricalPrice) {
-        quoteReceived = this.trader.tradeFake(false, baseToSpend, lastPrice)
+        sellOrderTally = this.trader.tradeFake(false, baseToSpend, lastPrice) as SellOrderTally | undefined
       } else {
         hand.tradeIsPending = true
-        quoteReceived = await this.trader.trade(false, baseToSpend)
+        sellOrderTally = await this.trader.trade(false, baseToSpend) as SellOrderTally | undefined
       }
 
-      if (!quoteReceived) {
+      if (!sellOrderTally) {
         hand.tradeIsPending = false
         return
       }
 
-      hand.base = Big(hand.base).minus(baseToSpend).toFixed()
+      const { baseSpent, quoteReceived }: SellOrderTally = sellOrderTally
+
+      hand.base = Big(hand.base).minus(baseSpent).toFixed()
       hand.quote = Big(hand.quote).plus(quoteReceived).toFixed()
       hand.sellCount++
       hand.tradeIsPending = false
-      this.updateAfterTrade(hand, lastPrice, baseToSpend, quoteReceived, 'sell')
+      this.updateAfterTrade(hand, lastPrice, baseSpent.toFixed(), quoteReceived.toFixed(), 'sell')
     })
   }
 
@@ -274,8 +280,8 @@ export default class Bot {
       )
       .toFixed()
 
-    const baseConvertedToQuoteAtLastPrice: string | undefined =
-      this.trader.tradeFake(false, baseTotal, this.lastPrice)
+    const sellOrderTally: SellOrderTally = this.trader.tradeFake(false, baseTotal, this.lastPrice) as SellOrderTally
+    const baseConvertedToQuoteAtLastPrice: string = sellOrderTally.quoteReceived.toFixed()
 
     if (typeof baseConvertedToQuoteAtLastPrice !== 'string') {
       console.error(
@@ -344,11 +350,12 @@ export default class Bot {
 
     botHands.forEach((hand: BotHand) => {
       if (Big(hand.base).gt(0)) {
-        const quoteReceived: string | undefined = this.trader.tradeFake(
+        const sellOrderTally: SellOrderTally = this.trader.tradeFake(
           false,
           hand.base,
           hand.sellAbove
-        )
+        ) as SellOrderTally
+        const quoteReceived: string = sellOrderTally.quoteReceived.toFixed()
 
         if (quoteReceived) {
           const quoteTogether: string | undefined =

@@ -1,3 +1,4 @@
+import Big from 'big.js'
 import { AccountEnvironmentType } from './account-environment-type'
 
 export type DeepPartial<T> = {
@@ -317,4 +318,14 @@ export type KucoinMarketOrderParameters = {
   type: string
   size?: string
   funds?: string
+}
+
+export interface BuyOrderTally {
+  quoteSpent: Big
+  baseReceived: Big
+}
+
+export interface SellOrderTally {
+  baseSpent: Big
+  quoteReceived: Big
 }
