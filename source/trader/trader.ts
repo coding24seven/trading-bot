@@ -7,7 +7,10 @@ import {
   BotConfigDynamic,
   BotConfigStatic,
   BuyOrderTally,
-  KucoinErrorResponse, KucoinGetOrderByIdData, KucoinOrderPlacedResponse, SellOrderTally
+  KucoinErrorResponse,
+  KucoinGetOrderByIdData,
+  KucoinOrderPlacedResponse,
+  SellOrderTally,
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
 import Messages from '../types/messages.js'
@@ -72,7 +75,7 @@ export default class Trader {
       if (isBuy) {
         const orderTally: BuyOrderTally = {
           quoteSpent: Big(dealFunds).plus(fee),
-          baseReceived: Big(dealSize)
+          baseReceived: Big(dealSize),
         }
 
         return orderTally
@@ -104,7 +107,8 @@ export default class Trader {
 
       if (typeof baseReceivedNormalized !== 'string') {
         console.log(
-          `${Messages.BASE_MUST_BE_STRING
+          `${
+            Messages.BASE_MUST_BE_STRING
           }: ${baseReceivedNormalized} in ${__filename.slice(
             __dirname.length + 1
           )}`
@@ -115,7 +119,7 @@ export default class Trader {
 
       const buyOrderTally: BuyOrderTally = {
         quoteSpent: Big(amountToSpend),
-        baseReceived: Big(baseReceivedNormalized)
+        baseReceived: Big(baseReceivedNormalized),
       }
 
       return buyOrderTally
@@ -129,7 +133,8 @@ export default class Trader {
 
       if (typeof quoteReceivedNormalized !== 'string') {
         console.log(
-          `${Messages.QUOTE_MUST_BE_STRING
+          `${
+            Messages.QUOTE_MUST_BE_STRING
           }: ${quoteReceivedNormalized} in ${__filename.slice(
             __dirname.length + 1
           )}`
@@ -140,7 +145,7 @@ export default class Trader {
 
       const sellOrderTally: SellOrderTally = {
         baseSpent: Big(amountToSpend),
-        quoteReceived: Big(quoteReceivedNormalized)
+        quoteReceived: Big(quoteReceivedNormalized),
       }
 
       return sellOrderTally
@@ -151,5 +156,31 @@ export default class Trader {
     const amountDeducted = value.mul(this.tradeFee)
 
     return value.minus(amountDeducted)
+  }
+
+  public static async tradeMarketOnceStandalone(
+    symbol: string,
+    isBuy: boolean,
+    amount: string,
+    accountId: number = 0
+  ) {
+    const config: AccountConfig = store.readAccountsEnvironment()[accountId]
+
+    const response: KucoinOrderPlacedResponse | KucoinErrorResponse | null =
+      await Exchange.tradeMarket(config, {
+        symbol,
+        amount,
+        isBuy,
+      })
+
+    const filledOrderItem: KucoinGetOrderByIdData | null =
+      await Exchange.getFilledOrderById(
+        config,
+        (response as KucoinOrderPlacedResponse).data.orderId,
+        5000,
+        60000
+      )
+
+    return filledOrderItem
   }
 }
