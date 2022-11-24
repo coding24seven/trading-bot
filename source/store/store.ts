@@ -168,7 +168,13 @@ class Store {
     ) {
       databasePath = `${databaseProtocol}://${hostName}:${databasePort}/accounts/${appId}`
     } else {
-      throw new Error(Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID)
+      throw new Error(`${Messages.APP_ENVIRONMENT_CONFIG_DATA_INVALID}\n${{
+        appId,
+        locale,
+        timeZone,
+        hostName,
+        databasePort
+      }}`)
     }
 
     const lastAppStart: string = getDateTime(locale, timeZone)
