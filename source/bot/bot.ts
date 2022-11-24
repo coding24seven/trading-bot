@@ -272,12 +272,18 @@ export default class Bot {
       )
       .toFixed()
 
-    const quoteTotal: string = this.hands
+    const quoteTotal: string | undefined = this.quoteCurrency.normalize(this.hands
       .reduce(
         (accumulator: Big, { quote }: BotHand) => Big(accumulator).plus(quote),
         Big('0')
+      ))
+
+    if (typeof quoteTotal !== 'string') {
+      console.error(
+        `${quoteTotal} ${Messages.IS_NOT_STRING}`
       )
-      .toFixed()
+      return
+    }
 
     const sellOrderTally: SellOrderTally = this.trader.tradeFake(false, baseTotal, this.lastPrice) as SellOrderTally
     const baseConvertedToQuoteAtLastPrice: string = sellOrderTally.quoteReceived.toFixed()
