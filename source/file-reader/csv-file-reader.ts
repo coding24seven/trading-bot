@@ -3,18 +3,18 @@ import path from 'path'
 import Messages from '../types/messages.js'
 
 export default class CsvFileReader {
-  static filePathIsValid(filePath: string): boolean {
+  private static filePathIsValid(filePath: string): boolean {
     const validFilePath = /^.+\.csv$/
     return validFilePath.test(filePath)
   }
 
-  static validateColumnNumber(columnNumber: number) {
+  public static validateColumnNumber(columnNumber: number) {
     if (!Number.isInteger(columnNumber) || columnNumber < 1) {
       throw new Error(`${Messages.COLUMN_NUMBER_INVALID}: ${columnNumber}`)
     }
   }
 
-  static getFilePathsFromDirectory(directoryPath: string): string[] {
+  private static getFilePathsFromDirectory(directoryPath: string): string[] {
     const allFileAndDirectoryNames = fs.readdirSync(directoryPath)
     const csvFileNames = allFileAndDirectoryNames.filter((name: string) =>
       CsvFileReader.filePathIsValid(name)
@@ -25,7 +25,7 @@ export default class CsvFileReader {
     return csvFilePaths
   }
 
-  static getFilePathsFromFilePathsOrFromDirectoryPath(
+  public static getFilePathsFromFilePathsOrFromDirectoryPath(
     paths: string[]
   ): string[] | never {
     const filePaths: string[] = paths.every((path: string) =>
@@ -41,16 +41,16 @@ export default class CsvFileReader {
     return filePaths
   }
 
-  static getAsString(filePath: string): string {
+  private static getAsString(filePath: string): string {
     const file: Buffer = fs.readFileSync(filePath)
     return file.toString()
   }
 
-  static getRowsHoldingStrings(filePath: string): string[] {
+  private static getRowsHoldingStrings(filePath: string): string[] {
     return CsvFileReader.getAsString(filePath).split(/\r?\n/)
   }
 
-  static getRowsPopulatedWithNumbers(filePath: string): number[][] {
+  public static getRowsPopulatedWithNumbers(filePath: string): number[][] {
     return CsvFileReader.getRowsHoldingStrings(filePath)
       .map((rowAsString: string) =>
         rowAsString.split(',').map((value: string) => parseFloat(value))

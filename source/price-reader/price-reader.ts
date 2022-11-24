@@ -13,16 +13,16 @@ import Messages from '../types/messages.js'
 import { safeJsonParse } from '../utils/index.js'
 
 export default class PriceReader {
-  static cachedFileContent: { [key: string]: number[][] } = {}
-  static maxPossiblePrice: number = 2000000
-  static dateMs: number = Date.now()
-  static callbackIntervalDefaultMs: number = 1000
-  static callbackIntervalMs: number = parseInt(
+  private static cachedFileContent: { [key: string]: number[][] } = {}
+  private static maxPossiblePrice: number = 2000000
+  private static dateMs: number = Date.now()
+  private static callbackIntervalDefaultMs: number = 1000
+  private static callbackIntervalMs: number = parseInt(
     process.env.LAST_PRICE_CALLBACK_INTERVAL_MS ||
-      String(PriceReader.callbackIntervalDefaultMs)
+    String(PriceReader.callbackIntervalDefaultMs)
   )
 
-  static startOneSymbolLivePriceStream(
+  public static startOneSymbolLivePriceStream(
     symbol: string,
     callback: (lastPrice: string) => void
   ) {
@@ -48,7 +48,7 @@ export default class PriceReader {
     })
   }
 
-  static startAllSymbolsLivePriceStream(
+  public static startAllSymbolsLivePriceStream(
     callback: (tickerMessage: KucoinApiTickerMessage) => void
   ) {
     Exchange.startWSAllSymbolsTicker((tickerMessageAsString: string) => {
@@ -67,7 +67,7 @@ export default class PriceReader {
     })
   }
 
-  static startHistoricalStream(
+  public static startHistoricalStream(
     filePaths: string[],
     column: number,
     callback: (tickerMessage: DeepPartial<KucoinApiTickerMessage>) => void

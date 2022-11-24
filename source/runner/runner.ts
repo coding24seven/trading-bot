@@ -9,13 +9,13 @@ function callbackForNewTickerMessage(tickerMessage: KucoinApiTickerMessage) {
 }
 
 export default class Runner {
-  static runBots() {
+  public static runBots() {
     store.accounts.forEach((accountData: AccountData) => {
       new Account(accountData)
     })
   }
 
-  static runPriceReader(filePaths?: string[], priceColumnIndex: number = 0) {
+  public static runPriceReader(filePaths?: string[], priceColumnIndex: number = 0) {
     if (store.isHistoricalPrice && filePaths && filePaths.length > 0) {
       PriceReader.startHistoricalStream(
         filePaths,

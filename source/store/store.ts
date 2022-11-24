@@ -18,40 +18,39 @@ import {
   BotResults,
   KucoinSymbolData,
   KucoinTicker,
-  StoreSetupParameters,
+  StoreSetupParameters
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import Messages from '../types/messages.js'
 import {
-  getDateTime,
-  safeJsonParse,
-  assertNumericString,
+  assertNumericString, getDateTime,
+  safeJsonParse
 } from '../utils/index.js'
 
 class Store {
-  allSymbolsData: KucoinSymbolData[] | undefined
-  allTickers: KucoinTicker[] | undefined
-  appEnvironment: AppEnvironment
-  accountsEnvironment: AccountConfig[] = []
-  accounts: AccountData[] = []
-  botConfigsStaticPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
+  private allSymbolsData: KucoinSymbolData[] | undefined
+  private allTickers: KucoinTicker[] | undefined
+  public appEnvironment: AppEnvironment
+  private accountsEnvironment: AccountConfig[] = []
+  public accounts: AccountData[] = []
+  private botConfigsStaticPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
   botsPerAccount: BotData[][] = []
   isHistoricalPrice: boolean = false
   botConfigFromGenerator: BotConfigStatic | undefined
   databaseDriver: DatabaseDriver
 
-  get accountsAsString(): string {
+  public get accountsAsString(): string {
     return JSON.stringify(this.accounts, null, 2)
   }
 
   /*
    * removes api credentials (so the remainder can be stored in database)
    */
-  get accountsWithoutConfig(): AccountDataStripped[] {
+  private get accountsWithoutConfig(): AccountDataStripped[] {
     return this.accounts.map(({ config, ...rest }: AccountData) => rest)
   }
 
-  async setUp({
+  public async setUp({
     isHistoricalPrice = false,
     createsStoreAndExits = false,
     botConfigFromGenerator,
@@ -138,7 +137,7 @@ class Store {
     this.createAccountAndBotConfigs({ skipBotConfigSetup: true })
   }
 
-  createAccountAndBotConfigs(
+  private createAccountAndBotConfigs(
     options: { skipBotConfigSetup: boolean } | null = null
   ) {
     this.accounts = this.setUpAccountConfigs()
@@ -150,7 +149,7 @@ class Store {
     this.linkBotConfigsWithAccountConfigs()
   }
 
-  readAppEnvironment(): AppEnvironment {
+  public readAppEnvironment(): AppEnvironment {
     const appId: string | undefined = process.env.APP_ID
     const locale: string | undefined = process.env.LOCALE
     const timeZone: string | undefined = process.env.TIMEZONE
@@ -185,7 +184,7 @@ class Store {
     }
   }
 
-  readAccountsEnvironment(): AccountConfig[] {
+  public readAccountsEnvironment(): AccountConfig[] {
     const { env }: NodeJS.Process = process
     const accounts: AccountConfig[] = []
     let i: number = 0
@@ -237,13 +236,13 @@ class Store {
     return accounts
   }
 
-  linkBotConfigsWithAccountConfigs() {
+  private linkBotConfigsWithAccountConfigs() {
     this.accounts.forEach((account: AccountData, accountIndex: number) => {
       account.bots = this.botsPerAccount[accountIndex]
     })
   }
 
-  setUpAccountConfigs(): AccountData[] {
+  private setUpAccountConfigs(): AccountData[] {
     const arr: AccountData[] = []
 
     for (
@@ -260,7 +259,7 @@ class Store {
     return arr
   }
 
-  setUpBotConfigs(): BotData[][] {
+  private setUpBotConfigs(): BotData[][] {
     const botsPerAccount: BotData[][] = []
 
     for (
@@ -273,9 +272,9 @@ class Store {
       const selectedBotConfigs: BotConfigStatic[] = this.botConfigFromGenerator
         ? [this.botConfigFromGenerator]
         : this.accounts[accountIndex].config.botConfigIndexes.map(
-            (botIndex: number) =>
-              this.botConfigsStaticPerAccount[accountIndex][botIndex]
-          )
+          (botIndex: number) =>
+            this.botConfigsStaticPerAccount[accountIndex][botIndex]
+        )
 
       selectedBotConfigs.forEach(
         (configStatic: BotConfigStatic, botIndex: number) => {
@@ -357,7 +356,7 @@ class Store {
     return botsPerAccount
   }
 
-  calculateQuoteStartAmountPerHand(
+  private calculateQuoteStartAmountPerHand(
     hands: BotHand[],
     configStatic: BotConfigStatic
   ): string {
@@ -367,12 +366,12 @@ class Store {
 
     return handsToTopUpWithQuoteCount > 0
       ? Big(configStatic.quoteStartAmount)
-          .div(handsToTopUpWithQuoteCount)
-          .toFixed()
+        .div(handsToTopUpWithQuoteCount)
+        .toFixed()
       : '0'
   }
 
-  topUpHandsWithQuote(
+  private topUpHandsWithQuote(
     hands: BotHand[],
     configStatic: BotConfigStatic,
     configDynamic: BotConfigDynamic
@@ -391,7 +390,7 @@ class Store {
     return toppedUpHands
   }
 
-  quoteHandQualifiesForTopUp(
+  private quoteHandQualifiesForTopUp(
     hand: BotHand,
     botConfig: BotConfigStatic
   ): boolean {
@@ -401,7 +400,7 @@ class Store {
     )
   }
 
-  calculateBaseStartAmountPerHand(
+  private calculateBaseStartAmountPerHand(
     hands: BotHand[],
     configStatic: BotConfigStatic
   ): string {
@@ -411,12 +410,12 @@ class Store {
 
     return handsToTopUpWithBaseCount > 0
       ? Big(configStatic.baseStartAmount)
-          .div(handsToTopUpWithBaseCount)
-          .toFixed()
+        .div(handsToTopUpWithBaseCount)
+        .toFixed()
       : '0'
   }
 
-  topUpHandsWithBase(
+  private topUpHandsWithBase(
     hands: BotHand[],
     configStatic: BotConfigStatic,
     configDynamic: BotConfigDynamic
@@ -435,7 +434,7 @@ class Store {
     return toppedUpHands
   }
 
-  baseHandQualifiesForTopUp(
+  private baseHandQualifiesForTopUp(
     hand: BotHand,
     botConfig: BotConfigStatic
   ): boolean {
@@ -445,7 +444,7 @@ class Store {
     )
   }
 
-  throwErrorIfBotConfigInvalid(config: BotConfigFull) {
+  private throwErrorIfBotConfigInvalid(config: BotConfigFull) {
     if (!this.isHandCountValid(config)) {
       throw new Error(`${Messages.HAND_COUNT_INVALID}. it must be >= 2`)
     }
@@ -457,13 +456,13 @@ class Store {
     }
   }
 
-  isHandCountValid({ handCount }): boolean {
+  private isHandCountValid({ handCount }): boolean {
     const minHandCount: number = 2
 
     return handCount >= minHandCount
   }
 
-  isProfitGreaterThanTradeFee({
+  private isProfitGreaterThanTradeFee({
     handSpanPercent,
     tradeFee,
   }: BotConfigFull): boolean {
@@ -479,7 +478,7 @@ class Store {
     return Big(buyAndSellFee).lt(handSpanDecimal)
   }
 
-  buildHands(
+  private buildHands(
     configStatic: BotConfigStatic,
     quoteCurrency: Currency
   ): BotHand[] {
@@ -520,19 +519,19 @@ class Store {
     return hands
   }
 
-  getResults(accountId: number, botId: number): BotResults | undefined {
+  public getResults(accountId: number, botId: number): BotResults | undefined {
     return this.accounts[accountId].bots[botId].results
   }
 
-  getAccountConfig(accountId: number): AccountConfig {
+  public getAccountConfig(accountId: number): AccountConfig {
     return this.accounts[accountId].config
   }
 
-  readDatabase(): Promise<AxiosResponse | string> {
+  public readDatabase(): Promise<AxiosResponse | string> {
     return this.databaseDriver.read()
   }
 
-  writeDatabase(): Promise<AxiosResponse | string> {
+  public writeDatabase(): Promise<AxiosResponse | string> {
     return this.databaseDriver.write(this.accountsWithoutConfig)
   }
 }

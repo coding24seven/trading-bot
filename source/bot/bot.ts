@@ -25,22 +25,21 @@ import {
 } from '../utils/index.js'
 
 export default class Bot {
-  data: BotData
-  id: number
-  itsAccountId: number
-  hands: BotHand[] = []
-  quoteCurrency: Currency
-  baseCurrency: Currency
-  trader: Trader
-  symbol: string // i.e. 'BTC-USDT'
-  lastPrice: string | null = null
-  lowestPriceRecorded: string
-  highestPriceRecorded: string
-  count: number = 0
-  tradeHistory: TradeHistoryItem[] = [] // not added to store atm
-  dateMs: number = Date.now()
-  processLastPriceIntervalDefaultMs: number = 1000
-  processLastPriceIntervalMs: number = parseInt(
+  private data: BotData
+  private id: number
+  private itsAccountId: number
+  private hands: BotHand[] = []
+  private quoteCurrency: Currency
+  private baseCurrency: Currency
+  private trader: Trader
+  private symbol: string // i.e. 'BTC-USDT'
+  private lastPrice: string | null = null
+  private lowestPriceRecorded: string
+  private highestPriceRecorded: string
+  private tradeHistory: TradeHistoryItem[] = [] // not added to store atm
+  private dateMs: number = Date.now()
+  private processLastPriceIntervalDefaultMs: number = 1000
+  private processLastPriceIntervalMs: number = parseInt(
     process.env.LAST_PRICE_CALLBACK_INTERVAL_MS ||
     String(this.processLastPriceIntervalDefaultMs)
   )
@@ -66,7 +65,7 @@ export default class Bot {
     )
   }
 
-  checkData() {
+  private checkData() {
     if (
       !this.data.configDynamic.baseCurrency.minSize ||
       !this.data.configDynamic.quoteCurrency.minSize ||
@@ -80,7 +79,7 @@ export default class Bot {
     }
   }
 
-  onHistoricalPriceReaderFinished() {
+  private onHistoricalPriceReaderFinished() {
     this.setResults()
 
     eventBus.emit(
@@ -121,7 +120,7 @@ export default class Bot {
     this.processLastPrice(lastPrice)
   }
 
-  processLastPrice(lastPrice: string) {
+  private processLastPrice(lastPrice: string) {
     const buyingHands: BotHand[] = this.hands.filter(
       (hand: BotHand) =>
         !hand.tradeIsPending &&
@@ -201,7 +200,7 @@ export default class Bot {
     })
   }
 
-  isBaseCurrencyEnoughToTrade(base: string, lastPrice: string): boolean {
+  private isBaseCurrencyEnoughToTrade(base: string, lastPrice: string): boolean {
     const baseInQuote: Big = Big(base).mul(lastPrice)
 
     return (
@@ -210,7 +209,7 @@ export default class Bot {
     )
   }
 
-  isQuoteCurrencyEnoughToTrade(quote: string): boolean {
+  private isQuoteCurrencyEnoughToTrade(quote: string): boolean {
     return (
       Big(quote).gte(this.data.configDynamic.quoteCurrency.minSize) &&
       Big(quote).gte(this.data.configDynamic.minFunds)
@@ -249,7 +248,7 @@ export default class Bot {
     return true
   }
 
-  getHistoricalBotDataWithResults(options?: {
+  private getHistoricalBotDataWithResults(options?: {
     tradeHistoryIncluded: boolean
   }): BotData {
     return {
@@ -261,7 +260,7 @@ export default class Bot {
     }
   }
 
-  getResults(): BotResults | undefined {
+  private getResults(): BotResults | undefined {
     if (!this.lastPrice) {
       return
     }
@@ -350,7 +349,7 @@ export default class Bot {
     }
   }
 
-  getPairTotalAsQuoteWhenAllSold(): string {
+  private getPairTotalAsQuoteWhenAllSold(): string {
     const botHands: BotHand[] = safeJsonParse(JSON.stringify(this.hands))
 
     botHands.forEach((hand: BotHand) => {
@@ -383,7 +382,7 @@ export default class Bot {
       .toFixed()
   }
 
-  getTradeHistoryItem(
+  private getTradeHistoryItem(
     hand: BotHand,
     lastPrice: string,
     amountSpent: string,
@@ -401,7 +400,7 @@ export default class Bot {
     }
   }
 
-  makeBaseValidForTrade(base: string): string | undefined {
+  private makeBaseValidForTrade(base: string): string | undefined {
     const baseValidForTrade: string | undefined =
       this.baseCurrency.normalize(base)
 
@@ -414,7 +413,7 @@ export default class Bot {
     return baseValidForTrade
   }
 
-  makeQuoteValidForTrade(quote: string): string | undefined {
+  private makeQuoteValidForTrade(quote: string): string | undefined {
     const quoteValidForTrade: string | undefined =
       this.quoteCurrency.normalize(quote)
 
@@ -427,7 +426,7 @@ export default class Bot {
     return quoteValidForTrade
   }
 
-  updateAfterTrade(
+  private updateAfterTrade(
     hand: BotHand,
     lastPrice: string,
     amountSpent: string,
@@ -452,7 +451,7 @@ export default class Bot {
     this.setResults()
   }
 
-  async setResults() {
+  private async setResults() {
     this.data.results = this.getResults()
 
     if (!this.data.results || store.isHistoricalPrice) {
@@ -473,7 +472,7 @@ export default class Bot {
     }
   }
 
-  recordLowestAndHighestPrice(lastPrice: string): boolean {
+  private recordLowestAndHighestPrice(lastPrice: string): boolean {
     if (Big(lastPrice).lt(this.lowestPriceRecorded)) {
       this.lowestPriceRecorded = lastPrice
       return true

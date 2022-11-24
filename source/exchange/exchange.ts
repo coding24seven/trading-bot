@@ -17,14 +17,14 @@ import ExchangeCodes from '../types/exchangeCodes.js'
 import Messages from '../types/messages.js'
 
 export class Exchange {
-  static publicConfig: KucoinAccountConfig = {
+  private static publicConfig: KucoinAccountConfig = {
     apiKey: '',
     secretKey: '',
     passphrase: '',
     environment: AccountEnvironmentType.live,
   }
 
-  static startWSTicker(
+  public static startWSTicker(
     symbol: string,
     callback: (tickerMessageAsString: string) => void
   ) {
@@ -37,7 +37,7 @@ export class Exchange {
     })
   }
 
-  static startWSAllSymbolsTicker(
+  public static startWSAllSymbolsTicker(
     callback: (tickerMessageAsString: string) => void
   ) {
     const topic: string = 'allTicker'
@@ -50,7 +50,7 @@ export class Exchange {
     })
   }
 
-  static async getAllTickers(): Promise<KucoinTicker[] | undefined> {
+  public static async getAllTickers(): Promise<KucoinTicker[] | undefined> {
     kucoin.init(Exchange.publicConfig)
 
     try {
@@ -66,7 +66,7 @@ export class Exchange {
     }
   }
 
-  static async getTickersFromSymbols(
+  public static async getTickersFromSymbols(
     symbols: string[]
   ): Promise<KucoinTicker[] | undefined> {
     const tickers: KucoinTicker[] | undefined = await Exchange.getAllTickers()
@@ -82,7 +82,7 @@ export class Exchange {
     return selectedTickers
   }
 
-  static async getAllSymbolsData(): Promise<KucoinSymbolData[] | undefined> {
+  public static async getAllSymbolsData(): Promise<KucoinSymbolData[] | undefined> {
     kucoin.init(Exchange.publicConfig)
 
     try {
@@ -98,7 +98,7 @@ export class Exchange {
     }
   }
 
-  static async tradeMarket(
+  public static async tradeMarket(
     config: KucoinAccountConfig,
     { symbol, amount, isBuy }
   ): Promise<KucoinOrderPlacedResponse | KucoinErrorResponse | null> {

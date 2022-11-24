@@ -7,11 +7,11 @@ import {
 } from '../utils/index.js'
 
 export default class Currency {
-  symbol: string
-  minSize: string
-  maxSize: string
-  increment: string
-  decimals: number
+  public symbol: string
+  public minSize: string
+  public maxSize: string
+  public increment: string
+  public decimals: number
 
   constructor({
     symbol,

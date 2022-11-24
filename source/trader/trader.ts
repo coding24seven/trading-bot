@@ -10,7 +10,7 @@ import {
   KucoinErrorResponse,
   KucoinGetOrderByIdData,
   KucoinOrderPlacedResponse,
-  SellOrderTally,
+  SellOrderTally
 } from '../types'
 import ExchangeCodes from '../types/exchangeCodes.js'
 import Messages from '../types/messages.js'
@@ -30,7 +30,7 @@ export default class Trader {
     this.quoteCurrency = new Currency(configDynamic.quoteCurrency)
   }
 
-  async trade(
+  public async trade(
     isBuy: boolean,
     amountToSpend: string
   ): Promise<BuyOrderTally | SellOrderTally | undefined> {
@@ -92,7 +92,7 @@ export default class Trader {
     }
   }
 
-  tradeFake(
+  public tradeFake(
     isBuy: boolean,
     amountToSpend: string,
     lastPrice: string
@@ -107,8 +107,7 @@ export default class Trader {
 
       if (typeof baseReceivedNormalized !== 'string') {
         console.log(
-          `${
-            Messages.BASE_MUST_BE_STRING
+          `${Messages.BASE_MUST_BE_STRING
           }: ${baseReceivedNormalized} in ${__filename.slice(
             __dirname.length + 1
           )}`
@@ -133,8 +132,7 @@ export default class Trader {
 
       if (typeof quoteReceivedNormalized !== 'string') {
         console.log(
-          `${
-            Messages.QUOTE_MUST_BE_STRING
+          `${Messages.QUOTE_MUST_BE_STRING
           }: ${quoteReceivedNormalized} in ${__filename.slice(
             __dirname.length + 1
           )}`
@@ -152,7 +150,7 @@ export default class Trader {
     }
   }
 
-  deductTradeFeeFake(value: Big): Big {
+  private deductTradeFeeFake(value: Big): Big {
     const amountDeducted = value.mul(this.tradeFee)
 
     return value.minus(amountDeducted)

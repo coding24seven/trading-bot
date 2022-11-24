@@ -3,25 +3,25 @@ import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import { BotConfigStatic, BotData } from '../types'
 
 export default class Comparator {
-  static botConfigsWithResults: BotData[] = []
-  static botConfigs: BotConfigStatic[] = []
+  private static botConfigsWithResults: BotData[] = []
+  public static botConfigs: BotConfigStatic[] = []
 
-  static run(symbol: string) {
+  public static run(symbol: string) {
     Comparator.botConfigs = Comparator.generateBotConfigs(symbol)
   }
 
-  static addEventListeners() {
+  public static addEventListeners() {
     eventBus.on(
       EventBusEvents.BOT_DONE_PROCESSING_HISTORICAL_PRICES,
       Comparator.addBotDataWithResult
     )
   }
 
-  static addBotDataWithResult(data: BotData) {
+  private static addBotDataWithResult(data: BotData) {
     Comparator.botConfigsWithResults.push(data)
   }
 
-  static generateBotConfigs(symbol: string): BotConfigStatic[] {
+  private static generateBotConfigs(symbol: string): BotConfigStatic[] {
     const handSpanPercentMin: number = 1
     const handSpanPercentStep: number = 1
     const handSpanPercentMax: number = 5
@@ -52,7 +52,7 @@ export default class Comparator {
     return arr
   }
 
-  static sortConfigsByProfit(): BotData[] {
+  public static sortConfigsByProfit(): BotData[] {
     return Comparator.botConfigsWithResults.sort(
       (previousItem: BotData, currentItem: BotData) =>
         Big(previousItem.results!.pairTotalAsQuoteWhenAllSold)
