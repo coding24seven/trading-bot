@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios'
-import { AccountDataStripped, AppData, AppEnvironment } from '../types'
+import { AccountDataStripped, AppData, AppEnvironmentFull } from '../types'
 import Messages from '../types/messages.js'
 
 export default class DatabaseDriver {
-  constructor(private appEnvironment: AppEnvironment) {}
+  constructor(private appEnvironment: AppEnvironmentFull) {}
 
   public async read(): Promise<AxiosResponse | string> {
     try {

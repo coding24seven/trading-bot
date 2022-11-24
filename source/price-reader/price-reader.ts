@@ -13,7 +13,7 @@ import Messages from '../types/messages.js'
 import { safeJsonParse } from '../utils/index.js'
 
 export default class PriceReader {
-  private static cachedFileContent: { [key: string]: number[][] } = {}
+  private static cachedFileContent: Record<string, number[][]> = {}
   private static maxPossiblePrice: number = 2000000
   private static dateMs: number = Date.now()
   private static callbackIntervalDefaultMs: number = 1000

@@ -21,7 +21,7 @@ export function setDotEnv(
 export function validateAndGetEnvVariables(variables: string[]): {
   [key: string]: string
 } {
-  let selectedEnvVariables: { [key: string]: string } = {}
+  let selectedEnvVariables: Record<string, string> = {}
 
   variables.forEach((variable: string) => {
     const value: string | undefined = process.env[variable]

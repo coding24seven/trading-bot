@@ -19,6 +19,8 @@ export interface CommandLineArguments {
   odwp: boolean
 }
 
+export type BuyOrSell = 'buy' | 'sell'
+
 export interface CurrencyFields {
   symbol: string
   minSize: string
@@ -27,37 +29,45 @@ export interface CurrencyFields {
   decimals: number
 }
 
-export type StoreSetupParameters = {
+export interface StoreSetupParameters {
   isHistoricalPrice?: boolean
   createsStoreAndExits?: boolean
   botConfigFromGenerator?: BotConfigStatic
 }
 
-export type AppEnvironment = {
+export type AppEnvironmentFull = AppEnvironment & AppUrl & DatabaseUrl
+
+export interface AppEnvironment {
   appId: string
   firstAppStart?: string
   lastAppStart: string
   locale: string
   timeZone: string
+}
+
+export interface AppUrl {
   hostName: string
+}
+
+export interface DatabaseUrl {
   databasePort: string
   databasePath: string
 }
 
-export type AppData = Partial<AppEnvironment> & {
+export interface AppData extends AppEnvironment {
   accounts: AccountDataStripped[]
 }
 
-export type AccountData = {
+export interface AccountData {
   config: AccountConfig
   bots: BotData[]
 }
 
-export type AccountDataStripped = {
+export interface AccountDataStripped {
   bots: BotData[]
 }
 
-export type AccountConfig = {
+export interface AccountConfig {
   apiKey: string
   secretKey: string
   passphrase: string
@@ -66,16 +76,14 @@ export type AccountConfig = {
   botConfigIndexes: number[]
 }
 
-export type BuyOrSell = 'buy' | 'sell'
-
-export type KucoinAccountConfig = {
+export interface KucoinAccountConfig {
   apiKey: string
   secretKey: string
   passphrase: string
   environment: AccountEnvironmentType.sandbox | AccountEnvironmentType.live
 }
 
-export type BotData = {
+export interface BotData {
   configStatic: BotConfigStatic
   configDynamic: BotConfigDynamic
   hands: BotHand[]
@@ -83,7 +91,7 @@ export type BotData = {
   lastModified?: string
 }
 
-export type BotConfigStatic = {
+export interface BotConfigStatic {
   symbol: string
   from: string
   to: string
@@ -97,7 +105,7 @@ export type BotConfigStatic = {
   triggerBelowPrice: string
 }
 
-export type BotConfigDynamic = {
+export interface BotConfigDynamic {
   handCount: number
   quoteStartAmountPerHand: string
   baseStartAmountPerHand: string
@@ -112,7 +120,7 @@ export type BotConfigDynamic = {
 
 export type BotConfigFull = BotConfigStatic & BotConfigDynamic
 
-export type BotResults = {
+export interface BotResults {
   quoteTotal: string
   baseTotal: string
   baseConvertedToQuoteAtLastPrice: string
@@ -127,7 +135,7 @@ export type BotResults = {
   highestPriceRecorded: string
 }
 
-export type BotHand = {
+export interface BotHand {
   id: number
   buyBelow: string
   sellAbove: string
@@ -138,7 +146,7 @@ export type BotHand = {
   tradeIsPending: boolean
 }
 
-export type TradeHistoryItem = BotHand & {
+export interface TradeHistoryItem extends BotHand {
   lastPrice: string
   type: BuyOrSell
   baseSpent?: string
@@ -147,24 +155,24 @@ export type TradeHistoryItem = BotHand & {
   baseReceived?: string
 }
 
-export type PairTradeSizes = {
+export interface PairTradeSizes {
   base: number
   quote: number
 }
 
-export type PriceStreamCallbackParameters = {
+export interface PriceStreamCallbackParameters {
   symbol: string
   lastPrice: string
 }
 
-export type KucoinApiTickerMessage = {
+export interface KucoinApiTickerMessage {
   type: string
   topic: string
   subject: string
   data: KucoinApiTickerMessageData
 }
 
-export type KucoinApiTickerMessageData = {
+export interface KucoinApiTickerMessageData {
   bestAsk: string
   bestAskSize: string
   bestBid: string
@@ -175,17 +183,17 @@ export type KucoinApiTickerMessageData = {
   time: number
 }
 
-export type KucoinGetAllTickersResponse = {
+export interface KucoinGetAllTickersResponse {
   code: string
   data: KucoinGetAllTickersData
 }
 
-export type KucoinGetAllTickersData = {
+export interface KucoinGetAllTickersData {
   time: string
   ticker: KucoinTicker[]
 }
 
-export type KucoinTicker = {
+export interface KucoinTicker {
   symbol: string
   symbolName: string
   buy: string
@@ -204,12 +212,12 @@ export type KucoinTicker = {
   makerCoefficient: string
 }
 
-export type KucoinSymbolsResponse = {
+export interface KucoinSymbolsResponse {
   code: string
   data: KucoinSymbolData[]
 }
 
-export type KucoinSymbolData = {
+export interface KucoinSymbolData {
   symbol: string
   name: string
   baseCurrency: string
@@ -229,19 +237,19 @@ export type KucoinSymbolData = {
   enableTrading: boolean
 }
 
-export type KucoinOrderPlacedResponse = {
+export interface KucoinOrderPlacedResponse {
   code: string
   data: {
     orderId: string
   }
 }
 
-export type KucoinGetOrderByIdResponse = {
+export interface KucoinGetOrderByIdResponse {
   code: string
   data: KucoinGetOrderByIdData
 }
 
-export type KucoinGetOrderByIdData = {
+export interface KucoinGetOrderByIdData {
   id: string // i.e. '42y1597669a7793041273690'
   symbol: string // i.e. 'BTC-USDT'
   opType: string // i.e. 'DEAL'
@@ -275,7 +283,7 @@ export type KucoinGetOrderByIdData = {
 
 }
 
-export type KucoinGetFilledOrderByIdResponse = {
+export interface KucoinGetFilledOrderByIdResponse {
   code: string
   data: {
     currentPage: number // i.e. 1
@@ -286,7 +294,7 @@ export type KucoinGetFilledOrderByIdResponse = {
   }
 }
 
-export type KucoinGetFilledOrderByIdItem = {
+export interface KucoinGetFilledOrderByIdItem {
   symbol: string // i.e. 'BTC-USDT'
   tradeId: string // i.e. '29y1592667a7790046273390'
   orderId: string // i.e. '29y1594666a7799041273290'
@@ -306,12 +314,12 @@ export type KucoinGetFilledOrderByIdItem = {
   createdAt: number // i.e. 1240526092060
 }
 
-export type KucoinErrorResponse = {
+export interface KucoinErrorResponse {
   code: string
   msg: string
 }
 
-export type KucoinMarketOrderParameters = {
+export interface KucoinMarketOrderParameters {
   clientOid: string
   side: string
   symbol: string

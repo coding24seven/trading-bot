@@ -9,7 +9,7 @@ import {
   AccountData,
   AccountDataStripped,
   AppData,
-  AppEnvironment,
+  AppEnvironmentFull,
   BotConfigDynamic,
   BotConfigFull,
   BotConfigStatic,
@@ -30,7 +30,7 @@ import {
 class Store {
   private allSymbolsData: KucoinSymbolData[] | undefined
   private allTickers: KucoinTicker[] | undefined
-  public appEnvironment: AppEnvironment
+  public appEnvironment: AppEnvironmentFull
   private accountsEnvironment: AccountConfig[] = []
   public accounts: AccountData[] = []
   private botConfigsStaticPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
@@ -149,7 +149,7 @@ class Store {
     this.linkBotConfigsWithAccountConfigs()
   }
 
-  public readAppEnvironment(): AppEnvironment {
+  public readAppEnvironment(): AppEnvironmentFull {
     const appId: string | undefined = process.env.APP_ID
     const locale: string | undefined = process.env.LOCALE
     const timeZone: string | undefined = process.env.TIMEZONE
