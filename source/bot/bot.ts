@@ -305,8 +305,13 @@ export default class Bot {
       pairTotalAsQuoteAtLastPrice
     )
 
-    const pairTotalAsQuoteWhenAllSold: string =
-      this.getPairTotalAsQuoteWhenAllSold()
+    const pairTotalAsQuoteWhenAllSold: string | undefined =
+      this.quoteCurrency.normalize(this.getPairTotalAsQuoteWhenAllSold())
+
+    if (typeof pairTotalAsQuoteWhenAllSold !== 'string') {
+      console.error(`${pairTotalAsQuoteWhenAllSold} ${Messages.IS_NOT_STRING}`)
+      return
+    }
 
     const profitPercentWhenAllSold: string = calculatePercentIncreaseOrDecrease(
       this.data.configStatic.quoteStartAmount,
