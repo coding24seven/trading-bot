@@ -40,6 +40,7 @@ enum Messages {
   EXCHANGE_FEE_INVALID = 'exchange fee is invalid',
   EXCHANGE_MINIMUM_TRADE_SIZES_RESPONSE_FAILED = 'exchange: minimum trade sizes could not be obtained',
   EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED = 'exchange: symbol data could not be obtained',
+  EXCHANGE_ALL_TICKERS_RESPONSE_FAILED = 'exchange: tickers could not be obtained',
   COULD_NOT_PLACE_ORDER_ON_EXCHANGE = 'order could not be placed',
   ORDER_ID_MISSING_AFTER_ORDER_PLACED = 'order id is missing even though order was placed',
   ATTEMPTING_TO_GET_ORDER_DETAILS_BY_ID = 'attempting to get order details by order id...',

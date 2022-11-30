@@ -28,8 +28,8 @@ import {
 } from '../utils/index.js'
 
 class Store {
-  private allSymbolsData: KucoinSymbolData[] | undefined
-  private allTickers: KucoinTicker[] | undefined
+  private allSymbolsData: KucoinSymbolData[]
+  private allTickers: KucoinTicker[]
   public appEnvironment: AppEnvironmentFull
   private accountsEnvironment: AccountConfig[] = []
   public accounts: AccountData[] = []
@@ -60,12 +60,18 @@ class Store {
     this.appEnvironment = this.readAppEnvironment()
     this.accountsEnvironment = this.readAccountsEnvironment()
     this.databaseDriver = new DatabaseDriver(this.appEnvironment)
-    this.allSymbolsData = await Exchange.getAllSymbolsData()
-    this.allTickers = await Exchange.getAllTickers()
 
-    if (!this.allSymbolsData) {
+    const allSymbolsData = await Exchange.getAllSymbolsData()
+    if (!allSymbolsData) {
       throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
     }
+    this.allSymbolsData = allSymbolsData
+
+    const allTickers = await Exchange.getAllTickers()
+    if (!allTickers) {
+      throw new Error(Messages.EXCHANGE_ALL_TICKERS_RESPONSE_FAILED)
+    }
+    this.allTickers = allTickers
 
     for (const accountConfig of this.accountsEnvironment) {
       this.botConfigsStaticPerAccount.push(
@@ -285,7 +291,7 @@ class Store {
       selectedBotConfigs.forEach(
         (configStatic: BotConfigStatic, botIndex: number) => {
           const symbolData: KucoinSymbolData | undefined =
-            this.allSymbolsData!.find(
+            this.allSymbolsData.find(
               (data: KucoinSymbolData) => data.symbol === configStatic.symbol
             )
 
@@ -293,7 +299,7 @@ class Store {
             throw new Error(Messages.SYMBOL_DATA_NOT_FOUND)
           }
 
-          const ticker: KucoinTicker | undefined = this.allTickers!.find(
+          const ticker: KucoinTicker | undefined = this.allTickers.find(
             (ticker: KucoinTicker) => ticker.symbol === configStatic.symbol
           )
 
