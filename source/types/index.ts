@@ -91,7 +91,7 @@ export interface BotData {
   lastModified?: string
 }
 
-export interface BotConfigStatic {
+export type BotConfigStatic = Readonly<{
   symbol: string
   from: string
   to: string
@@ -103,19 +103,19 @@ export interface BotConfigStatic {
   quoteStartAmount: string
   baseStartAmount: string
   triggerBelowPrice: string
-}
+}>
 
 export interface BotConfigDynamic {
-  handCount: number
-  quoteStartAmountPerHand: string
-  baseStartAmountPerHand: string
-  tradeFee: string
-  minFunds: string
-  id: number
-  itsAccountId: number
+  readonly handCount: number
+  readonly quoteStartAmountPerHand: string
+  readonly baseStartAmountPerHand: string
+  readonly tradeFee: string
+  readonly minFunds: string
+  readonly id: number
+  readonly itsAccountId: number
+  readonly quoteCurrency: CurrencyFields
+  readonly baseCurrency: CurrencyFields
   triggered: boolean
-  quoteCurrency: CurrencyFields
-  baseCurrency: CurrencyFields
 }
 
 export type BotConfigFull = BotConfigStatic & BotConfigDynamic
