@@ -13,5 +13,6 @@
   "lib": ["ESNext"],
   "ts-node": {
     "esm": true
-  }
+  },
+  "exclude": ["**/*test.ts"]
 }
