@@ -140,10 +140,10 @@ export default class Bot {
       let buyOrderTally: BuyOrderTally | undefined
 
       if (store.isHistoricalPrice) {
-        buyOrderTally = this.trader.tradeFake(true, quoteToSpend, lastPrice) as BuyOrderTally | undefined
+        buyOrderTally = this.trader.tradeFake(true, quoteToSpend, lastPrice)
       } else {
         hand.tradeIsPending = true
-        buyOrderTally = await this.trader.trade(true, quoteToSpend) as BuyOrderTally | undefined
+        buyOrderTally = await this.trader.trade(true, quoteToSpend)
       }
 
       if (!buyOrderTally) {
@@ -179,10 +179,10 @@ export default class Bot {
       let sellOrderTally: SellOrderTally | undefined
 
       if (store.isHistoricalPrice) {
-        sellOrderTally = this.trader.tradeFake(false, baseToSpend, lastPrice) as SellOrderTally | undefined
+        sellOrderTally = this.trader.tradeFake(false, baseToSpend, lastPrice)
       } else {
         hand.tradeIsPending = true
-        sellOrderTally = await this.trader.trade(false, baseToSpend) as SellOrderTally | undefined
+        sellOrderTally = await this.trader.trade(false, baseToSpend)
       }
 
       if (!sellOrderTally) {
@@ -411,7 +411,7 @@ export default class Bot {
       this.baseCurrency.normalize(base)
 
     if (typeof baseValidForTrade !== 'string') {
-      console.log(`${Messages.BASE_MUST_BE_STRING}: ${baseValidForTrade}`)
+      console.error(`${Messages.BASE_MUST_BE_STRING}: ${baseValidForTrade}`)
 
       return
     }
@@ -424,7 +424,7 @@ export default class Bot {
       this.quoteCurrency.normalize(quote)
 
     if (typeof quoteValidForTrade !== 'string') {
-      console.log(`${Messages.QUOTE_MUST_BE_STRING}: ${quoteValidForTrade}`)
+      console.error(`${Messages.QUOTE_MUST_BE_STRING}: ${quoteValidForTrade}`)
 
       return
     }

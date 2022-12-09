@@ -30,10 +30,10 @@ export default class Trader {
     this.quoteCurrency = new Currency(configDynamic.quoteCurrency)
   }
 
-  public async trade(
+  public async trade<OrderTally>(
     isBuy: boolean,
     amountToSpend: string
-  ): Promise<BuyOrderTally | SellOrderTally | undefined> {
+  ): Promise<OrderTally | undefined> {
     const response: KucoinOrderPlacedResponse | KucoinErrorResponse | null =
       await Exchange.tradeMarket(this.accountConfig, {
         symbol: this.symbol,
@@ -73,30 +73,30 @@ export default class Trader {
       const { dealSize, dealFunds, fee } = filledOrderItem
 
       if (isBuy) {
-        const orderTally: BuyOrderTally = {
+        const buOrderTally = {
           quoteSpent: Big(dealFunds).plus(fee),
           baseReceived: Big(dealSize),
         }
 
-        return orderTally
+        return buOrderTally as OrderTally
       } else {
-        const buyOrderTally: SellOrderTally = {
+        const sellOrderTally = {
           baseSpent: Big(dealSize),
           quoteReceived: Big(dealFunds).minus(fee),
         }
 
-        return buyOrderTally
+        return sellOrderTally as OrderTally
       }
     } catch (error) {
       console.error(Messages.COULD_NOT_GET_ORDER_DETAILS_BY_ID)
     }
   }
 
-  public tradeFake(
+  public tradeFake<OrderTally>(
     isBuy: boolean,
     amountToSpend: string,
     lastPrice: string
-  ): BuyOrderTally | SellOrderTally | undefined {
+  ): OrderTally | undefined {
     if (isBuy) {
       const baseReceived: string = this.deductTradeFeeFake(
         Big(amountToSpend).div(lastPrice)
@@ -116,12 +116,12 @@ export default class Trader {
         return
       }
 
-      const buyOrderTally: BuyOrderTally = {
+      const buyOrderTally = {
         quoteSpent: Big(amountToSpend),
         baseReceived: Big(baseReceivedNormalized),
       }
 
-      return buyOrderTally
+      return buyOrderTally as OrderTally
     } else {
       const quoteReceived: Big = this.deductTradeFeeFake(
         Big(amountToSpend).mul(lastPrice)
@@ -141,12 +141,12 @@ export default class Trader {
         return
       }
 
-      const sellOrderTally: SellOrderTally = {
+      const sellOrderTally = {
         baseSpent: Big(amountToSpend),
-        quoteReceived: Big(quoteReceivedNormalized),
+        quoteReceived: Big(quoteReceivedNormalized)
       }
 
-      return sellOrderTally
+      return sellOrderTally as OrderTally
     }
   }
 
