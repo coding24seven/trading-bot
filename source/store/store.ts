@@ -144,7 +144,7 @@ class Store {
   }
 
   private createAccountAndBotConfigs(
-    options: { skipBotConfigSetup: boolean } | null = null
+    options?: { skipBotConfigSetup: boolean }
   ) {
     this.accounts = this.setUpAccountConfigs()
 

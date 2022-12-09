@@ -44,7 +44,7 @@ export function isNumeric<T>(value: T): boolean {
 }
 
 export function assertNumericString(
-  value: any,
+  value: unknown,
   errorMessage: string
 ): asserts value is string {
   if (!value || typeof value !== 'string' || !isNumeric(value)) {
