@@ -8,7 +8,8 @@
     "rootDir": "./",
     "outDir": "dist-unit-tests",
     "forceConsistentCasingInFileNames": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "noEmitOnError": true
   },
   "lib": ["ESNext"],
   "ts-node": {
