@@ -28,15 +28,15 @@ import {
 } from '../utils/index.js'
 
 class Store {
-  private allSymbolsData: KucoinSymbolData[]
-  private allTickers: KucoinTicker[]
+  private allSymbolsData: readonly KucoinSymbolData[] = []
+  private allTickers: readonly KucoinTicker[] = []
   public appEnvironment: AppEnvironmentFull
-  private accountsEnvironment: AccountConfig[] = []
-  public accounts: AccountData[] = []
+  private accountsEnvironment: readonly AccountConfig[] = []
+  public accounts: readonly AccountData[] = []
   private botConfigsStaticPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
   botsPerAccount: BotData[][] = []
   isHistoricalPrice: boolean = false
-  botConfigFromGenerator: BotConfigStatic | undefined
+  botConfigFromGenerator?: BotConfigStatic
   databaseDriver: DatabaseDriver
 
   public get accountsAsString(): string {

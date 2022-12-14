@@ -84,9 +84,9 @@ export interface KucoinAccountConfig {
 }
 
 export interface BotData {
-  configStatic: BotConfigStatic
-  configDynamic: BotConfigDynamic
-  hands: BotHand[]
+  readonly configStatic: BotConfigStatic
+  readonly configDynamic: BotConfigDynamic
+  readonly hands: readonly BotHand[]
   results?: BotResults
   lastModified?: string
 }

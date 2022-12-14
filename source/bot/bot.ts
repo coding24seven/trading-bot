@@ -25,21 +25,21 @@ import {
 } from '../utils/index.js'
 
 export default class Bot {
-  private data: BotData
-  private id: number
-  private itsAccountId: number
-  private hands: BotHand[] = []
-  private quoteCurrency: Currency
-  private baseCurrency: Currency
-  private trader: Trader
-  private symbol: string // i.e. 'BTC-USDT'
+  private readonly data: BotData
+  private readonly id: number
+  private readonly itsAccountId: number
+  private readonly hands: readonly BotHand[] = []
+  private readonly quoteCurrency: Currency
+  private readonly baseCurrency: Currency
+  private readonly trader: Trader
+  private readonly symbol: string // i.e. 'BTC-USDT'
   private lastPrice: string | null = null
   private lowestPriceRecorded: string
   private highestPriceRecorded: string
-  private tradeHistory: TradeHistoryItem[] = [] // not added to store atm
+  private readonly tradeHistory: TradeHistoryItem[] = [] // not added to store atm
   private dateMs: number = Date.now()
-  private processLastPriceIntervalDefaultMs: number = 1000
-  private processLastPriceIntervalMs: number = parseInt(
+  private readonly processLastPriceIntervalDefaultMs: number = 1000
+  private readonly processLastPriceIntervalMs: number = parseInt(
     process.env.LAST_PRICE_CALLBACK_INTERVAL_MS ||
     String(this.processLastPriceIntervalDefaultMs)
   )
