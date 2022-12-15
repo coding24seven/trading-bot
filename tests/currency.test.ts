@@ -13,7 +13,7 @@ const expectedCurrency: CurrencyFields = {
   increment: '0.000001',
   decimals: 6,
 }
-const currency: Currency = new Currency(expectedCurrency)
+const currency = new Currency(expectedCurrency)
 
 const symbolData: KucoinSymbolData = {
   symbol: 'BTC-USDT',
@@ -52,9 +52,9 @@ const invalidNonStringedQuoteToNormalize: (string | number)[][] = [
 ]
 
 describe('currency', () => {
-  test.each(Object.keys(expectedCurrency))(
+  test.each(Object.keys(expectedCurrency) as (keyof CurrencyFields)[])(
     `constructor(): property '%s' is assigned`,
-    (key: string) => {
+    (key: keyof CurrencyFields) => {
       expect(currency[key]).toBe(expectedCurrency[key])
     }
   )

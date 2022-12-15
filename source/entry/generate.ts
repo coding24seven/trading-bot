@@ -13,12 +13,12 @@ import { zeroIndexPositiveInteger } from '../utils/index.js'
 setDotEnv()
 
 const isHistoricalPrice: boolean = true
-const commandLineArguments = minimist(process.argv.slice(2))
+const commandLineArguments = minimist<CommandLineArguments>(process.argv.slice(2))
 const {
   _: filePathsOrDirectoryPath,
   column,
   c,
-}: CommandLineArguments = commandLineArguments
+} = commandLineArguments
 
 if (
   filePathsOrDirectoryPath === undefined ||

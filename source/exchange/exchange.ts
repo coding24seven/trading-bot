@@ -10,7 +10,8 @@ import {
   KucoinOrderPlacedResponse,
   KucoinSymbolData,
   KucoinSymbolsResponse,
-  KucoinTicker
+  KucoinTicker,
+  TradeMarketArguments
 } from '../types'
 import { AccountEnvironmentType } from '../types/account-environment-type.js'
 import ExchangeCodes from '../types/exchangeCodes.js'
@@ -100,7 +101,7 @@ export class Exchange {
 
   public static async tradeMarket(
     config: KucoinAccountConfig,
-    { symbol, amount, isBuy }
+    { symbol, amount, isBuy }: TradeMarketArguments
   ): Promise<KucoinOrderPlacedResponse | KucoinErrorResponse | null> {
     const side: BuyOrSell = isBuy ? 'buy' : 'sell'
     const baseOrQuote: string = isBuy ? 'funds' : 'size'

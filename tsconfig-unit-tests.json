@@ -9,10 +9,12 @@
     "outDir": "dist-unit-tests",
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
+    "noImplicitAny": true,
     "noEmitOnError": true
   },
   "lib": ["ESNext"],
   "ts-node": {
     "esm": true
-  }
+  },
+  "include": ["./config", "./source", "**/*test.ts"]
 }

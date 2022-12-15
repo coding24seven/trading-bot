@@ -468,7 +468,7 @@ class Store {
     }
   }
 
-  private isHandCountValid({ handCount }): boolean {
+  private isHandCountValid({ handCount }: BotConfigFull): boolean {
     const minHandCount: number = 2
 
     return handCount >= minHandCount

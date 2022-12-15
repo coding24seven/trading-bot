@@ -21,6 +21,12 @@ export interface CommandLineArguments {
 
 export type BuyOrSell = 'buy' | 'sell'
 
+export interface TradeMarketArguments {
+  symbol: string
+  amount: string
+  isBuy: boolean
+}
+
 export interface CurrencyFields {
   symbol: string
   minSize: string

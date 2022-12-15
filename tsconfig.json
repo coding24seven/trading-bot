@@ -9,11 +9,13 @@
     "outDir": "dist",
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
+    "noImplicitAny": true,
     "noEmitOnError": true
   },
   "lib": ["ESNext"],
   "ts-node": {
     "esm": true
   },
+  "include": ["./config", "./source"],
   "exclude": ["**/*test.ts"]
 }

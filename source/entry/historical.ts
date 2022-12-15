@@ -10,14 +10,14 @@ import Messages from '../types/messages.js'
 import { zeroIndexPositiveInteger } from '../utils/index.js'
 
 const isHistoricalPrice: boolean = true
-const commandLineArguments = minimist(process.argv.slice(2))
+const commandLineArguments = minimist<CommandLineArguments>(process.argv.slice(2))
 const {
   _: filePathsOrDirectoryPath,
   column,
   c,
   test,
   t,
-}: CommandLineArguments = commandLineArguments
+} = commandLineArguments
 
 const isUnitTest: boolean | undefined = test || t
 const env: NodeJS.ProcessEnv = setDotEnv(isUnitTest ? 'test' : undefined)
