@@ -89,6 +89,7 @@ export default class Trader {
       }
     } catch (error) {
       console.error(Messages.COULD_NOT_GET_ORDER_DETAILS_BY_ID)
+      return
     }
   }
 

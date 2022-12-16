@@ -10,6 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
+    "noImplicitReturns": true,
     "noEmitOnError": true
   },
   "lib": ["ESNext"],
