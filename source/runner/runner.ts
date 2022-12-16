@@ -2,9 +2,9 @@ import Account from '../account/account.js'
 import eventBus, { EventBusEvents } from '../events/event-bus.js'
 import PriceReader from '../price-reader/price-reader.js'
 import store from '../store/store.js'
-import { AccountData, KucoinApiTickerMessage } from '../types'
+import { AccountData, DeepPartial, KucoinApiTickerMessage } from '../types'
 
-function callbackForNewTickerMessage(tickerMessage: KucoinApiTickerMessage) {
+function callbackForNewTickerMessage(tickerMessage: KucoinApiTickerMessage | DeepPartial<KucoinApiTickerMessage>) {
   eventBus.emit(EventBusEvents.LAST_PRICE, tickerMessage)
 }
 

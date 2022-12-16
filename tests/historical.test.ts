@@ -5,13 +5,13 @@ import {
   BotConfigDynamic,
   BotConfigStatic,
   BotData,
-  BotHand,
+  BotHand
 } from '../source/types'
 import Messages from '../source/types/messages'
 import {
   getQuoteAfterBuySellDifference,
   safeJsonParse,
-  valuesAreWithinTolerance,
+  valuesAreWithinTolerance
 } from '../source/utils'
 
 if (!process.env.BOT_DATA) {
@@ -349,7 +349,7 @@ describe('hands', () => {
       .map(({ id }: BotHand) => ({
         id,
       }))
-      .map((handPartial: Partial<BotHand>) => Object.values(handPartial))
+      .map((handPicked: Pick<BotHand, 'id'>) => Object.values(handPicked))
   )(`hand %#  id: %d`, (id: number) => {
     expect(handsActual[id].id).toBe(id)
   })
@@ -361,7 +361,7 @@ describe('hands', () => {
         buyBelow,
         sellAbove,
       }))
-      .map((handPartial: Partial<BotHand>) => Object.values(handPartial))
+      .map((handPicked: Pick<BotHand, 'id' | 'buyBelow' | 'sellAbove'>) => Object.values(handPicked) as [id: number, buyBelow: number, sellAbove: number])
   )(`hand %d  %d - %d`, (id: number, buyBelow: number, sellAbove: number) => {
     expect(handsActual[id].buyBelow).toBe(buyBelow)
     expect(handsActual[id].sellAbove).toBe(sellAbove)
@@ -374,7 +374,7 @@ describe('hands', () => {
         base,
         quote,
       }))
-      .map((handPartial: Partial<BotHand>) => Object.values(handPartial))
+      .map((handPicked: Pick<BotHand, 'id' | 'base' | 'quote'>) => Object.values(handPicked) as [id: number, base: string, quote: string])
   )(
     `hand %d  base: ~ %p quote: ~ %p`,
     (id: number, base: string, quote: string) => {
@@ -394,7 +394,7 @@ describe('hands', () => {
         buyCount,
         sellCount,
       }))
-      .map((handPartial: Partial<BotHand>) => Object.values(handPartial))
+      .map((handPicked: Pick<BotHand, 'id' | 'buyCount' | 'sellCount'>) => Object.values(handPicked))
   )(
     `hand %d  buyCount: %d sellCount: %d`,
     (id: number, buyCount: number, sellCount: number) => {
@@ -409,8 +409,8 @@ describe('hands', () => {
         id,
         tradeIsPending,
       }))
-      .map((handPartial: Partial<BotHand>) => Object.values(handPartial))
-  )(`hand %d  tradeIsPending: %s`, (id: number, tradeIsPending: number) => {
+      .map((handPicked: Pick<BotHand, 'id' | 'tradeIsPending'>) => Object.values(handPicked) as [id: number, tradeIsPending: boolean])
+  )(`hand %d  tradeIsPending: %s`, (id: number, tradeIsPending: boolean) => {
     expect(handsActual[id].tradeIsPending).toBe(tradeIsPending)
   })
 })

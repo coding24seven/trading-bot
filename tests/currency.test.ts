@@ -2,7 +2,7 @@ import Big from 'big.js'
 import Currency from '../source/currency/currency'
 import {
   CurrencyFields,
-  KucoinSymbolData,
+  KucoinSymbolData
 } from '../source/types'
 import { countDecimals } from '../source/utils'
 
@@ -37,18 +37,13 @@ const symbolData: KucoinSymbolData = {
 const [baseCurrency, quoteCurrency]: Currency[] =
   Currency.fromSymbolData(symbolData)
 
-const validStringedQuoteToNormalize: (string | Big)[][] = [
+const validStringedQuoteToNormalize: [value: string | Big, expected: string | Big][] = [
   [Big(1.123456789), '1.123456'],
   ['1.123456789', '1.123456'],
   ['1.123456', '1.123456'],
   ['1', '1'],
   ['67', '67'],
   ['3224.123456789', '3224.123456'],
-]
-const invalidNonStringedQuoteToNormalize: (string | number)[][] = [
-  [4],
-  [123.123456789],
-  [1.12345],
 ]
 
 describe('currency', () => {
@@ -103,15 +98,8 @@ describe('currency', () => {
 
   test.each(validStringedQuoteToNormalize)(
     `normalize(): stringed %p normalized is %p`,
-    (value: string, expected: string | Big) => {
+    (value: string | Big, expected: string | Big) => {
       expect(quoteCurrency.normalize(value)).toBe(expected)
-    }
-  )
-
-  test.each(invalidNonStringedQuoteToNormalize)(
-    `normalize(): non-stringed %p normalized is 'undefined'`,
-    (value: string) => {
-      expect(quoteCurrency.normalize(value)).toBe(undefined)
     }
   )
 })

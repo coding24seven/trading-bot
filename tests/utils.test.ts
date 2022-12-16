@@ -10,7 +10,7 @@ import {
 
 const errorMessage = 'some error message'
 
-const validNumbersToTrim: (string | number)[][] = [
+const validNumbersToTrim: [value: string | number, decimals: number, expected: string | number][] = [
   ['1.123456789', 6, '1.123456'],
   ['1.123456', 9, '1.123456'],
   ['1', 6, '1'],
@@ -21,13 +21,13 @@ const validNumbersToTrim: (string | number)[][] = [
   [1, 98, 1],
   [45, 2, 45],
 ]
-const invalidNumbersToTrim: (string | number)[][] = [
+const invalidNumbersToTrim: [value: string, decimals: number][] = [
   ['hello', 3],
   ['5e', 75],
   ['Tu', 0],
 ]
 
-const potentialNumerics: (string | number | boolean)[][] = [
+const potentialNumerics: [value: string | number, expected: boolean][] = [
   [0, true],
   [-0, true],
   [22, true],
@@ -41,7 +41,7 @@ const potentialNumerics: (string | number | boolean)[][] = [
   ['what', false],
 ]
 
-const stringNumerics: string[][] = [
+const stringNumerics: [value: string, errorMessage: string][] = [
   ['-0', errorMessage],
   ['0', errorMessage],
   ['98', errorMessage],
@@ -50,7 +50,7 @@ const stringNumerics: string[][] = [
   ['-92472382374872.239732', errorMessage],
 ]
 
-const invalidStringNumerics: (string | number | undefined)[][] = [
+const invalidStringNumerics: [value: string | number | undefined, errorMessage: string][] = [
   [undefined, errorMessage],
   [0, errorMessage],
   [-0, errorMessage],
@@ -62,7 +62,7 @@ const invalidStringNumerics: (string | number | undefined)[][] = [
   ['what', errorMessage],
 ]
 
-const numbersWithDecimalsToCount: (string | number)[][] = [
+const numbersWithDecimalsToCount: [value: string, expected: number][] = [
   ['765.1234567', 7],
   ['29283765.98', 2],
   ['29283765.123456789012345678', 18],
@@ -71,12 +71,12 @@ const numbersWithDecimalsToCount: (string | number)[][] = [
   ['0', 0],
 ]
 
-const positiveIntegersToZeroIndex: number[][] = [
+const positiveIntegersToZeroIndex: [value: number, expected: number][] = [
   [2, 1],
   [1, 0],
   [292898, 292897],
 ]
-const invalidPositiveIntegersToZeroIndex: (number | string)[][] = [
+const invalidPositiveIntegersToZeroIndex: [value: number | string][] = [
   [0],
   [-21],
   [-21],
@@ -84,7 +84,7 @@ const invalidPositiveIntegersToZeroIndex: (number | string)[][] = [
   ['292898'],
 ]
 
-const valuesToBeWithinTolerancePercent: (string | number | boolean)[][] = [
+const valuesToBeWithinTolerancePercent: [minValue: string | number, maxValue: string | number, tolerancePercent: number, expected: boolean][] = [
   [1, 2.1, 100, false],
   [1, 2.1, 110, true],
   [7037.9242, 7829.4753123, 11.25, true],
@@ -97,7 +97,7 @@ const valuesToBeWithinTolerancePercent: (string | number | boolean)[][] = [
 describe('utils', () => {
   test.each(validNumbersToTrim)(
     `%p trimmed to %i decimals is %p`,
-    (value: string, decimalsToRetain: number, expected: string | number) => {
+    (value: string | number, decimalsToRetain: number, expected: string | number) => {
       expect(trimDecimalsToFixed(value, decimalsToRetain)).toBe(expected)
     }
   )
@@ -120,7 +120,7 @@ describe('utils', () => {
 
   test.each(stringNumerics)(
     `string numeric %p does not throw: '%s'`,
-    (value: string | number, errorMessage: string) => {
+    (value: string, errorMessage: string) => {
       expect(() => {
         assertNumericString(value, errorMessage)
       }).not.toThrow(errorMessage)
@@ -162,8 +162,8 @@ describe('utils', () => {
   test.each(valuesToBeWithinTolerancePercent)(
     `percentage increase between %p and %p (order unimportant) is within %d%: %s`,
     (
-      minValue: number,
-      maxValue: number,
+      minValue: number | string,
+      maxValue: number | string,
       tolerancePercent: number,
       expected: boolean
     ) => {
