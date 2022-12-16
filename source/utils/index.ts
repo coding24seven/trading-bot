@@ -66,7 +66,7 @@ export function trimDecimalsToFixed<T extends string | number>(
     return value
   } else if (typeof value === 'string') {
     const decimalPoint = '.'
-    const [whole, decimal]: string[] = value.split(decimalPoint)
+    const [whole, decimal]: [string, string] = value.split(decimalPoint) as [string, string]
     const decimalPartTrimmed: string = decimal.slice(0, decimalsToRetain)
     const trimmedValue: string = [whole, decimalPartTrimmed].join(decimalPoint)
 
@@ -108,13 +108,13 @@ export function valuesAreWithinTolerance(
 
 /* unit test only: simulate buy and sell operations by adding difference between buy and sell prices to quote. return value has trade fee x2 deducted and is approximate */
 export function getQuoteAfterBuySellDifference(
-  prices: number[][],
+  prices: [buyPrice: number, sellPrice: number][],
   tradeFee: string,
   quote: number | Big
 ): string {
   quote = Big(quote)
   prices = Array.from(prices)
-  const [[buyPrice, sellPrice]] = prices
+  const [[buyPrice, sellPrice]] = prices as any
   const buySellDifference: Big = Big(sellPrice).minus(buyPrice)
   const increaseFactor: Big = buySellDifference.div(buyPrice)
   const quoteIncrease: Big = quote.mul(increaseFactor)

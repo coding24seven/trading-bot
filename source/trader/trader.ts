@@ -163,7 +163,11 @@ export default class Trader {
     amount: string,
     accountId: number = 0
   ) {
-    const config: AccountConfig = store.readAccountsEnvironment()[accountId]
+    const config: AccountConfig | undefined = store.readAccountsEnvironment()[accountId]
+
+    if (!config) {
+      throw new Error(Messages.ACCOUNT_ENVIRONMENT_CONFIG_DATA_MISSING)
+    }
 
     const response: KucoinOrderPlacedResponse | KucoinErrorResponse | null =
       await Exchange.tradeMarket(config, {

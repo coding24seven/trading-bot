@@ -7,8 +7,8 @@ import PriceReader from '../price-reader/price-reader.js'
 import Messages from '../types/messages.js'
 
 const commandLineArguments: string[] = process.argv
-const symbol: string = commandLineArguments[2]
-const outputFilePath: string = commandLineArguments[3]
+const symbol: string | undefined = commandLineArguments[2]
+const outputFilePath: string | undefined = commandLineArguments[3]
 
 collect()
 

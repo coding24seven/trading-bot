@@ -15,6 +15,7 @@ enum Messages {
   BOT_DATA_INVALID = 'bot data invalid',
   APP_ENVIRONMENT_CONFIG_DATA_INVALID = 'invalid config data in app environment',
   ACCOUNT_ENVIRONMENT_CONFIG_DATA_INVALID = 'invalid config data in account environment',
+  ACCOUNT_ENVIRONMENT_CONFIG_DATA_MISSING = 'missing config data in account environment',
   BOT_CONFIG_INDEXES_MISSING = 'bot-config indexes are missing',
   BOT_CONFIGURATION_BEING_TESTED = 'bot configuration being tested on historical-price file',
   BOT_WILL_BE_TRIGGERED_WHEN_PRICE = 'bot will be triggered when last price drops below',
