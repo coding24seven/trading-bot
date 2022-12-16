@@ -62,7 +62,7 @@ export class Exchange {
       }
 
       return response.data.ticker
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(e)
     }
   }
@@ -94,7 +94,7 @@ export class Exchange {
       }
 
       return response.data
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(e)
     }
   }

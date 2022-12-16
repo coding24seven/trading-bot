@@ -8,9 +8,7 @@
     "rootDir": "./",
     "outDir": "dist-unit-tests",
     "forceConsistentCasingInFileNames": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
-    "strictFunctionTypes": true,
+    "strict": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noEmitOnError": true

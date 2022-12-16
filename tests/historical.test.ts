@@ -361,8 +361,8 @@ describe('hands', () => {
         buyBelow,
         sellAbove,
       }))
-      .map((handPicked: Pick<BotHand, 'id' | 'buyBelow' | 'sellAbove'>) => Object.values(handPicked) as [id: number, buyBelow: number, sellAbove: number])
-  )(`hand %d  %d - %d`, (id: number, buyBelow: number, sellAbove: number) => {
+      .map((handPicked: Pick<BotHand, 'id' | 'buyBelow' | 'sellAbove'>) => Object.values(handPicked) as [id: number, buyBelow: string, sellAbove: string])
+  )(`hand %d  %d - %d`, (id: number, buyBelow: string, sellAbove: string) => {
     expect(handsActual[id].buyBelow).toBe(buyBelow)
     expect(handsActual[id].sellAbove).toBe(sellAbove)
   })
