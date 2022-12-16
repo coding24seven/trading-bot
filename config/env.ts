@@ -18,21 +18,16 @@ export function setDotEnv(
   return process.env
 }
 
-export function validateAndGetEnvVariables(variables: string[]): {
-  [key: string]: string
-} {
-  let selectedEnvVariables: Record<string, string> = {}
+export function validateAndGetEnvVariables<T extends string>(variables: readonly T[]): Record<T, string> {
 
-  variables.forEach((variable: string) => {
+  let selectedEnvVariables = {} as Record<T, string>
+
+  variables.forEach((variable: T) => {
     const value: string | undefined = process.env[variable]
 
     if (value && typeof value === 'string') {
       selectedEnvVariables[variable] = value
-    }
-  })
-
-  variables.forEach((variable: string) => {
-    if (!selectedEnvVariables[variable]) {
+    } else {
       throw new Error(`${variable} ${Messages.MISSING}`)
     }
   })

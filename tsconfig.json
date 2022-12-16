@@ -9,6 +9,7 @@
     "outDir": "dist",
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
+    "strictPropertyInitialization": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noEmitOnError": true

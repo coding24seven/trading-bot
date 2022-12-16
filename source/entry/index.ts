@@ -5,8 +5,6 @@ import Runner from '../runner/runner.js'
 import startAppServer from '../server/server.js'
 import store from '../store/store.js'
 
-type VariablesType = typeof variables[number]
-
 setDotEnv()
 
 const variables = [
@@ -15,10 +13,9 @@ const variables = [
   'DATABASE_PORT',
   'DATABASE_DIRECTORY',
   'DATABASE_BACKUP_DIRECTORY',
-]
+] as const
 
-const requiredEnvVariables: { [key: VariablesType]: string } =
-  validateAndGetEnvVariables(variables)
+const requiredEnvVariables = validateAndGetEnvVariables(variables)
 
 void (async function () {
   try {

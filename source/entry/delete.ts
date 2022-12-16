@@ -10,19 +10,16 @@ import DatabaseDriver from '../database-driver/database-driver.js'
 import store from '../store/store.js'
 import Messages from '../types/messages.js'
 
-type VariablesType = typeof variables[number]
-
 setDotEnv()
 
-const variables: string[] = [
+const variables = [
   'HOST_NAME',
   'DATABASE_PORT',
   'DATABASE_DIRECTORY',
   'DATABASE_BACKUP_DIRECTORY',
-]
+] as const
 
-const requiredEnvVariables: { [key: VariablesType]: string } =
-  validateAndGetEnvVariables(variables)
+const requiredEnvVariables = validateAndGetEnvVariables(variables)
 
 void (async function () {
   const readline: Interface = readlineImported.createInterface({

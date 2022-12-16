@@ -30,14 +30,14 @@ import {
 class Store {
   private allSymbolsData: readonly KucoinSymbolData[] = []
   private allTickers: readonly KucoinTicker[] = []
-  public appEnvironment: AppEnvironmentFull
+  public appEnvironment!: AppEnvironmentFull
   private accountsEnvironment: readonly AccountConfig[] = []
   public accounts: readonly AccountData[] = []
   private botConfigsStaticPerAccount: BotConfigStatic[][] = [] // outer array length === number of accounts; outer array contains: one array of bot-config objects per account
   botsPerAccount: BotData[][] = []
   isHistoricalPrice: boolean = false
   botConfigFromGenerator?: BotConfigStatic
-  databaseDriver: DatabaseDriver
+  databaseDriver!: DatabaseDriver
 
   public get accountsAsString(): string {
     return JSON.stringify(this.accounts, null, 2)
