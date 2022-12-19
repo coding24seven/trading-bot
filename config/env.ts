@@ -7,7 +7,7 @@ export function setDotEnv(
 ): NodeJS.ProcessEnv {
   const configDirectory: string = 'config'
 
-  const paths: { [key in EnvironmentTypes]: string } = {
+  const paths: Record<EnvironmentTypes, string> = {
     development: `${configDirectory}/.env`,
     production: `${configDirectory}/.env`,
     test: `${configDirectory}/.env.test`,

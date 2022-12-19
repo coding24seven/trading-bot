@@ -40,7 +40,7 @@ export default class Currency {
       baseMinSize,
       baseMaxSize,
       baseIncrement,
-    }: KucoinSymbolData = symbolData
+    } = symbolData
     return new Currency({
       symbol: baseCurrency,
       minSize: baseMinSize,
@@ -56,7 +56,7 @@ export default class Currency {
       quoteMinSize,
       quoteMaxSize,
       quoteIncrement,
-    }: KucoinSymbolData = symbolData
+    } = symbolData
     return new Currency({
       symbol: quoteCurrency,
       minSize: quoteMinSize,
