@@ -37,7 +37,7 @@ class Store {
   botsPerAccount: BotData[][] = []
   isHistoricalPrice: boolean = false
   botConfigFromGenerator?: BotConfigStatic
-  databaseDriver!: DatabaseDriver
+  databaseDriver!: DatabaseDriver<AppData>
 
   public get accountsAsString(): string {
     return JSON.stringify(this.accounts, null, 2)

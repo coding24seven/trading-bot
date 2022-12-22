@@ -1,13 +1,13 @@
 import axios, { AxiosResponse } from 'axios'
-import { AccountDataStripped, AppData, AppEnvironmentFull } from '../types'
+import { AccountDataStripped, AppEnvironmentFull } from '../types'
 import Messages from '../types/messages.js'
 
-export default class DatabaseDriver {
-  constructor(private appEnvironment: AppEnvironmentFull) {}
+export default class DatabaseDriver<DataType> {
+  constructor(private appEnvironment: AppEnvironmentFull) { }
 
-  public async read(): Promise<AxiosResponse | string> {
+  public async read(): Promise<AxiosResponse<DataType> | string> {
     try {
-      return await axios.get(this.appEnvironment.databasePath)
+      return await axios.get<DataType>(this.appEnvironment.databasePath)
     } catch (error) {
       return this.getErrorType(error)
     }
@@ -15,18 +15,18 @@ export default class DatabaseDriver {
 
   public async write(
     data: AccountDataStripped[]
-  ): Promise<AxiosResponse | string> {
-    const payload: AppData = {
+  ): Promise<AxiosResponse<DataType> | string> {
+    const payload = {
       appId: this.appEnvironment.appId,
       firstAppStart: this.appEnvironment.firstAppStart,
       lastAppStart: this.appEnvironment.lastAppStart,
       locale: this.appEnvironment.locale,
       timeZone: this.appEnvironment.timeZone,
       accounts: data,
-    }
+    } as DataType
 
     try {
-      return await axios.post(this.appEnvironment.databasePath, payload, {
+      return await axios.post<DataType>(this.appEnvironment.databasePath, payload, {
         headers: {
           'Content-Type': 'application/json',
           password: process.env.DATABASE_PASSWORD,
@@ -37,9 +37,9 @@ export default class DatabaseDriver {
     }
   }
 
-  public async delete(): Promise<AxiosResponse | string> {
+  public async delete(): Promise<AxiosResponse<DataType> | string> {
     try {
-      return await axios.delete(this.appEnvironment.databasePath, {
+      return await axios.delete<DataType>(this.appEnvironment.databasePath, {
         headers: {
           password: process.env.DATABASE_PASSWORD,
         },

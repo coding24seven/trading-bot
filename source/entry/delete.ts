@@ -45,7 +45,7 @@ void (async function () {
       )
 
       try {
-        const response: AxiosResponse | string = await new DatabaseDriver(
+        const response: AxiosResponse | string = await new DatabaseDriver<string>(
           store.readAppEnvironment()
         ).delete()
 
