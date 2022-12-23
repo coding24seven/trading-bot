@@ -17,5 +17,5 @@
   "ts-node": {
     "esm": true
   },
-  "include": ["./config", "./source", "**/*test.ts"]
+  "include": ["./config", "./source", "./tests", "**/*test.ts"]
 }

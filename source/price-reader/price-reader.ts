@@ -99,7 +99,7 @@ export default class PriceReader {
 
   private static priceIsValid(price: string): boolean {
     if (isNaN(parseFloat(price))) {
-      console.error(`${price} ${Messages.IS_NOT_A_NUMBER}`)
+      console.error(`${price} ${Messages.IS_NOT_NUMBER}`)
 
       return false
     }

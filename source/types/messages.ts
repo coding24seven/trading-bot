@@ -51,10 +51,12 @@ enum Messages {
   TICKER_NOT_FOUND = 'ticker not found',
   MINIMUM_ALLOWED_TRADE_SIZES_NOT_SET = 'minimum trade sizes allowed by the exchange have not been set',
   TRADE_SIZE_INCREMENT_NOT_SET = 'trade-size increment allowed by the exchange has not been set',
-  IS_NOT_A_NUMBER = 'is not a number (as number and as string)',
+  IS_NOT_NUMBER = 'is not a number (as number and as string)',
+  IS_NOT_ARRAY = 'is not an array',
   IS_NOT_POSITIVE_INTEGER = 'is not a positive integer',
   PRICE_FOR_SYMBOL_BEING_COLLECTED = 'Collecting prices for symbol',
   WRITING_TO_FILE = 'Writing to file',
+  QUANTITY_INVALID = 'quantity is invalid'
 }
 
 export default Messages

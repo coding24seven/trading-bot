@@ -10,8 +10,7 @@ import {
 import Messages from '../source/types/messages'
 import {
   getQuoteAfterBuySellDifference,
-  safeJsonParse,
-  valuesAreWithinTolerance
+  safeJsonParse
 } from '../source/utils'
 
 if (!process.env.BOT_DATA) {
@@ -379,11 +378,10 @@ describe('hands', () => {
     `hand %d  base: ~ %p quote: ~ %p`,
     (id: number, base: string, quote: string) => {
       expect(handsActual[id].base).toBe(base)
-      const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
+
+      expect(
         [handsActual[id].quote, quote],
-        tolerancePercent
-      )
-      expect(valueAreCloseEnough).toBeTruthy()
+      ).toBeWithinTolerance(tolerancePercent)
     }
   )
 
@@ -417,52 +415,32 @@ describe('hands', () => {
 
 describe('results', () => {
   test(`base total: ~ '${expectedBaseTotal}'`, () => {
-    const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [results.baseTotal, expectedBaseTotal],
-      tolerancePercent
-    )
-    expect(valueAreCloseEnough).toBeTruthy()
+    expect([results.baseTotal, expectedBaseTotal]).toBeWithinTolerance(tolerancePercent)
   })
 
   test(`quote total: ~ '${expectedQuoteTotal}'`, () => {
-    const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [results.quoteTotal, expectedQuoteTotal],
-      tolerancePercent
-    )
-    expect(valueAreCloseEnough).toBeTruthy()
+    expect([results.quoteTotal, expectedQuoteTotal]).toBeWithinTolerance(tolerancePercent)
   })
 
   test(`base converted to quote at last price: ~ '${expectedBaseAtLastPriceToQuoteTotal}'`, () => {
-    const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [
-        results.baseConvertedToQuoteAtLastPrice,
-        expectedBaseAtLastPriceToQuoteTotal,
-      ],
-      tolerancePercent
-    )
-    expect(valueAreCloseEnough).toBeTruthy()
+    expect([
+      results.baseConvertedToQuoteAtLastPrice,
+      expectedBaseAtLastPriceToQuoteTotal,
+    ]).toBeWithinTolerance(tolerancePercent)
   })
 
   test(`pair total as quote: ~ '${expectedPairTotalAsQuoteAtLastPrice}'`, () => {
-    const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [
-        results.pairTotalAsQuoteAtLastPrice,
-        expectedPairTotalAsQuoteAtLastPrice,
-      ],
-      tolerancePercent
-    )
-    expect(valueAreCloseEnough).toBeTruthy()
+    expect([
+      results.pairTotalAsQuoteAtLastPrice,
+      expectedPairTotalAsQuoteAtLastPrice,
+    ]).toBeWithinTolerance(tolerancePercent)
   })
 
   test(`pair total as quote when all sold: ~ '${expectedPairTotalAsQuoteWhenAllSold}'`, () => {
-    const valueAreCloseEnough: boolean = valuesAreWithinTolerance(
-      [
-        results.pairTotalAsQuoteWhenAllSold,
-        expectedPairTotalAsQuoteWhenAllSold,
-      ],
-      tolerancePercent
-    )
-    expect(valueAreCloseEnough).toBeTruthy()
+    expect([
+      results.pairTotalAsQuoteWhenAllSold,
+      expectedPairTotalAsQuoteWhenAllSold,
+    ]).toBeWithinTolerance(tolerancePercent)
   })
 
   test(`buy count total: ${expectedBuyCountTotal}`, () => {

@@ -61,7 +61,7 @@ export function trimDecimalsToFixed<T extends string | number>(
   decimalsToRetain: number
 ): string | number | void {
   if (!isNumeric(value)) {
-    throw new Error(Messages.IS_NOT_A_NUMBER)
+    throw new Error(Messages.IS_NOT_NUMBER)
   } else if (Number.isInteger(+value)) {
     return value
   } else if (typeof value === 'string') {
@@ -89,21 +89,6 @@ export function zeroIndexPositiveInteger(value: number): number {
   }
 
   return value - 1
-}
-
-export function valuesAreWithinTolerance(
-  values: (string | number)[],
-  tolerancePercent: number
-): boolean {
-  values = values.map((value: string | number) => +value)
-
-  const minValue: number = Math.min(...(values as number[]))
-  const maxValue: number = Math.max(...(values as number[]))
-  const toleranceDecimal: Big = Big(tolerancePercent).div(100)
-  const increase: Big = Big(minValue).mul(toleranceDecimal)
-  const toleranceCeiling: Big = increase.plus(minValue)
-
-  return toleranceCeiling.gte(maxValue)
 }
 
 /* unit test only: simulate buy and sell operations by adding difference between buy and sell prices to quote. return value has trade fee x2 deducted and is approximate */

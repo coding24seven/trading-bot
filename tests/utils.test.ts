@@ -1,11 +1,10 @@
 import Messages from '../source/types/messages'
 import {
+  assertNumericString,
   countDecimals,
   isNumeric,
   trimDecimalsToFixed,
-  assertNumericString,
-  valuesAreWithinTolerance,
-  zeroIndexPositiveInteger,
+  zeroIndexPositiveInteger
 } from '../source/utils'
 
 const errorMessage = 'some error message'
@@ -103,11 +102,11 @@ describe('utils', () => {
   )
 
   test.each(invalidNumbersToTrim)(
-    `invalid number %p attempted trimming to %i decimals throws: ${Messages.IS_NOT_A_NUMBER}`,
+    `invalid number %p attempted trimming to %i decimals throws: ${Messages.IS_NOT_NUMBER}`,
     (value: string, decimalsToRetain: number) => {
       expect(() => {
         expect(trimDecimalsToFixed(value, decimalsToRetain))
-      }).toThrow(Messages.IS_NOT_A_NUMBER)
+      }).toThrow(Messages.IS_NOT_NUMBER)
     }
   )
 
@@ -167,9 +166,11 @@ describe('utils', () => {
       tolerancePercent: number,
       expected: boolean
     ) => {
-      expect(
-        valuesAreWithinTolerance([minValue, maxValue], tolerancePercent)
-      ).toBe(expected)
+      const values = expected ?
+        expect([minValue, maxValue]) :
+        expect([minValue, maxValue]).not
+
+      values.toBeWithinTolerance(tolerancePercent)
     }
   )
 })
