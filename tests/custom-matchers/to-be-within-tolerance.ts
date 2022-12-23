@@ -2,10 +2,14 @@ import Big from "big.js";
 import type { MatcherFunction } from 'expect';
 import Messages from "../../source/types/messages";
 
+/**
+ * @param {[number, number] | [string, string]} values
+ * @param {number} tolerancePercent
+ */
 export const toBeWithinTolerance: MatcherFunction<[
   tolerancePercent: number
 ]> = function (
-  values /* [number, number] | [string, string] */,
+  values,
   tolerancePercent
 ) {
     if (!Array.isArray(values)) {
