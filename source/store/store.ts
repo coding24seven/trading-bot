@@ -61,17 +61,8 @@ class Store {
     this.accountsEnvironment = this.readAccountsEnvironment()
     this.databaseDriver = new DatabaseDriver(this.appEnvironment)
 
-    const allSymbolsData = await Exchange.getAllSymbolsData()
-    if (!allSymbolsData) {
-      throw new Error(Messages.EXCHANGE_SYMBOL_DATA_RESPONSE_FAILED)
-    }
-    this.allSymbolsData = allSymbolsData
-
-    const allTickers = await Exchange.getAllTickers()
-    if (!allTickers) {
-      throw new Error(Messages.EXCHANGE_ALL_TICKERS_RESPONSE_FAILED)
-    }
-    this.allTickers = allTickers
+    this.allSymbolsData = await Exchange.getAllSymbolsData() as KucoinSymbolData[]
+    this.allTickers = await Exchange.getAllTickers() as KucoinTicker[]
 
     for (const accountConfig of this.accountsEnvironment) {
       this.botConfigsStaticPerAccount.push(
