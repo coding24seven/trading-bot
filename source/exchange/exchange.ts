@@ -58,7 +58,7 @@ export class Exchange {
       const response: KucoinGetAllTickersResponse = await kucoin.getAllTickers()
 
       if (response.code !== ExchangeCodes.responseSuccess) {
-        return
+        throw new Error(JSON.stringify({ code: response.code }))
       }
 
       return response.data.ticker
@@ -90,7 +90,7 @@ export class Exchange {
       const response: KucoinSymbolsResponse = await kucoin.getSymbols()
 
       if (response.code !== ExchangeCodes.responseSuccess) {
-        return
+        throw new Error(JSON.stringify({ code: response.code }))
       }
 
       return response.data
