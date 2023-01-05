@@ -4,9 +4,9 @@ This repository contains the source code and documentation powering the trading-
 
 ## Purpose
 
-1. Obtains trading results based on a custom configuration pitched against historical prices
+1. Obtains trading results based on custom configuration pitched against historical prices
 1. Generates winning bot configurations based on historical prices
-1. Trades live on an exchange (Kucoin)
+1. Trades live on exchange (Kucoin)
 
 ## Getting started
 
@@ -14,11 +14,6 @@ This repository contains the source code and documentation powering the trading-
 
 1. Node: any 16.x version starting with v16.2.0 or greater
 1. A clone of [trading bot](https://github.com/coding24seven/trading-bot) on your local machine
-
-#### for trading
-
-1. A clone of [trading bot-database](https://github.com/coding24seven/trading-bot-database) running on your local
-   machine
 
 #### for historical-price analysis and winning bot-config generation
 
@@ -51,7 +46,7 @@ This repository contains the source code and documentation powering the trading-
 
 1. `new-or-continue` create new database if it does not exist, or continue with existing database, then make bot trade on exchange
 1. `npm run delete` delete database
-1. `npm run historical -- <historical-file path(s) or directory path> -c price-column` analyse performance of specific bot configuations in botConfig.ts against historical data in provided files. Example: `npm run historical -- historical-price-files/BTCUSDT-1m-2021-05.csv -c 3`
+1. `npm run historical -- <historical-file path(s) or directory path> -c price-column` analyse performance of specific bot configurations in botConfig.ts against historical data in provided files. Example: `npm run historical -- historical-price-files/BTCUSDT-1m-2021-04.csv -c 4`
 1. `npm run generate -- <historical-file path(s) or directory path> -c price-column` obtain winning bot configurations generated through Comparator.ts. Example: `npm run -- generate historical-price-files -c 2`
 1. `npm run log` log out store's state populated with bot configurations from botConfig.ts
 1. `npm run collect BTC-USDT output-file-path.csv` (or any other valid symbol in place of `BTC-USDT`) display live exchange prices for symbol while saving them to file
